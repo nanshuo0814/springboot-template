@@ -14,6 +14,8 @@ public enum ErrorCode {
     SUCCESS(20000, "操作成功"),
     PARAMS_ERROR(40000, "请求参数错误"),
     PARAMS_NULL(40001, "请求参数为空"),
+    PARAMS_LENGTH_ERROR(40002, "请求参数长度不符合要求"),
+    PARAMS_FORMAT_ERROR(40003, "请求参数格式不符合要求"),
     NOT_LOGIN_ERROR(40100, "未登录"),
     NO_AUTH_ERROR(40101, "无权限"),
     NOT_FOUND_ERROR(40400, "请求数据不存在"),

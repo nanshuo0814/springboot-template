@@ -85,6 +85,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
         <!-- https://doc.xiaominfo.com/knife4j/documentation/get_start.html-->
 <!--        <dependency>-->
 <!--            <groupId>com.github.xiaoymin</groupId>-->
@@ -124,11 +129,6 @@
 <!--            <groupId>org.apache.commons</groupId>-->
 <!--            <artifactId>commons-email</artifactId>-->
 <!--            <version>${email.version}</version>-->
-<!--        </dependency>-->
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.commons</groupId>-->
-<!--            <artifactId>commons-lang3</artifactId>-->
 <!--        </dependency>-->
         <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
 <!--        <dependency>-->

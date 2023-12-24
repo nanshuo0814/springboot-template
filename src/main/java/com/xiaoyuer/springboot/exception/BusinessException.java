@@ -2,6 +2,7 @@ package com.xiaoyuer.springboot.exception;
 
 
 import com.xiaoyuer.springboot.common.ErrorCode;
+import lombok.Getter;
 
 /**
  * 业务异常
@@ -10,6 +11,7 @@ import com.xiaoyuer.springboot.common.ErrorCode;
  * @author 小鱼儿
  * @date 2023/12/23 18:35:31
  */
+@Getter
 public class BusinessException extends RuntimeException {
 
     /**
@@ -32,7 +34,4 @@ public class BusinessException extends RuntimeException {
         this.code = errorCode.getCode();
     }
 
-    public int getCode() {
-        return code;
-    }
 }
