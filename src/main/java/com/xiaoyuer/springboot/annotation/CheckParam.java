@@ -1,6 +1,7 @@
 package com.xiaoyuer.springboot.annotation;
 
 
+import com.xiaoyuer.springboot.constant.NumberConstant;
 import com.xiaoyuer.springboot.model.enums.VerifyRegexEnums;
 
 import java.lang.annotation.*;
@@ -28,14 +29,14 @@ public @interface CheckParam {
      *
      * @return int
      */
-    int minLength() default -1;
+    int minLength() default NumberConstant.NO_MIN_LENGTH;
 
     /**
      * 最大长度
      *
      * @return int
      */
-    int maxLength() default -1;
+    int maxLength() default NumberConstant.NO_MAX_LENGTH;
 
     /**
      * 必填

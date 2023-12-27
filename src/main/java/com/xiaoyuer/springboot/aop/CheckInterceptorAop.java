@@ -3,7 +3,9 @@ package com.xiaoyuer.springboot.aop;
 import com.xiaoyuer.springboot.annotation.Check;
 import com.xiaoyuer.springboot.annotation.CheckParam;
 import com.xiaoyuer.springboot.common.ErrorCode;
+import com.xiaoyuer.springboot.constant.NumberConstant;
 import com.xiaoyuer.springboot.exception.BusinessException;
+import com.xiaoyuer.springboot.model.enums.VerifyRegexEnums;
 import com.xiaoyuer.springboot.utils.RegexUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -20,15 +22,15 @@ import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
 /**
- * 检查AOP
+ * 检查拦截器 AOP
  *
  * @author 小鱼儿
- * @date 2023/12/24 14:17:40
+ * @date 2023/12/25 19:42:06
  */
 @Slf4j
 @Aspect
-@Component("CheckAop")
-public class CheckAop {
+@Component("CheckInterceptorAop")
+public class CheckInterceptorAop {
 
     /**
      * 切入点
@@ -38,43 +40,42 @@ public class CheckAop {
     }
 
     /**
-     * 在方法执行之前进行全局拦截
+     * 拦截器
      *
-     * @param joinPoint joinPoint对象，包含了被拦截的方法的信息
-     * @throws BusinessException 如果全局拦截器抛出了BusinessException异常
+     * @param joinPoint 加入点
+     * @throws BusinessException 业务异常
      */
     @Before("pointcut()")
     public void interceptor(JoinPoint joinPoint) throws BusinessException {
         try {
-            // 获取当前方法的目标对象
+            // 获取目标对象
             Object target = joinPoint.getTarget();
-            // 获取当前方法的参数数组
+            // 获取方法参数
             Object[] arguments = joinPoint.getArgs();
-            // 获取当前方法的名称
+            // 获取方法名称
             String methodName = joinPoint.getSignature().getName();
-            // 获取当前方法的参数类型数组
+            // 获取方法参数类型
             Class<?>[] parameterTypes = ((MethodSignature) joinPoint.getSignature()).getMethod().getParameterTypes();
-            // 根据方法名称和参数类型数组，在目标对象的类中获取对应的方法
+            // 获取方法对象
             Method method = target.getClass().getMethod(methodName, parameterTypes);
-            // 判断获取到的方法是否有Check注解
+
+            // 检查方法是否有@Check注解
             Check interceptor = method.getAnnotation(Check.class);
-            // 如果没有，则直接返回
             if (null == interceptor) {
                 return;
             }
-            // 校验参数
+
+            // 如果有@Check注解，则检查参数
             if (interceptor.checkParam()) {
                 validateParams(method, arguments);
             }
-            // 校验权限
-            //if (interceptor.checkAuth()) {
-            //    validateAuth(method, arguments);
-            //}
         } catch (BusinessException e) {
-            log.error("拦截器捕获到业务异常 - 方法: {}, 参数: {}", joinPoint.getSignature().toShortString(), Arrays.toString(joinPoint.getArgs()), e);
+            // 捕获业务异常，记录日志并抛出
+            log.error("拦截到业务异常 - 方法: {}, 参数: {}", joinPoint.getSignature().toShortString(), Arrays.toString(joinPoint.getArgs()), e);
             throw e;
         } catch (Throwable e) {
-            log.error("拦截器捕获到系统异常 - 方法: {}, 参数: {}", joinPoint.getSignature().toShortString(), Arrays.toString(joinPoint.getArgs()), e);
+            // 捕获其他异常，记录日志并抛出业务异常
+            log.error("拦截到系统异常 - 方法: {}, 参数: {}", joinPoint.getSignature().toShortString(), Arrays.toString(joinPoint.getArgs()), e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);
         }
     }
@@ -83,56 +84,55 @@ public class CheckAop {
      * 验证参数
      *
      * @param method    方法
-     * @param arguments 参数数组
+     * @param arguments 参数
+     * @throws BusinessException 业务异常
      */
     private void validateParams(Method method, Object[] arguments) throws BusinessException {
         // 获取方法参数
         Parameter[] parameters = method.getParameters();
-        // 遍历参数数组
+        // 遍历参数
         for (int i = 0; i < parameters.length; i++) {
-
             // 获取当前参数
             Parameter parameter = parameters[i];
 
-            // 根据参数类型进行不同的校验逻辑
+            // 判断参数类型
             if (isBasicType(parameter.getType())) {
-                // 基本数据类型
-                // 获取传入的参数值
-                Object value = arguments[i];
-                if (value == null) {
-                    throw new BusinessException(ErrorCode.PARAMS_NULL);
-                }
                 // 获取参数注解
                 CheckParam verifyParam = parameter.getAnnotation(CheckParam.class);
+                // 如果是基本数据类型
+                Object value = arguments[i];
+                String stringValue = String.valueOf(value);
                 if (verifyParam != null) {
-                    // 如果参数不是必须的,不检查该参数
-                    if (!verifyParam.required()) {
+                    // 如果参数不是必须的，且没有其他验证规则，则跳过验证
+                    if (!verifyParam.required() && verifyParam.minLength() == NumberConstant.NO_MIN_LENGTH && verifyParam.maxLength() == NumberConstant.NO_MAX_LENGTH && verifyParam.regex().equals(VerifyRegexEnums.NO)) {
                         break;
                     } else {
-                        checkBasicValue(value, verifyParam);
+                        checkBasicValue(stringValue, verifyParam);
                     }
                 } else {
-                    if (value == "") {
-                        throw new BusinessException(ErrorCode.PARAMS_NULL);
+                    // 如果参数没有注解，直接检查是否为空
+                    if (StringUtils.isEmpty(stringValue)) {
+                        throw new BusinessException(ErrorCode.PARAMS_NULL, "请求参数的值为空");
                     }
                 }
             } else {
-                // 如果传递的是对象
+                // 如果是对象类型
                 Object value = arguments[i];
-                // 如果对象为空
                 if (value == null) {
                     throw new BusinessException(ErrorCode.PARAMS_NULL);
                 }
-                // 对象不为空，获取参数注解
+
+                // 获取参数注解
                 CheckParam verifyParam = parameter.getAnnotation(CheckParam.class);
                 if (verifyParam != null) {
-                    // 如果参数不是必须的,不检查该参数
+                    // 如果参数不是必须的，则跳过验证
                     if (!verifyParam.required()) {
                         break;
                     } else {
                         checkObjValue(parameter, value);
                     }
                 } else {
+                    // 如果参数没有注解，直接检查是否为空
                     checkObjValue(parameter, value);
                 }
             }
@@ -146,55 +146,52 @@ public class CheckAop {
      * @return boolean
      */
     private boolean isBasicType(Class<?> type) {
+        // 判断是否为基本数据类型
         return type.isPrimitive() || type.equals(String.class) || Number.class.isAssignableFrom(type);
     }
 
     /**
-     * 检查值是否符合验证参数的要求
+     * 检查基本类型值
      *
-     * @param value      待检查的值
-     * @param checkParam 验证参数对象
-     * @throws BusinessException 如果值不符合验证参数的要求则抛出业务异常
+     * @param value      值
+     * @param checkParam 检查参数
+     * @throws BusinessException 业务异常
      */
-    private void checkBasicValue(Object value, CheckParam checkParam) throws BusinessException {
-        int length = StringUtils.length(String.valueOf(value));
+    private void checkBasicValue(String value, CheckParam checkParam) throws BusinessException {
+        // 获取值的长度
+        int length = StringUtils.length(value);
 
-        // 如果值为空且验证参数要求不能为空，则抛出业务异常
-        if (checkParam.required() && value == null || checkParam.required() && value.equals("")) {
+        // 如果值为null，且验证要求不能为空，则抛出异常
+        if (checkParam.required() && StringUtils.isEmpty(value)) {
             throw new BusinessException(ErrorCode.PARAMS_NULL);
         }
 
-        // 如果值不为空且验证参数限制了最大长度且该长度小于实际长度，或者限制了最小长度且该长度大于实际长度，则抛出业务异常
-        if (checkParam.maxLength() != -1 && checkParam.maxLength() < length || checkParam.minLength() != -1 && checkParam.minLength() > length) {
+        // 如果值不为空，且验证要求的最大长度大于0，且该长度小于实际长度
+        // 或者验证要求的最小长度大于0，且该长度大于实际长度，则抛出异常
+        if (checkParam.maxLength() != NumberConstant.NO_MAX_LENGTH && checkParam.maxLength() < length ||
+                checkParam.minLength() != NumberConstant.NO_MIN_LENGTH && checkParam.minLength() > length) {
             throw new BusinessException(ErrorCode.PARAMS_LENGTH_ERROR);
         }
 
-        // 如果值不为空且验证参数的正则表达式不为空且值不符合该正则表达式要求，则抛出业务异常
-        if (!StringUtils.isEmpty(checkParam.regex().getRegex()) && !RegexUtils.matches(checkParam.regex(), String.valueOf(value))) {
+        // 如果值不为空，且验证要求的正则表达式不为空，且值不符合该正则表达式要求，则抛出异常
+        if (!StringUtils.isEmpty(checkParam.regex().getRegex()) && !RegexUtils.matches(checkParam.regex(), value)) {
             throw new BusinessException(ErrorCode.PARAMS_FORMAT_ERROR);
         }
     }
 
     /**
-     * 检查对象值
+     * 检查对象类型值
      *
      * @param parameter 参数
      * @param value     值
      * @throws BusinessException 业务异常
      */
     private void checkObjValue(Parameter parameter, Object value) throws BusinessException {
-        // 校验参数值
         try {
             // 获取参数类型名称
             String typeName = parameter.getParameterizedType().getTypeName();
             // 根据类型名称获取Class对象
-            Class<?> aClass;
-            try {
-                aClass = Class.forName(typeName);
-            } catch (ClassNotFoundException e) {
-                log.error("未找到类: {}", typeName, e);
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "未找到类: " + typeName);
-            }
+            Class<?> aClass = Class.forName(typeName);
 
             // 获取Class对象的DeclaredFields数组
             Field[] fields = aClass.getDeclaredFields();
@@ -204,7 +201,8 @@ public class CheckAop {
                 CheckParam fieldVerifyParam = field.getAnnotation(CheckParam.class);
                 // 设置字段为可访问状态
                 field.setAccessible(true);
-                // 如果字段有CheckParam注解，则根据注解校验的规则进行参数值校验
+
+                // 如果字段有CheckParam注解，则根据注解进行参数值校验
                 if (fieldVerifyParam != null) {
                     // 获取字段的值
                     Object resultValue = field.get(value);
@@ -217,7 +215,7 @@ public class CheckAop {
                         break;
                     }
                     // 根据字段的VerifyParam注解进行参数值校验
-                    checkBasicValue(resultValue, fieldVerifyParam);
+                    checkBasicValue(String.valueOf(resultValue), fieldVerifyParam);
                 } else {
                     // 如果字段没有CheckParam注解，则直接校验该字段的值
                     if (field.get(value) == null) {
@@ -225,6 +223,10 @@ public class CheckAop {
                     }
                 }
             }
+        } catch (ClassNotFoundException e) {
+            // 异常处理：未找到类
+            log.error("未找到类: {}", e.getMessage(), e);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "未找到类: " + e.getMessage());
         } catch (IllegalAccessException e) {
             // 异常处理：无法访问字段
             log.error("无法访问字段: {}", e.getMessage(), e);
@@ -235,5 +237,4 @@ public class CheckAop {
             throw e;
         }
     }
-
 }

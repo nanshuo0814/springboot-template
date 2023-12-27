@@ -4,6 +4,7 @@ import com.xiaoyuer.springboot.annotation.Check;
 import com.xiaoyuer.springboot.annotation.CheckParam;
 import com.xiaoyuer.springboot.common.BaseResponse;
 import com.xiaoyuer.springboot.common.ResultUtils;
+import com.xiaoyuer.springboot.model.enums.VerifyRegexEnums;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,8 +16,8 @@ public class TestCheckController {
      * @Check + 基本类型
      */
     @GetMapping("/test1")
-    @Check(checkParam = true)
-    public BaseResponse<Long> test1(@CheckParam(required = false) Long param) {
+    //@Check(checkParam = true)
+    public BaseResponse<Long> test1(@CheckParam(required = true, minLength = 2,maxLength = 6,regex = VerifyRegexEnums.CHECK_CODE) Long param) {
         return ResultUtils.success(param);
     }
 
@@ -24,18 +25,17 @@ public class TestCheckController {
      * @Check + 基本类型 + @CheckParam(required = false)
      */
     @GetMapping("/test2")
-    @Check(checkParam = true)
-    public BaseResponse<Long> test2(@CheckParam(required = false) Long param, String param2) {
+    public BaseResponse<Long> test2(@CheckParam(required = true) Long param, String param2) {
         return ResultUtils.success(param);
     }
 
     /**
      * @Check + 基本类型 + @CheckParam(required = true)
      */
-    @GetMapping("/test3")
+    @PostMapping("/test3")
     @Check(checkParam = true)
-    public BaseResponse<Long> test3(Long param, @CheckParam(required = true) String param2) {
-        return ResultUtils.success(param);
+    public BaseResponse<TestDto> test3(@CheckParam(required = false, minLength = 2,maxLength = 6,regex = VerifyRegexEnums.CHECK_CODE) Long param, TestDto TestDto) {
+        return ResultUtils.success(TestDto);
     }
 
     /**
