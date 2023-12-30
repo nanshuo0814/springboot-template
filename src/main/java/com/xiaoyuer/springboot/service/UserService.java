@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.xiaoyuer.springboot.model.dto.user.UserRegisterDto;
 import com.xiaoyuer.springboot.model.entity.User;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * 用户服务
  *
@@ -19,4 +21,6 @@ public interface UserService extends IService<User> {
      * @return 注册成功的用户id
      */
     long userRegister(UserRegisterDto userRegisterDto);
+
+    User getLoginUser(HttpServletRequest request);
 }

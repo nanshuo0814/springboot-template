@@ -8,6 +8,8 @@ import com.xiaoyuer.springboot.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * 用户服务实现
  *
@@ -63,5 +65,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //    return user.getId();
         //}
         return 1L;
+    }
+
+    @Override
+    public User getLoginUser(HttpServletRequest request) {
+        return null;
     }
 }

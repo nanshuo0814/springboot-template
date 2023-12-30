@@ -6,7 +6,7 @@ import java.lang.annotation.*;
  * 检查
  *
  * @author 小鱼儿
- * @date 2023/12/24 13:32:30
+ * @date 2023/12/31 00:10:34
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
@@ -21,11 +21,11 @@ public @interface Check {
     boolean checkParam() default false;
 
     /**
-     * 检查身份验证
+     * 检查身份验证(user,admin,ban)
      *
-     * @return boolean
+     * @return {@code String}
      */
-    boolean checkAuth() default false;
+    String checkAuth() default "";
 
 }
 

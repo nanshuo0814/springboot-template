@@ -1,6 +1,7 @@
 package com.xiaoyuer.springboot.controller;
 
 import com.xiaoyuer.springboot.annotation.Check;
+import com.xiaoyuer.springboot.annotation.CheckAuth;
 import com.xiaoyuer.springboot.annotation.CheckParam;
 import com.xiaoyuer.springboot.common.BaseResponse;
 import com.xiaoyuer.springboot.common.ResultUtils;
@@ -16,8 +17,9 @@ public class TestCheckController {
      * @Check + 基本类型
      */
     @GetMapping("/test1")
-    //@Check(checkParam = true)
-    public BaseResponse<Long> test1(@CheckParam(required = true, minLength = 2,maxLength = 6,regex = VerifyRegexEnums.CHECK_CODE) Long param) {
+    @CheckAuth(mustRole = "user")
+    @Check(checkParam = true,checkAuth = "ban")
+    public BaseResponse<Long> test1(@CheckParam(required = false) Long param) {
         return ResultUtils.success(param);
     }
 
