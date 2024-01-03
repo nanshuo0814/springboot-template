@@ -10,13 +10,23 @@ public interface NumberConstant {
 
 
     /**
-     * 无最小长度
+     * 默认值
      */
-    int NO_MIN_LENGTH = -1;
+    int DEFAULT_VALUE = -1;
 
     /**
-     * 无最大长度
+     * 假值
      */
-    int NO_MAX_LENGTH = -1;
+    int FALSE_VALUE = 0;
+
+    /**
+     * 真值
+     */
+    int TRUE_VALUE = 1;
+
+    /**
+     * 邮箱验证码6位
+     */
+    int EMAIL_CODE_LENGTH = 6;
 
 }

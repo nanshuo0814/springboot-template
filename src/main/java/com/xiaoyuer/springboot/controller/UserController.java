@@ -1,8 +1,10 @@
 package com.xiaoyuer.springboot.controller;
 
 import com.xiaoyuer.springboot.annotation.Check;
+import com.xiaoyuer.springboot.annotation.CheckParam;
 import com.xiaoyuer.springboot.common.BaseResponse;
 import com.xiaoyuer.springboot.common.ResultUtils;
+import com.xiaoyuer.springboot.constant.NumberConstant;
 import com.xiaoyuer.springboot.model.dto.user.UserRegisterDto;
 import com.xiaoyuer.springboot.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -36,12 +38,16 @@ public class UserController {
     @PostMapping("/register")
     @Check(checkParam = true)
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterDto userRegisterDto) {
-        // 检查注册信息是否为空
-        //ThrowUtils.throwIfNull(userRegisterDto);
-        // 调用用户注册服务方法
-        long result = userService.userRegister(userRegisterDto);
-        // 返回注册结果
-        return ResultUtils.success(result);
+        // 调用用户注册服务方法,返回注册结果
+        return ResultUtils.success(userService.userRegister(userRegisterDto));
+    }
+
+    @PostMapping("/login")
+    @Check(checkParam = true, checkAuth = "user")
+    public BaseResponse<UserRegisterDto> userLogin(
+            @CheckParam(required = NumberConstant.TRUE_VALUE, nullErrorMsg = "token不能为空") String token,
+            @RequestBody @CheckParam(required = NumberConstant.TRUE_VALUE) UserRegisterDto userRegisterDto) {
+        return ResultUtils.success(userRegisterDto);
     }
 
 }

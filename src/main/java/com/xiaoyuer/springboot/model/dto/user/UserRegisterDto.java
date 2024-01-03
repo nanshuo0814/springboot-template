@@ -15,21 +15,21 @@ import java.io.Serializable;
 @Data
 public class UserRegisterDto implements Serializable {
 
-    @CheckParam(regex = VerifyRegexEnums.USERNAME)
+    @CheckParam(nullErrorMsg = "用户名不能为空", regex = VerifyRegexEnums.USERNAME, regexErrorMsg = "用户名只能包含字母、数字或汉字")
     private String userName;
 
-    @CheckParam(regex = VerifyRegexEnums.ACCOUNT)
+    @CheckParam(nullErrorMsg = "账号不能为空", minLength = 3, maxLength = 11, lenghtErrorMsg = "账号长度必须在3-11之间", regex = VerifyRegexEnums.ACCOUNT, regexErrorMsg = "账号必须以字母开头且只能包含字母、数字或下划线")
     private String userAccount;
 
-    @CheckParam(regex = VerifyRegexEnums.PASSWORD)
+    @CheckParam(nullErrorMsg = "密码不能为空", minLength = 6, maxLength = 18, lenghtErrorMsg = "密码长度必须在6-18之间", regex = VerifyRegexEnums.PASSWORD, regexErrorMsg = "密码必须包含字母、数字或特殊字符")
     private String userPassword;
 
-    @CheckParam(regex = VerifyRegexEnums.PASSWORD)
+    @CheckParam(nullErrorMsg = "第二遍输入的密码不能为空", minLength = 6, maxLength = 18, lenghtErrorMsg = "第二遍输入的密码长度必须在6-18之间", regex = VerifyRegexEnums.PASSWORD, regexErrorMsg = "第二遍输入的密码必须包含字母、数字或特殊字符")
     private String checkPassword;
 
-    @CheckParam(regex = VerifyRegexEnums.EMAIL)
+    @CheckParam(nullErrorMsg = "邮箱不能为空", regex = VerifyRegexEnums.EMAIL, regexErrorMsg = "邮箱格式不正确")
     private String email;
 
-    @CheckParam(regex = VerifyRegexEnums.CHECK_CODE)
+    @CheckParam(nullErrorMsg = "验证码不能为空", regex = VerifyRegexEnums.CHECK_CODE, regexErrorMsg = "验证码必须是6位")
     private String checkCode;
 }

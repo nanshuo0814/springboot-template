@@ -29,19 +29,41 @@ public @interface CheckParam {
      *
      * @return int
      */
-    int minLength() default NumberConstant.NO_MIN_LENGTH;
+    int minLength() default NumberConstant.DEFAULT_VALUE;
 
     /**
      * 最大长度
      *
      * @return int
      */
-    int maxLength() default NumberConstant.NO_MAX_LENGTH;
+    int maxLength() default NumberConstant.DEFAULT_VALUE;
 
     /**
-     * 必填
+     * 必填项(0:非必填 1:必填)
      *
-     * @return boolean
+     * @return int
      */
-    boolean required() default false;
+    int required() default NumberConstant.DEFAULT_VALUE;
+
+    /**
+     * 正则表达式错误消息
+     *
+     * @return {@code String}
+     */
+    String regexErrorMsg() default "请求的参数格式不正确";
+
+    /**
+     * null错误消息
+     *
+     * @return {@code String}
+     */
+    String nullErrorMsg() default "请求的参数为空";
+
+    /**
+     * 长度错误信息
+     *
+     * @return {@code String}
+     */
+    String lenghtErrorMsg() default "请求的参数长度不符合要求";
+
 }

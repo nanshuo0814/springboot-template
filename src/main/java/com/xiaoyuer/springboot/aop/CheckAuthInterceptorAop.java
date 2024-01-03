@@ -63,7 +63,6 @@ public class CheckAuthInterceptorAop {
             }
 
             String userRole = loginUser.getUserRole();
-
             // 如果用户被封号，直接拒绝
             if (UserRoleEnum.BAN.equals(mustUserRoleEnum)) {
                 throw new BusinessException(ErrorCode.NO_AUTH_ERROR);

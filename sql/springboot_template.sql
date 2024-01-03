@@ -12,13 +12,13 @@ USE `springboot_template`;
 CREATE TABLE IF NOT EXISTS `user`
 (
     `user_id`       BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT '用户id',
-    `user_account`  VARCHAR(11)                          NOT NULL COMMENT '用户账号',
+    `user_account`  VARCHAR(16)                          NOT NULL COMMENT '用户账号',
     `user_password` VARCHAR(256)                         NOT NULL COMMENT '用户密码',
     `union_id`      VARCHAR(256)                         NULL COMMENT '微信开放平台id',
     `mp_open_id`    VARCHAR(256)                         NULL COMMENT '公众号openId',
     `user_name`     VARCHAR(256)                         NULL COMMENT '用户昵称',
     `user_gender`   TINYINT    DEFAULT 2                 NULL COMMENT '0-女，1-男，2-未知',
-    `user_email`    VARCHAR(32)                          NULL COMMENT '邮箱',
+    `user_email`    VARCHAR(255)                         NULL COMMENT '邮箱',
     `user_avatar`   VARCHAR(1024)                        NULL COMMENT '用户头像',
     `user_profile`  VARCHAR(512)                         NULL COMMENT '用户简介',
     `user_role`     VARCHAR(5) DEFAULT 'user'            NOT NULL COMMENT '用户角色：user/admin/ban',

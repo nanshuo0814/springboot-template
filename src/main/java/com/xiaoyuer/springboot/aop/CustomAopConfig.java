@@ -1,5 +1,6 @@
 package com.xiaoyuer.springboot.aop;
 
+import com.xiaoyuer.springboot.annotation.Check;
 import com.xiaoyuer.springboot.annotation.CheckAuth;
 import com.xiaoyuer.springboot.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
@@ -7,9 +8,12 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+
+import java.lang.reflect.Method;
 
 /**
  * 自定义 AOP 配置类，用于配置切面拦截器。
@@ -79,6 +83,25 @@ public class CustomAopConfig {
     @Before("checkPointcut()")
     public void doCheckInterceptor(JoinPoint joinPoint) throws BusinessException {
         checkInterceptorAop.interceptor(joinPoint);
+        // 判断 @Check 注解里的 checkParam 属性，如果为 false，则执行 doCheckParamInterceptor 的拦截逻辑。
+        if (!checkParamEnabled(joinPoint)) {
+            doCheckParamInterceptor(joinPoint);
+        }
+    }
+
+    /**
+     * 选中已启用参数
+     *
+     * @param joinPoint 连接点
+     * @return boolean
+     */
+    private boolean checkParamEnabled(JoinPoint joinPoint) {
+        // 获取当前切入点方法的注解
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Method method = signature.getMethod();
+        Check checkAnnotation = method.getAnnotation(Check.class);
+        // 如果注解存在，并且 checkParam 为 false，则返回 false
+        return checkAnnotation.checkParam();
     }
 
     /**
