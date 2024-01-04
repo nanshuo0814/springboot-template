@@ -49,19 +49,4 @@ public interface UserService extends IService<User> {
      * @return {@code UserLoginVO}
      */
     UserLoginVO getLoginUserVO(User user);
-
-    /**
-     * 根据用户ID从缓存中获取用户信息
-     * @param userId 用户ID
-     * @return 用户信息，如果不存在则返回 null
-     */
-    User getUserCacheById(Long userId);
-
-    /**
-     * 将用户信息存入缓存
-     * @param user 用户信息
-     */
-    void saveUserToCache(User user);
-
-    Boolean userLogout(HttpServletRequest request);
 }
