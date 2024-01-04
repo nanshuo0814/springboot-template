@@ -30,6 +30,9 @@ public class UserRegisterDto implements Serializable {
     @CheckParam(nullErrorMsg = "邮箱不能为空", regex = VerifyRegexEnums.EMAIL, regexErrorMsg = "邮箱格式不正确")
     private String email;
 
-    @CheckParam(nullErrorMsg = "验证码不能为空", regex = VerifyRegexEnums.CHECK_CODE, regexErrorMsg = "验证码必须是6位")
-    private String checkCode;
+    @CheckParam(nullErrorMsg = "邮箱验证码不能为空", regex = VerifyRegexEnums.EMAIL_CODE, regexErrorMsg = "邮箱验证码必须是6位")
+    private String emailCode;
+
+    @CheckParam(nullErrorMsg = "图片验证码不能为空", regex = VerifyRegexEnums.IMAGE_CODE, regexErrorMsg = "图片验证码必须是6位")
+    private String imageCode;
 }

@@ -9,11 +9,22 @@ package com.xiaoyuer.springboot.constant;
 public interface RedisKeyConstant {
 
     /**
-     * 验证码前缀
+     * 邮箱验证码key
      */
-    String YZM_PRE = "yzm:";
+    String EMAIL_CODE_KEY = "email_code:";
+
     /**
-     * 验证码过期时间（s）
+     * 邮箱验证码过期时间（s）
      */
-    Integer YZM_TIME_OUT = 60;
+    Integer EMAIL_CODE_TIME_OUT = 60;
+
+    /**
+     * 图片验证码key
+     */
+    String IMAGE_CODE_KEY = "image_code:";
+
+    /**
+     * 图片验证码过期时间（s）
+     */
+    Integer IMAGE_CODE_TIME_OUT = 60;
 }

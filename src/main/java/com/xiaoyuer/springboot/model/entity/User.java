@@ -1,6 +1,9 @@
 package com.xiaoyuer.springboot.model.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -10,82 +13,94 @@ import java.util.Date;
  * 用户实体类
  *
  * @author 小鱼儿
- * @date 2023/12/23 16:28:38
+ * @TableName user
+ * @date 2024/01/04 14:43:30
  */
-@TableName(value = "user")
+@TableName(value ="user")
 @Data
 public class User implements Serializable {
-
     /**
-     * id
+     * 用户id
      */
-    @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    @TableId(value = "user_id", type = IdType.ASSIGN_ID)
+    private Long userId;
 
     /**
      * 用户账号
      */
+    @TableField(value = "user_account")
     private String userAccount;
 
     /**
      * 用户密码
      */
+    @TableField(value = "user_password")
     private String userPassword;
 
     /**
-     * 用户邮箱
+     * 微信开放平台id
      */
-    private String email;
-
-    /**
-     * 用户性别
-     */
-    private Integer gender;
-
-    /**
-     * 开放平台id
-     */
+    @TableField(value = "union_id")
     private String unionId;
 
     /**
      * 公众号openId
      */
+    @TableField(value = "mp_open_id")
     private String mpOpenId;
 
     /**
      * 用户昵称
      */
+    @TableField(value = "user_name")
     private String userName;
+
+    /**
+     * 0-女，1-男，2-未知
+     */
+    @TableField(value = "user_gender")
+    private Integer userGender;
+
+    /**
+     * 邮箱
+     */
+    @TableField(value = "user_email")
+    private String userEmail;
 
     /**
      * 用户头像
      */
+    @TableField(value = "user_avatar")
     private String userAvatar;
 
     /**
      * 用户简介
      */
+    @TableField(value = "user_profile")
     private String userProfile;
 
     /**
      * 用户角色：user/admin/ban
      */
+    @TableField(value = "user_role")
     private String userRole;
 
     /**
      * 创建时间
      */
+    @TableField(value = "create_time")
     private Date createTime;
 
     /**
      * 更新时间
      */
+    @TableField(value = "update_time")
     private Date updateTime;
 
     /**
-     * 是否删除
+     * 是否删除，0:默认，1:删除
      */
-    @TableLogic
+    @TableField(value = "is_delete")
     private Integer isDelete;
 
     @TableField(exist = false)
