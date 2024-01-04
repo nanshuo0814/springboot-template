@@ -6,16 +6,20 @@ import com.xiaoyuer.springboot.common.ErrorCode;
 import com.xiaoyuer.springboot.constant.UserConstant;
 import com.xiaoyuer.springboot.exception.BusinessException;
 import com.xiaoyuer.springboot.mapper.UserMapper;
+import com.xiaoyuer.springboot.model.dto.user.UserLoginDto;
 import com.xiaoyuer.springboot.model.dto.user.UserRegisterDto;
 import com.xiaoyuer.springboot.model.entity.User;
+import com.xiaoyuer.springboot.model.vo.user.UserLoginVO;
 import com.xiaoyuer.springboot.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -120,8 +124,139 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
+    /**
+     * 用户登录
+     *
+     * @param userLoginDto 用户登录dto
+     * @return {@code UserLoginVO}
+     */
+    @Override
+    public UserLoginVO userLogin(HttpServletRequest request, UserLoginDto userLoginDto) {
+
+        // 获取参数
+        String userAccount = userLoginDto.getUserAccount();
+        String userPassword = userLoginDto.getUserPassword();
+        String imageCode = userLoginDto.getImageCode();
+
+        // 校验图片验证码
+        if (imageCode != null) {
+            //String code = (String) redisTemplate.opsForValue().get(RedisKeyConstant.IMAGE_CODE_KEY + userLoginDto.getImageCode());
+            // TODO：测试阶段,图片验证码不校验或给定固定值
+            String code = "111111";
+            if (code == null) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "图片验证码已过期,请重新获取");
+            }
+            if (!imageCode.equals(code)) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "图片验证码错误");
+            }
+        }
+
+        // 查询用户信息
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUserAccount, userAccount);
+        User user = this.baseMapper.selectOne(queryWrapper);
+
+        if (user == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "账号或密码错误");
+        }
+
+        boolean matches = bCryptPasswordEncoder.matches(UserConstant.SALT + userPassword, user.getUserPassword());
+        if (!matches) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或密码错误");
+        }
+
+        // 记录用户的登录状态
+        request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
+
+        // 返回用户登录信息
+        return this.getLoginUserVO(user);
+    }
+
+    /**
+     * 获取登录用户vo
+     *
+     * @param user 用户
+     * @return {@code UserLoginVO}
+     */
+    @Override
+    public UserLoginVO getLoginUserVO(User user) {
+        if (user == null) {
+            return null;
+        }
+        UserLoginVO userLoginVO = new UserLoginVO();
+        BeanUtils.copyProperties(user, userLoginVO);
+        return userLoginVO;
+    }
+
+    /**
+     * 获取登录用户
+     *
+     * @param request 请求
+     * @return {@code User}
+     */
     @Override
     public User getLoginUser(HttpServletRequest request) {
-        return null;
+
+        // 先判断是否已登录,获取用户信息
+        User user = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
+        if (user == null || user.getUserId() == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+
+        // 尝试从缓存redis中通过用户id获取用户信息
+        User cachedUser = this.getUserCacheById(user.getUserId());
+
+        if (cachedUser == null) {
+            // 缓存中不存在，从数据库查询
+            cachedUser = this.getById(user.getUserId());
+
+            if (cachedUser != null) {
+                // 将用户信息放入缓存
+                this.saveUserToCache(cachedUser);
+            } else {
+                throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+            }
+        }
+        // 返回用户信息
+        return cachedUser;
+    }
+
+    /**
+     * 按id获取用户缓存
+     *
+     * @param userId 用户id
+     * @return {@code User}
+     */
+    @Override
+    public User getUserCacheById(Long userId) {
+        String cacheKey = UserConstant.USER_LOGIN_STATE_CACHE + userId;
+        return (User) redisTemplate.opsForValue().get(cacheKey);
+    }
+
+    /**
+     * 将用户保存到缓存
+     *
+     * @param user 用户
+     */
+    @Override
+    public void saveUserToCache(User user) {
+        String cacheKey = UserConstant.USER_LOGIN_STATE_CACHE + user.getUserId();
+        redisTemplate.opsForValue().set(cacheKey, user, 1, TimeUnit.HOURS);
+    }
+
+    /**
+     * 用户注销
+     *
+     * @param request 请求
+     * @return {@code Boolean}
+     */
+    @Override
+    public Boolean userLogout(HttpServletRequest request) {
+        if (request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE) == null) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "未登录");
+        }
+        // 移除登录态
+        request.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
+        return true;
     }
 }

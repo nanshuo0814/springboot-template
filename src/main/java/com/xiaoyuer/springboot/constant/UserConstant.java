@@ -19,7 +19,10 @@ public interface UserConstant {
      */
     String USER_LOGIN_STATE = "user_login";
 
-    //  region 权限
+    /**
+     * 用户登录状态缓存
+     */
+    String USER_LOGIN_STATE_CACHE = "user_login_cache";
 
     /**
      * 默认角色

@@ -1,18 +1,21 @@
 package com.xiaoyuer.springboot.controller;
 
 import com.xiaoyuer.springboot.annotation.Check;
-import com.xiaoyuer.springboot.annotation.CheckParam;
 import com.xiaoyuer.springboot.common.BaseResponse;
+import com.xiaoyuer.springboot.common.ErrorCode;
 import com.xiaoyuer.springboot.common.ResultUtils;
-import com.xiaoyuer.springboot.constant.NumberConstant;
+import com.xiaoyuer.springboot.exception.BusinessException;
+import com.xiaoyuer.springboot.exception.ThrowUtils;
+import com.xiaoyuer.springboot.model.dto.user.UserLoginDto;
 import com.xiaoyuer.springboot.model.dto.user.UserRegisterDto;
+import com.xiaoyuer.springboot.model.entity.User;
+import com.xiaoyuer.springboot.model.vo.user.UserLoginVO;
 import com.xiaoyuer.springboot.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -42,12 +45,40 @@ public class UserController {
         return ResultUtils.success(userService.userRegister(userRegisterDto));
     }
 
+    /**
+     * 用户登录
+     *
+     * @param userLoginDto 用户登录dto
+     * @return {@code BaseResponse<UserLoginVO>}
+     */
     @PostMapping("/login")
-    @Check(checkParam = true, checkAuth = "user")
-    public BaseResponse<UserRegisterDto> userLogin(
-            @CheckParam(required = NumberConstant.TRUE_VALUE, nullErrorMsg = "token不能为空") String token,
-            @RequestBody @CheckParam(required = NumberConstant.TRUE_VALUE) UserRegisterDto userRegisterDto) {
-        return ResultUtils.success(userRegisterDto);
+    @Check(checkParam = true)
+    public BaseResponse<UserLoginVO> userLogin(HttpServletRequest request, @RequestBody UserLoginDto userLoginDto) {
+        return ResultUtils.success(userService.userLogin(request, userLoginDto));
+    }
+
+    /**
+     * 获取登录用户
+     *
+     * @param request 请求
+     * @return {@code BaseResponse<UserLoginVO>}
+     */
+    @GetMapping("/get/login")
+    public BaseResponse<UserLoginVO> getLoginUser(HttpServletRequest request) {
+        User user = userService.getLoginUser(request);
+        return ResultUtils.success(userService.getLoginUserVO(user));
+    }
+
+    /**
+     * 用户注销
+     *
+     * @param request 请求
+     * @return {@code BaseResponse<Boolean>}
+     */
+    @PostMapping("/logout")
+    public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
+        ThrowUtils.throwIfNull(request);
+        return ResultUtils.success(userService.userLogout(request));
     }
 
 }
