@@ -11,20 +11,20 @@ public interface RedisKeyConstant {
     /**
      * 邮箱验证码key
      */
-    String EMAIL_CODE_KEY = "email_code:";
-
-    /**
-     * 邮箱验证码过期时间（s）
-     */
-    Integer EMAIL_CODE_TIME_OUT = 60;
+    String EMAIL_CAPTCHA_KEY = "email_captcha:";
 
     /**
      * 图片验证码key
      */
-    String IMAGE_CODE_KEY = "image_code:";
+    String IMAGE_CAPTCHA_KEY = "image_captcha:";
 
     /**
-     * 图片验证码过期时间（s）
+     * 图片验证码过期时间（秒）
      */
-    Integer IMAGE_CODE_TIME_OUT = 60;
+    Integer IMAGE_CAPTCHA_TIME_OUT = 60;
+
+    /**
+     * 用户登录状态缓存
+     */
+    String USER_LOGIN_STATE_CACHE = "user_login_cache_";
 }

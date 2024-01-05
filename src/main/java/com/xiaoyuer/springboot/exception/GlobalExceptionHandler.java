@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public BaseResponse<?> businessExceptionHandler(BusinessException e) {
         log.error("BusinessException", e);
-        return ResultUtils.error(e.getCode(), e.getMessage());
+        return ResultUtils.fail(e.getCode(), e.getMessage());
     }
 
     /**
@@ -38,6 +38,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public BaseResponse<?> runtimeExceptionHandler(RuntimeException e) {
         log.error("RuntimeException", e);
-        return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "系统内部错误,请联系管理员");
+        return ResultUtils.fail(ErrorCode.SYSTEM_ERROR, "系统内部错误,请联系管理员");
     }
 }

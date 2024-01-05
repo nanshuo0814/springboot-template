@@ -3,6 +3,8 @@ package com.xiaoyuer.springboot.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xiaoyuer.springboot.model.dto.user.UserLoginDto;
+import com.xiaoyuer.springboot.model.dto.user.UserPasswordResetDto;
+import com.xiaoyuer.springboot.model.dto.user.UserPasswordUpdateDto;
 import com.xiaoyuer.springboot.model.dto.user.UserRegisterDto;
 import com.xiaoyuer.springboot.model.entity.User;
 import com.xiaoyuer.springboot.model.vo.user.UserLoginVO;
@@ -69,7 +71,24 @@ public interface UserService extends IService<User> {
      * 用户注销
      *
      * @param request 请求
+     * @return {@code String}
+     */
+    String userLogout(HttpServletRequest request);
+
+    /**
+     * 用户密码重置
+     *
+     * @param userPasswordResetDto 用户密码重置dto
      * @return {@code Boolean}
      */
-    Boolean userLogout(HttpServletRequest request);
+    Boolean userPasswordReset(HttpServletRequest request, UserPasswordResetDto userPasswordResetDto);
+
+    /**
+     * 用户密码更新
+     *
+     * @param request               请求
+     * @param userPasswordUpdateDto 用户密码更新dto
+     * @return {@code Boolean}
+     */
+    Boolean userPasswordUpdate(HttpServletRequest request, UserPasswordUpdateDto userPasswordUpdateDto);
 }

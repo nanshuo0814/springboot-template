@@ -116,6 +116,7 @@ public class CommonCheckMethodAop {
         }
 
         // 获取值的长度
+        log.info("value:{}", value);
         int length = StringUtils.length((CharSequence) value);
 
         // 如果验证条件要求最大长度大于 0 且小于实际长度，或者最小长度大于 0 且大于实际长度，则抛出 PARAMS_LENGTH_ERROR 异常

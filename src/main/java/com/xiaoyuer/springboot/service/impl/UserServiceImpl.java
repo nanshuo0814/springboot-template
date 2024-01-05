@@ -3,15 +3,19 @@ package com.xiaoyuer.springboot.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xiaoyuer.springboot.common.ErrorCode;
+import com.xiaoyuer.springboot.constant.RedisKeyConstant;
 import com.xiaoyuer.springboot.constant.UserConstant;
 import com.xiaoyuer.springboot.exception.BusinessException;
 import com.xiaoyuer.springboot.mapper.UserMapper;
 import com.xiaoyuer.springboot.model.dto.user.UserLoginDto;
+import com.xiaoyuer.springboot.model.dto.user.UserPasswordResetDto;
+import com.xiaoyuer.springboot.model.dto.user.UserPasswordUpdateDto;
 import com.xiaoyuer.springboot.model.dto.user.UserRegisterDto;
 import com.xiaoyuer.springboot.model.entity.User;
 import com.xiaoyuer.springboot.model.vo.user.UserLoginVO;
 import com.xiaoyuer.springboot.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -52,8 +56,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String userPassword = userRegisterDto.getUserPassword();
         String checkPassword = userRegisterDto.getCheckPassword();
         String email = userRegisterDto.getEmail();
-        String emailCode = userRegisterDto.getEmailCode();
-        String imageCode = userRegisterDto.getImageCode();
+        String emailCaptcha = userRegisterDto.getEmailCaptcha();
+        String imageCaptcha = userRegisterDto.getImageCaptcha();
 
         // 确认密码校验
         if (checkPassword != null && !checkPassword.equals(userPassword)) {
@@ -61,47 +65,37 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 校验邮箱验证码,在邮箱不为null的情况下校验
-        if (emailCode != null && email != null) {
-            //String code = (String) redisTemplate.opsForValue().get(RedisKeyConstant.EMAIL_CODE_KEY + email);
-            // TODO：测试阶段,邮箱验证码不校验或给定固定值
-            String code = "111111";
-            if (code == null) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码已过期,请重新获取");
-            }
-            if (!emailCode.equals(code)) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码错误");
-            }
+        Object trueEmailCaptcha = redisTemplate.opsForValue().get(RedisKeyConstant.EMAIL_CAPTCHA_KEY + email);
+        if (ObjectUtils.isEmpty(trueEmailCaptcha)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码已过期,请重新获取");
+        }
+        if (!emailCaptcha.equals(trueEmailCaptcha.toString())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码错误");
         }
 
         // 邮箱校验
-        if (email != null) {
-            LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(User::getUserEmail, email);
-            long count = this.baseMapper.selectCount(queryWrapper);
-            if (count > 0) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "该邮箱已被注册,请重新输入一个");
-            }
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUserEmail, email);
+        long count = this.baseMapper.selectCount(queryWrapper);
+        if (count > 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "该邮箱已被注册,请重新输入一个");
         }
 
         // 图片验证码校验
-        if (imageCode != null) {
-            //String code = (String) redisTemplate.opsForValue().get(RedisKeyConstant.IMAGE_CODE_KEY + imageCode);
-            // TODO：测试阶段,图片验证码不校验或给定固定值
-            String code = "111111";
-            if (code == null) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "图片验证码已过期,请重新获取");
-            }
-            if (!imageCode.equals(code)) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "图片验证码错误");
-            }
+        Object trueImageCaptcha = redisTemplate.opsForValue().get(RedisKeyConstant.IMAGE_CAPTCHA_KEY);
+        if (ObjectUtils.isEmpty(trueImageCaptcha)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "图片验证码已过期,请重新获取");
+        }
+        if (!imageCaptcha.equals(trueImageCaptcha.toString())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "图片验证码错误");
         }
 
         synchronized (userAccount.intern()) {
             // 账户不能重复
-            LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(User::getUserAccount, userAccount);
-            long count = this.baseMapper.selectCount(queryWrapper);
-            if (count > 0) {
+            LambdaQueryWrapper<User> qw = new LambdaQueryWrapper<>();
+            qw.eq(User::getUserAccount, userAccount);
+            long userAccountId = this.baseMapper.selectCount(queryWrapper);
+            if (userAccountId > 0) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "该账号已被注册,请重新输入一个");
             }
 
@@ -136,19 +130,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 获取参数
         String userAccount = userLoginDto.getUserAccount();
         String userPassword = userLoginDto.getUserPassword();
-        String imageCode = userLoginDto.getImageCode();
+        String imageCaptcha = userLoginDto.getImageCaptcha();
 
         // 校验图片验证码
-        if (imageCode != null) {
-            //String code = (String) redisTemplate.opsForValue().get(RedisKeyConstant.IMAGE_CODE_KEY + userLoginDto.getImageCode());
-            // TODO：测试阶段,图片验证码不校验或给定固定值
-            String code = "111111";
-            if (code == null) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "图片验证码已过期,请重新获取");
-            }
-            if (!imageCode.equals(code)) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "图片验证码错误");
-            }
+        Object trueImageCaptcha = redisTemplate.opsForValue().get(RedisKeyConstant.IMAGE_CAPTCHA_KEY);
+        if (ObjectUtils.isEmpty(trueImageCaptcha)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "图片验证码已过期,请重新获取");
+        }
+        if (!imageCaptcha.equals(trueImageCaptcha.toString())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "图片验证码错误");
         }
 
         // 查询用户信息
@@ -160,6 +150,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "账号或密码错误");
         }
 
+        if (user.getUserRole().equals(UserConstant.BAN_ROLE)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "账号已被禁用,请联系管理员解封");
+        }
+
         boolean matches = bCryptPasswordEncoder.matches(UserConstant.SALT + userPassword, user.getUserPassword());
         if (!matches) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或密码错误");
@@ -167,6 +161,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 记录用户的登录状态
         request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
+        // 缓存用户信息
+        redisTemplate.opsForValue().set(RedisKeyConstant.USER_LOGIN_STATE_CACHE + user.getUserId(), user);
 
         // 返回用户登录信息
         return this.getLoginUserVO(user);
@@ -199,7 +195,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 先判断是否已登录,获取用户信息
         User user = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
-        if (user == null || user.getUserId() == null) {
+        if (user == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
 
@@ -229,7 +225,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public User getUserCacheById(Long userId) {
-        String cacheKey = UserConstant.USER_LOGIN_STATE_CACHE + userId;
+        String cacheKey = RedisKeyConstant.USER_LOGIN_STATE_CACHE + userId;
         return (User) redisTemplate.opsForValue().get(cacheKey);
     }
 
@@ -240,7 +236,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public void saveUserToCache(User user) {
-        String cacheKey = UserConstant.USER_LOGIN_STATE_CACHE + user.getUserId();
+        String cacheKey = RedisKeyConstant.USER_LOGIN_STATE_CACHE + user.getUserId();
         redisTemplate.opsForValue().set(cacheKey, user, 1, TimeUnit.HOURS);
     }
 
@@ -251,12 +247,126 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return {@code Boolean}
      */
     @Override
-    public Boolean userLogout(HttpServletRequest request) {
+    public String userLogout(HttpServletRequest request) {
+        // 判断是否已登录
         if (request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE) == null) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "未登录");
         }
+        // 删除缓存
+        redisTemplate.delete(RedisKeyConstant.USER_LOGIN_STATE_CACHE + this.getLoginUser(request).getUserId());
         // 移除登录态
         request.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
-        return true;
+        return "退出登录成功！";
+    }
+
+    /**
+     * 用户密码更新
+     *
+     * @param request               请求
+     * @param userPasswordUpdateDto 用户密码重置dto
+     * @return {@code Boolean}
+     */
+    @Override
+    public Boolean userPasswordUpdate(HttpServletRequest request, UserPasswordUpdateDto userPasswordUpdateDto) {
+        // 获取参数
+        String oldPassword = userPasswordUpdateDto.getOldPassword();
+        String userPassword = userPasswordUpdateDto.getUserPassword();
+        String checkPassword = userPasswordUpdateDto.getCheckPassword();
+        String email = userPasswordUpdateDto.getEmail();
+        String emailCaptcha = userPasswordUpdateDto.getEmailCaptcha();
+
+        // 获取当前用户
+        User loginUser = this.getById(this.getLoginUser(request).getUserId());
+
+        // 判断旧密码是否正确
+        boolean matches = bCryptPasswordEncoder.matches(UserConstant.SALT + oldPassword, loginUser.getUserPassword());
+        if (!matches) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请输入正确旧密码");
+        }
+
+        // 判断两次密码是否一致
+        if (!userPassword.equals(checkPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次新密码输入不一致");
+        }
+
+        // 验证邮箱
+        if (!loginUser.getUserEmail().equals(email)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请输入当前用户的邮箱");
+        }
+
+        // 验证邮箱验证码
+        Object trueEmailCaptcha = redisTemplate.opsForValue().get(RedisKeyConstant.EMAIL_CAPTCHA_KEY + email);
+        if (ObjectUtils.isEmpty(trueEmailCaptcha)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码已过期,请重新获取");
+        }
+        if (!emailCaptcha.equals(trueEmailCaptcha.toString())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请输入正确的邮箱验证码");
+        }
+
+        // 修改密码
+        String encryptPassword = bCryptPasswordEncoder.encode(UserConstant.SALT + userPassword);
+        User user = new User();
+        user.setUserId(loginUser.getUserId());
+        user.setUserPassword(encryptPassword);
+        // 更新用户密码
+        return this.updateById(user);
+    }
+
+    /**
+     * 用户密码重置
+     *
+     * @param request              请求
+     * @param userPasswordResetDto 用户密码重置dto
+     * @return {@code Boolean}
+     */
+    @Override
+    public Boolean userPasswordReset(HttpServletRequest request, UserPasswordResetDto userPasswordResetDto) {
+        // 获取参数
+        String userAccount = userPasswordResetDto.getUserAccount();
+        String userPassword = userPasswordResetDto.getUserPassword();
+        String checkPassword = userPasswordResetDto.getCheckPassword();
+        String email = userPasswordResetDto.getEmail();
+        String emailCaptcha = userPasswordResetDto.getEmailCaptcha();
+
+        // 校验两次密码是否一致
+        if (!userPassword.equals(checkPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次新密码输入不一致");
+        }
+
+        // 验证账号是否存在
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUserAccount, userAccount);
+        User user = this.baseMapper.selectOne(queryWrapper);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "用户账号不存在");
+        }
+
+        // 验证用户是否被禁用
+        if (user.getUserRole().equals(UserConstant.BAN_ROLE)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "该用户已被禁用,请联系管理员解封");
+        }
+
+        // 验证邮箱
+        if (!user.getUserEmail().equals(email)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱不匹配当前用户,请输入当前用户的邮箱");
+        }
+
+        // 验证邮箱验证码
+        Object trueEmailCaptcha = redisTemplate.opsForValue().get(RedisKeyConstant.EMAIL_CAPTCHA_KEY + email);
+        if (ObjectUtils.isEmpty(trueEmailCaptcha)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码已过期,请重新获取");
+        }
+        if (!emailCaptcha.equals(trueEmailCaptcha.toString())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请输入正确的邮箱验证码");
+        }
+
+        // 修改密码
+        synchronized (userAccount.intern()) {
+            // 加密密码
+            String encryptPassword = bCryptPasswordEncoder.encode(UserConstant.SALT + userPassword);
+            // 更新用户密码
+            user.setUserPassword(encryptPassword);
+            return this.updateById(user);
+        }
     }
 }

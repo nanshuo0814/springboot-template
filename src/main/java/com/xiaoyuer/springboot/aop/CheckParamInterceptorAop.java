@@ -37,7 +37,7 @@ public class CheckParamInterceptorAop {
             // 获取目标类的方法
             Method method = methodSignature.getMethod();
             // 遍历参数
-            CommonCheckMethodAop.validateParams(false,method, arguments);
+            CommonCheckMethodAop.validateParams(false, method, arguments);
         } catch (BusinessException e) {
             log.error("拦截到业务异常 - 方法: {}, 参数: {}", joinPoint.getSignature().toShortString(), Arrays.toString(joinPoint.getArgs()), e);
             throw e;

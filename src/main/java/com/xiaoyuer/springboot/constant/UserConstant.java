@@ -20,11 +20,6 @@ public interface UserConstant {
     String USER_LOGIN_STATE = "user_login";
 
     /**
-     * 用户登录状态缓存
-     */
-    String USER_LOGIN_STATE_CACHE = "user_login_cache";
-
-    /**
      * 默认角色
      */
     String DEFAULT_ROLE = "user";

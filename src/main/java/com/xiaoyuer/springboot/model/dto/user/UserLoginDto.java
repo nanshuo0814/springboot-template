@@ -4,6 +4,8 @@ import com.xiaoyuer.springboot.annotation.CheckParam;
 import com.xiaoyuer.springboot.model.enums.VerifyRegexEnums;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * 用户登录dto
  *
@@ -11,7 +13,10 @@ import lombok.Data;
  * @date 2024/01/04 18:58:48
  */
 @Data
-public class UserLoginDto {
+public class UserLoginDto implements Serializable {
+
+
+    private static final long serialVersionUID = -5262836669010105900L;
 
     /**
      * 账号
@@ -28,6 +33,6 @@ public class UserLoginDto {
     /**
      * 图片验证码
      */
-    @CheckParam(nullErrorMsg = "图片验证码不能为空", regex = VerifyRegexEnums.IMAGE_CODE, regexErrorMsg = "图片验证码必须是6位")
-    private String imageCode;
+    @CheckParam(nullErrorMsg = "图片验证码不能为空", regex = VerifyRegexEnums.IMAGE_CAPTCHA, regexErrorMsg = "图片验证码错误")
+    private String imageCaptcha;
 }

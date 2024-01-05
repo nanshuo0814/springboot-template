@@ -15,6 +15,8 @@ import java.io.Serializable;
 @Data
 public class UserRegisterDto implements Serializable {
 
+    private static final long serialVersionUID = -3801105286374526414L;
+
     @CheckParam(nullErrorMsg = "用户名不能为空", regex = VerifyRegexEnums.USERNAME, regexErrorMsg = "用户名只能包含字母、数字或汉字")
     private String userName;
 
@@ -30,9 +32,9 @@ public class UserRegisterDto implements Serializable {
     @CheckParam(nullErrorMsg = "邮箱不能为空", regex = VerifyRegexEnums.EMAIL, regexErrorMsg = "邮箱格式不正确")
     private String email;
 
-    @CheckParam(nullErrorMsg = "邮箱验证码不能为空", regex = VerifyRegexEnums.EMAIL_CODE, regexErrorMsg = "邮箱验证码必须是6位")
-    private String emailCode;
+    @CheckParam(nullErrorMsg = "邮箱验证码不能为空", regex = VerifyRegexEnums.EMAIL_CAPTCHA, regexErrorMsg = "邮箱验证码错误")
+    private String emailCaptcha;
 
-    @CheckParam(nullErrorMsg = "图片验证码不能为空", regex = VerifyRegexEnums.IMAGE_CODE, regexErrorMsg = "图片验证码必须是6位")
-    private String imageCode;
+    @CheckParam(nullErrorMsg = "图片验证码不能为空", regex = VerifyRegexEnums.IMAGE_CAPTCHA, regexErrorMsg = "图片验证码错误")
+    private String imageCaptcha;
 }
