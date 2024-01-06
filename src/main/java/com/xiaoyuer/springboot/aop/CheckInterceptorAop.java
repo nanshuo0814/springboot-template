@@ -52,17 +52,18 @@ public class CheckInterceptorAop {
             Check checkAnnotation = method.getAnnotation(Check.class);
             CheckAuth checkAuth = method.getAnnotation(CheckAuth.class);
 
-            // 如果存在 @Check 注解并且需要进行参数验证，则执行参数验证
-            if (checkAnnotation != null && checkAnnotation.checkParam()) {
-                CommonCheckMethodAop.validateParams(true, method, arguments);
-            }
-
             String authRole = checkAnnotation != null ? checkAnnotation.checkAuth() : "";
             // 如果指定了身份验证角色并且未存在 @CheckAuth 注解，
             if (StringUtils.isNotBlank(authRole) && checkAuth == null) {
                 // 将 authRole 传递给 AuthInterceptor
                 authInterceptor.doInterceptor(authRole);
             }
+
+            // 如果存在 @Check 注解并且需要进行参数验证，则执行参数验证
+            if (checkAnnotation != null && checkAnnotation.checkParam()) {
+                CommonCheckMethodAop.validateParams(true, method, arguments);
+            }
+
         } catch (BusinessException e) {
             // 处理 BusinessException，记录日志并重新抛出异常
             handleException(joinPoint, e);

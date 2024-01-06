@@ -115,19 +115,20 @@ public class CommonCheckMethodAop {
             throw new BusinessException(ErrorCode.PARAMS_NULL, checkParam.nullErrorMsg());
         }
 
-        // 获取值的长度
-        log.info("value:{}", value);
-        int length = StringUtils.length((CharSequence) value);
-
-        // 如果验证条件要求最大长度大于 0 且小于实际长度，或者最小长度大于 0 且大于实际长度，则抛出 PARAMS_LENGTH_ERROR 异常
-        if ((checkParam.maxLength() != NumberConstant.DEFAULT_VALUE && checkParam.maxLength() < length) ||
-                (checkParam.minLength() != NumberConstant.DEFAULT_VALUE && checkParam.minLength() > length)) {
-            throw new BusinessException(ErrorCode.PARAMS_LENGTH_ERROR, checkParam.lenghtErrorMsg());
-        }
-
-        // 如果验证条件要求的正则表达式不为空，且值不符合该正则表达式要求，则抛出 PARAMS_FORMAT_ERROR 异常
-        if (!StringUtils.isEmpty(checkParam.regex().getRegex()) && !RegexUtils.matches(checkParam.regex(), String.valueOf(value))) {
-            throw new BusinessException(ErrorCode.PARAMS_FORMAT_ERROR, checkParam.regexErrorMsg());
+        // 如果值不为空
+        if (!ObjectUtils.isEmpty(value)) {
+            // 获取值的长度
+            log.info("value:{}", value);
+            int length = value.toString().length();
+            // 如果验证条件要求最大长度大于 0 且小于实际长度，或者最小长度大于 0 且大于实际长度，则抛出 PARAMS_LENGTH_ERROR 异常
+            if ((checkParam.maxLength() != NumberConstant.DEFAULT_VALUE && checkParam.maxLength() < length) ||
+                    (checkParam.minLength() != NumberConstant.DEFAULT_VALUE && checkParam.minLength() > length)) {
+                throw new BusinessException(ErrorCode.PARAMS_LENGTH_ERROR, checkParam.lenghtErrorMsg());
+            }
+            // 如果验证条件要求的正则表达式不为空，且值不符合该正则表达式要求，则抛出 PARAMS_FORMAT_ERROR 异常
+            if (!StringUtils.isEmpty(checkParam.regex().getRegex()) && !RegexUtils.matches(checkParam.regex(), String.valueOf(value))) {
+                throw new BusinessException(ErrorCode.PARAMS_FORMAT_ERROR, checkParam.regexErrorMsg());
+            }
         }
     }
 
@@ -158,7 +159,7 @@ public class CommonCheckMethodAop {
                     // 如果字段上存在 @CheckParam 注解，则进行字段值的验证
                     if (checkParam != null) {
                         // 如果验证条件要求不是必须的，且没有校验规则，则跳过后续验证
-                        if (checkParam.required() != NumberConstant.TRUE_VALUE && checkParam.minLength() == NumberConstant.DEFAULT_VALUE && checkParam.maxLength() == NumberConstant.DEFAULT_VALUE && checkParam.regex().equals(VerifyRegexEnums.NO)) {
+                        if (checkParam.required() == NumberConstant.FALSE_VALUE && checkParam.minLength() == NumberConstant.DEFAULT_VALUE && checkParam.maxLength() == NumberConstant.DEFAULT_VALUE && checkParam.regex().equals(VerifyRegexEnums.NO)) {
                             continue;
                         }
                         // 验证字段值

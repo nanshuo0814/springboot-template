@@ -19,6 +19,7 @@ public interface UserConstant {
      */
     String USER_LOGIN_STATE = "user_login";
 
+
     /**
      * 默认角色
      */
@@ -33,5 +34,30 @@ public interface UserConstant {
      * 被封号
      */
     String BAN_ROLE = "ban";
+
+    /**
+     * 默认用户账号密码
+     */
+    String DEFAULT_USER_PASSWORD = "user123";
+
+    /**
+     * 默认用户帐户
+     */
+    String DEFAULT_USER_NAME = "user";
+
+    /**
+     * 默认用户简介
+     */
+    String DEFAULT_USER_PROFILE = "一条只会冒泡的小鱼儿ya";
+
+    /**
+     * 默认用户头像
+     */
+    String DEFAULT_USER_AVATAR = "https://img.ydg.icu/xiaoyuer.png";
+
+    /**
+     * 默认用户性别(0:女 1:男 2:未知)
+     */
+    Integer DEFAULT_USER_GENDER = 2;
 
 }

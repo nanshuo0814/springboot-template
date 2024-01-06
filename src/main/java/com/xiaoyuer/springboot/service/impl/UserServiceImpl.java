@@ -6,16 +6,15 @@ import com.xiaoyuer.springboot.common.ErrorCode;
 import com.xiaoyuer.springboot.constant.RedisKeyConstant;
 import com.xiaoyuer.springboot.constant.UserConstant;
 import com.xiaoyuer.springboot.exception.BusinessException;
+import com.xiaoyuer.springboot.exception.ThrowUtils;
 import com.xiaoyuer.springboot.mapper.UserMapper;
-import com.xiaoyuer.springboot.model.dto.user.UserLoginDto;
-import com.xiaoyuer.springboot.model.dto.user.UserPasswordResetDto;
-import com.xiaoyuer.springboot.model.dto.user.UserPasswordUpdateDto;
-import com.xiaoyuer.springboot.model.dto.user.UserRegisterDto;
+import com.xiaoyuer.springboot.model.dto.user.*;
 import com.xiaoyuer.springboot.model.entity.User;
 import com.xiaoyuer.springboot.model.vo.user.UserLoginVO;
 import com.xiaoyuer.springboot.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -369,4 +368,73 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return this.updateById(user);
         }
     }
+
+    // end domain 用户登录相关
+
+    // domain 用户增删改查相关
+
+    /**
+     * 添加用户
+     *
+     * @param userAddDto 用户添加dto
+     * @return {@code Long}
+     */
+    @Override
+    public Long addUser(UserAddDto userAddDto) {
+        // 判断参数（不是必须的）,设置默认值
+        if (StringUtils.isEmpty(userAddDto.getUserName())) {
+            // 设置默认的用户名（UserConstant.DEFAULT_USER_NAME+当时的时间戳）
+            userAddDto.setUserName(UserConstant.DEFAULT_USER_NAME + System.currentTimeMillis());
+        }
+        if (StringUtils.isEmpty(userAddDto.getUserPassword())) {
+            // 设置默认的密码（UserConstant.DEFAULT_USER_PASSWORD）
+            userAddDto.setUserPassword(UserConstant.DEFAULT_USER_PASSWORD);
+        }
+        if (StringUtils.isEmpty(userAddDto.getUserProfile())) {
+            // 设置默认的简介（UserConstant.DEFAULT_USER_PROFILE）
+            userAddDto.setUserProfile(UserConstant.DEFAULT_USER_PROFILE);
+        }
+        if (StringUtils.isEmpty(userAddDto.getUserAvatar())) {
+            // 设置默认的头像（UserConstant.DEFAULT_USER_AVATAR）
+            userAddDto.setUserAvatar(UserConstant.DEFAULT_USER_AVATAR);
+        }
+        if (StringUtils.isEmpty(userAddDto.getUserRole())) {
+            // 设置默认的角色（UserConstant.DEFAULT_ROLE）
+            userAddDto.setUserRole(UserConstant.DEFAULT_ROLE);
+        }
+        if (userAddDto.getUserGender() == null || userAddDto.getUserGender() < 0 || userAddDto.getUserGender() > 2) {
+            // 设置默认的性别（UserConstant.DEFAULT_USER_GENDER）
+            userAddDto.setUserGender(UserConstant.DEFAULT_USER_GENDER);
+        }
+
+        // 校验用户账号是否存在
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUserAccount, userAddDto.getUserAccount());
+        User user = this.baseMapper.selectOne(queryWrapper);
+        if (user != null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号已存在,请换一个");
+        }
+
+        // 校验用户邮箱是否存在
+        if (!StringUtils.isEmpty(userAddDto.getUserEmail())) {
+            queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(User::getUserEmail, userAddDto.getUserEmail());
+            user = this.baseMapper.selectOne(queryWrapper);
+            if (user != null) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户邮箱已存在,请换一个");
+            }
+        }
+
+        // 加密密码
+        String encryptPassword = bCryptPasswordEncoder.encode(UserConstant.SALT + userAddDto.getUserPassword());
+        userAddDto.setUserPassword(encryptPassword);
+
+        // 保存用户
+        User userEntity = new User();
+        BeanUtils.copyProperties(userAddDto, userEntity);
+        boolean result = this.save(userEntity);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "未知错误,添加用户失败");
+        return userEntity.getUserId();
+    }
+
 }

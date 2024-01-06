@@ -21,10 +21,10 @@ public interface RedisKeyConstant {
     /**
      * 图片验证码过期时间（秒）
      */
-    Integer IMAGE_CAPTCHA_TIME_OUT = 60;
+    Integer IMAGE_CAPTCHA_TIME_OUT = 180;
 
     /**
      * 用户登录状态缓存
      */
-    String USER_LOGIN_STATE_CACHE = "user_login_cache_";
+    String USER_LOGIN_STATE_CACHE = "user_login_cache:";
 }

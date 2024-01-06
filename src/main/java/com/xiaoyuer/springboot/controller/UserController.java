@@ -1,17 +1,20 @@
 package com.xiaoyuer.springboot.controller;
 
 import com.xiaoyuer.springboot.annotation.Check;
+import com.xiaoyuer.springboot.annotation.CheckAuth;
+import com.xiaoyuer.springboot.annotation.CheckParam;
 import com.xiaoyuer.springboot.common.BaseResponse;
+import com.xiaoyuer.springboot.common.ErrorCode;
 import com.xiaoyuer.springboot.common.ResultUtils;
+import com.xiaoyuer.springboot.constant.NumberConstant;
+import com.xiaoyuer.springboot.constant.UserConstant;
 import com.xiaoyuer.springboot.exception.ThrowUtils;
-import com.xiaoyuer.springboot.model.dto.user.UserLoginDto;
-import com.xiaoyuer.springboot.model.dto.user.UserPasswordResetDto;
-import com.xiaoyuer.springboot.model.dto.user.UserPasswordUpdateDto;
-import com.xiaoyuer.springboot.model.dto.user.UserRegisterDto;
+import com.xiaoyuer.springboot.model.dto.user.*;
 import com.xiaoyuer.springboot.model.entity.User;
 import com.xiaoyuer.springboot.model.vo.user.UserLoginVO;
 import com.xiaoyuer.springboot.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,9 +27,9 @@ import javax.servlet.http.HttpServletRequest;
  * @author 小鱼儿
  * @date 2023/12/23 16:33:46
  */
+@Slf4j
 @RestController
 @RequestMapping("/user")
-@Slf4j
 public class UserController {
 
     @Autowired
@@ -94,7 +97,6 @@ public class UserController {
     public BaseResponse<Boolean> userPasswordReset(HttpServletRequest request, @RequestBody UserPasswordResetDto userPasswordResetDto) {
         return ResultUtils.success(userService.userPasswordReset(request, userPasswordResetDto));
     }
-    //$2a$10$5qoZRJHY1PmRUC2tY0nlT.gWcQR.K1crfSgFRdd.HO9MLI5yMZUQC
 
     /**
      * 修改用户密码
@@ -113,6 +115,61 @@ public class UserController {
 
     // domain 用户的增删改查相关
 
+    /**
+     * 添加用户(管理员权限)
+     *
+     * @param userAddDto 用户添加dto
+     * @return {@code BaseResponse<Long>}
+     */
+    @PostMapping("/add")
+    @Check(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Long> addUser(@RequestBody UserAddDto userAddDto) {
+        return ResultUtils.success(userService.addUser(userAddDto));
+    }
+
+    /**
+     * 删除用户(管理员权限)
+     *
+     * @param userId 用户id
+     * @return {@code BaseResponse<Boolean>}
+     */
+    @PostMapping("/delete")
+    @Check(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Long> deleteUser(@RequestBody Long userId) {
+        ThrowUtils.throwIf(!userService.removeById(userId), ErrorCode.OPERATION_ERROR, "删除用户失败,无该用户");
+        return ResultUtils.success(userId);
+    }
+
+    /**
+     * 更新用户(管理员权限)
+     *
+     * @param userUpdateDto 用户更新dto
+     * @return {@code BaseResponse<Long>}
+     */
+    @PostMapping("/update")
+    @Check(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Long> updateUser(@RequestBody UserUpdateDto userUpdateDto) {
+        User user = new User();
+        BeanUtils.copyProperties(userUpdateDto, user);
+        boolean result = userService.updateById(user);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "修改用户信息失败,无该用户信息");
+        return ResultUtils.success(user.getUserId());
+    }
+
+    /**
+     * 按id获取用户(管理员权限)
+     *
+     * @param userId 用户id
+     * @return {@code BaseResponse<User>}
+     */
+    @GetMapping("/get")
+    @CheckAuth(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<User> getUserById(
+            @CheckParam(required = NumberConstant.TRUE_VALUE, nullErrorMsg = "用户id不能为空") Long userId) {
+        User user = userService.getById(userId);
+        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");
+        return ResultUtils.success(user);
+    }
 
     // end domain 用户的增删改查相关
 }
