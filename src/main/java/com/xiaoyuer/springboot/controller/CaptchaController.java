@@ -10,6 +10,9 @@ import com.xiaoyuer.springboot.constant.RedisKeyConstant;
 import com.xiaoyuer.springboot.model.enums.VerifyRegexEnums;
 import com.xiaoyuer.springboot.utils.captcha.EmailCaptchaUtils;
 import com.xiaoyuer.springboot.utils.captcha.ImageCaptchaUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -28,6 +31,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2024/01/05 15:29:46
  */
 @Slf4j
+@Api(tags = "验证码模块")
 @RestController
 @RequestMapping("/captcha")
 public class CaptchaController {
@@ -42,7 +46,9 @@ public class CaptchaController {
      * @return {@code BaseResponse<String>}
      */
     @PostMapping("/sendEmailCaptcha")
+    @ApiOperation(value = "发送电子邮件验证码", notes = "发送电子邮件验证码")
     public BaseResponse<String> sendEmailCaptcha(
+            @ApiParam(value = "目标电子邮件", required = true)
             @RequestBody @CheckParam(required = NumberConstant.TRUE_VALUE, nullErrorMsg = "邮箱不能为空",
                     regex = VerifyRegexEnums.EMAIL, regexErrorMsg = "邮箱格式不正确") String targetEmail) {
 
@@ -75,6 +81,7 @@ public class CaptchaController {
      * @return {@code BaseResponse<String>}
      */
     @GetMapping("/getImageCaptcha")
+    @ApiOperation(value = "获取图片验证码", notes = "获取图片验证码")
     public BaseResponse<String> getImageCaptcha() {
         try {
             ImageCaptchaUtils imageCaptchaUtils = new ImageCaptchaUtils();

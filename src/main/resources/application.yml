@@ -16,6 +16,9 @@ spring:
   # 默认 dev 环境
   profiles:
     active: dev
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

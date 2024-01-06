@@ -118,12 +118,12 @@
             <artifactId>commons-email</artifactId>
             <version>${email.version}</version>
         </dependency>
-        <!-- https://doc.xiaominfo.com/knife4j/documentation/get_start.html-->
-        <!--        <dependency>-->
-        <!--            <groupId>com.github.xiaoymin</groupId>-->
-        <!--            <artifactId>knife4j-spring-boot-starter</artifactId>-->
-        <!--            <version>${knife4j.version}</version>-->
-        <!--        </dependency>-->
+        <!-- https://doc.xiaominfo.com/docs/quick-start-->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
+            <version>${knife4j.version}</version>
+        </dependency>
         <!-- elasticsearch-->
         <!--        <dependency>-->
         <!--            <groupId>org.springframework.boot</groupId>-->
