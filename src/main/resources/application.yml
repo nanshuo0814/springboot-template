@@ -52,6 +52,7 @@ mybatis-plus:
       logic-delete-value: 1 # 逻辑已删除值（默认为 1）
       logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
 
+
 # todo 邮箱配置,根据自己的邮箱需求配置
 email:
   hostName: smtp.qq.com # 邮箱域名
@@ -62,3 +63,9 @@ email:
   mailTitle: 邮箱验证码 # 邮件标题
   content: 快速开发模板 # 邮件正文里的项目名称
   expireTime: 5 # 验证码过期时间，单位分钟
+
+logging:
+  file:
+    # 日志文件路径,可以使用绝对路径和相对路径
+    path: ${user.dir}/logs  # 当前项目根路径${user.dir}
+    #path: E:/project_logs/springboot-template # 绝对路径
