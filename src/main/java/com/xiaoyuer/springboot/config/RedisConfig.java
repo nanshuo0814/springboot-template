@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -110,6 +112,10 @@ public class RedisConfig {
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         // 激活ObjectMapper的默认类型设置，使用LaissezFaireSubTypeValidator.instance作为验证器，DefaultTyping.NON_FINAL作为类型化方式
         om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
+        // 为 Long 类型配置了一个 ToStringSerializer，避免了Long精度丢失问题
+        om.registerModule(new SimpleModule()
+                .addSerializer(Long.class, ToStringSerializer.instance)
+                .addSerializer(Long.TYPE, ToStringSerializer.instance));
         // 将创建的ObjectMapper对象设置为Jackson2JsonRedisSerializer的对象
         jackson2JsonRedisSerializer.setObjectMapper(om);
         // 返回Jackson2JsonRedisSerializer对象
