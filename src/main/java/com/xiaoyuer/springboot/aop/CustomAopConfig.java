@@ -9,7 +9,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
@@ -32,14 +31,17 @@ import java.lang.reflect.Method;
 @Configuration("CustomAopConfig")
 public class CustomAopConfig {
 
-    @Autowired
-    private CheckAuthInterceptorAop authInterceptor;
+    private final CheckAuthInterceptorAop authInterceptor;
 
-    @Autowired
-    private CheckInterceptorAop checkInterceptorAop;
+    private final CheckInterceptorAop checkInterceptorAop;
 
-    @Autowired
-    private CheckParamInterceptorAop checkParamInterceptorAop;
+    private final CheckParamInterceptorAop checkParamInterceptorAop;
+
+    public CustomAopConfig(CheckAuthInterceptorAop authInterceptor, CheckInterceptorAop checkInterceptorAop, CheckParamInterceptorAop checkParamInterceptorAop) {
+        this.authInterceptor = authInterceptor;
+        this.checkInterceptorAop = checkInterceptorAop;
+        this.checkParamInterceptorAop = checkParamInterceptorAop;
+    }
 
     /**
      * 切入带有 @Check 注解的方法。

@@ -1,8 +1,11 @@
 package com.xiaoyuer.springboot.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xiaoyuer.springboot.common.ErrorCode;
+import com.xiaoyuer.springboot.constant.PageConstant;
 import com.xiaoyuer.springboot.constant.RedisKeyConstant;
 import com.xiaoyuer.springboot.constant.UserConstant;
 import com.xiaoyuer.springboot.exception.BusinessException;
@@ -11,18 +14,21 @@ import com.xiaoyuer.springboot.mapper.UserMapper;
 import com.xiaoyuer.springboot.model.dto.user.*;
 import com.xiaoyuer.springboot.model.entity.User;
 import com.xiaoyuer.springboot.model.vo.user.UserLoginVO;
+import com.xiaoyuer.springboot.model.vo.user.UserVO;
 import com.xiaoyuer.springboot.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 /**
@@ -35,11 +41,14 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public UserServiceImpl(RedisTemplate<String, Object> redisTemplate, BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.redisTemplate = redisTemplate;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
 
 
     /**
@@ -269,10 +278,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public Boolean userPasswordUpdate(HttpServletRequest request, UserPasswordUpdateDto userPasswordUpdateDto) {
         // 获取参数
         String oldPassword = userPasswordUpdateDto.getOldPassword();
-        String userPassword = userPasswordUpdateDto.getUserPassword();
+        String userPassword = userPasswordUpdateDto.getNewPassword();
         String checkPassword = userPasswordUpdateDto.getCheckPassword();
-        String email = userPasswordUpdateDto.getEmail();
-        String emailCaptcha = userPasswordUpdateDto.getEmailCaptcha();
 
         // 获取当前用户
         User loginUser = this.getById(this.getLoginUser(request).getUserId());
@@ -288,20 +295,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次新密码输入不一致");
         }
 
-        // 验证邮箱
-        if (!loginUser.getUserEmail().equals(email)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请输入当前用户的邮箱");
-        }
-
-        // 验证邮箱验证码
-        Object trueEmailCaptcha = redisTemplate.opsForValue().get(RedisKeyConstant.EMAIL_CAPTCHA_KEY + email);
-        if (ObjectUtils.isEmpty(trueEmailCaptcha)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码已过期,请重新获取");
-        }
-        if (!emailCaptcha.equals(trueEmailCaptcha.toString())) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请输入正确的邮箱验证码");
-        }
-
         // 修改密码
         String encryptPassword = bCryptPasswordEncoder.encode(UserConstant.SALT + userPassword);
         User user = new User();
@@ -309,6 +302,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUserPassword(encryptPassword);
         // 更新用户密码
         return this.updateById(user);
+    }
+
+    /**
+     * 验证电子邮件代码
+     *
+     * @param email        电子邮件
+     * @param emailCaptcha 电子邮件验证码
+     */
+    private void validateEmailCode(String email, String emailCaptcha) {
+        Object trueEmailCaptcha = redisTemplate.opsForValue().get(RedisKeyConstant.EMAIL_CAPTCHA_KEY + email);
+        if (ObjectUtils.isEmpty(trueEmailCaptcha)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码已过期,请重新获取");
+        }
+        if (!emailCaptcha.equals(trueEmailCaptcha.toString())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请输入正确的邮箱验证码");
+        }
     }
 
     /**
@@ -324,7 +333,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String userAccount = userPasswordResetDto.getUserAccount();
         String userPassword = userPasswordResetDto.getUserPassword();
         String checkPassword = userPasswordResetDto.getCheckPassword();
-        String email = userPasswordResetDto.getEmail();
+        String email = userPasswordResetDto.getUserEmail();
         String emailCaptcha = userPasswordResetDto.getEmailCaptcha();
 
         // 校验两次密码是否一致
@@ -351,13 +360,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 验证邮箱验证码
-        Object trueEmailCaptcha = redisTemplate.opsForValue().get(RedisKeyConstant.EMAIL_CAPTCHA_KEY + email);
-        if (ObjectUtils.isEmpty(trueEmailCaptcha)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码已过期,请重新获取");
-        }
-        if (!emailCaptcha.equals(trueEmailCaptcha.toString())) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请输入正确的邮箱验证码");
-        }
+        validateEmailCode(email, emailCaptcha);
 
         // 修改密码
         synchronized (userAccount.intern()) {
@@ -400,7 +403,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         if (StringUtils.isEmpty(userAddDto.getUserRole())) {
             // 设置默认的角色（UserConstant.DEFAULT_ROLE）
-            userAddDto.setUserRole(UserConstant.DEFAULT_ROLE);
+            userAddDto.setUserRole(UserConstant.USER_ROLE);
         }
         if (userAddDto.getUserGender() == null || userAddDto.getUserGender() < 0 || userAddDto.getUserGender() > 2) {
             // 设置默认的性别（UserConstant.DEFAULT_USER_GENDER）
@@ -437,4 +440,109 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userEntity.getUserId();
     }
 
+    /**
+     * 获取查询条件
+     *
+     * @param userQueryDto 用户查询dto
+     * @return {@code LambdaQueryWrapper<User>}
+     */
+    @Override
+    public LambdaQueryWrapper<User> getQueryWrapper(UserQueryDto userQueryDto) {
+        // 获取参数
+        Long id = userQueryDto.getUserId();
+        String userName = userQueryDto.getUserName();
+        String userProfile = userQueryDto.getUserProfile();
+        String userRole = userQueryDto.getUserRole();
+        Integer gender = userQueryDto.getUserGender();
+        String email = userQueryDto.getUserEmail();
+        String sortField = userQueryDto.getSortField();
+        String sortOrder = userQueryDto.getSortOrder();
+
+        LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(id != null, User::getUserId, id)
+                .eq(gender != null, User::getUserGender, gender)
+                .eq(StringUtils.isNotBlank(userRole), User::getUserRole, userRole)
+                .like(StringUtils.isNotBlank(userProfile), User::getUserProfile, userProfile)
+                .like(StringUtils.isNotBlank(email), User::getUserEmail, email)
+                .like(StringUtils.isNotBlank(userName), User::getUserName, userName)
+                .orderBy(StringUtils.isNotEmpty(sortField),
+                        sortOrder.equals(PageConstant.SORT_ORDER_ASC), getSortColumn(sortField));
+        return lambdaQueryWrapper;
+    }
+
+    /**
+     * 获取排序列
+     *
+     * @param sortField 排序字段
+     * @return {@code SFunction<User, ?>}
+     */
+    private SFunction<User, ?> getSortColumn(String sortField) {
+        switch (sortField) {
+            case PageConstant.USER_ACCOUNT_SORT_FIELD:
+                return User::getUserAccount;
+            case PageConstant.USER_ID_SORT_FIELD:
+                return User::getUserId;
+            case PageConstant.USER_NAME_SORT_FIELD:
+                return User::getUserName;
+            case PageConstant.USER_EMAIL_SORT_FIELD:
+                return User::getUserEmail;
+            case PageConstant.USER_GENDER_SORT_FIELD:
+                return User::getUserGender;
+            case PageConstant.USER_ROLE_SORT_FIELD:
+                return User::getUserRole;
+            case PageConstant.CREATE_TIME_SORT_FIELD:
+                return User::getCreateTime;
+            case PageConstant.UPDATE_TIME_SORT_FIELD:
+                return User::getUpdateTime;
+        }
+        throw new BusinessException(ErrorCode.PARAMS_ERROR, "未知排序字段");
+    }
+
+    /**
+     * 获取用户vo
+     *
+     * @param user 用户
+     * @return {@code UserVO}
+     */
+    @Override
+    public UserVO getUserVO(User user) {
+        if (user == null) {
+            return null;
+        }
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(user, userVO);
+        return userVO;
+    }
+
+    /**
+     * 获取用户vo
+     *
+     * @param userList 用户列表
+     * @return {@code List<UserVO>}
+     */
+    @Override
+    public List<UserVO> getUserVO(List<User> userList) {
+        if (CollectionUtils.isEmpty(userList)) {
+            return new ArrayList<>();
+        }
+        return userList.stream().map(this::getUserVO).collect(Collectors.toList());
+    }
+
+    /**
+     * 用户密码由admin重置
+     *
+     * @param userId 用户id
+     * @return {@code Boolean}
+     */
+    @Override
+    public Boolean userPasswordResetByAdmin(Long userId) {
+        User user = this.getById(userId);
+        if (user != null) {
+            String encryptPassword = bCryptPasswordEncoder.encode(UserConstant.SALT + UserConstant.DEFAULT_USER_PASSWORD);
+            user.setUserPassword(encryptPassword);
+            this.updateById(user);
+            return true;
+        }
+        throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "用户不存在");
+    }
 }

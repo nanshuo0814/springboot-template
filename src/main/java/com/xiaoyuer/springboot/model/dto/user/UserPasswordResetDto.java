@@ -1,7 +1,7 @@
 package com.xiaoyuer.springboot.model.dto.user;
 
 import com.xiaoyuer.springboot.annotation.CheckParam;
-import com.xiaoyuer.springboot.model.enums.VerifyRegexEnums;
+import com.xiaoyuer.springboot.model.enums.user.UserRegexEnums;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -21,7 +21,7 @@ public class UserPasswordResetDto implements Serializable {
     private static final long serialVersionUID = 7417360309354655142L;
 
     @ApiModelProperty(value = "用户账号", required = true)
-    @CheckParam(nullErrorMsg = "用户账号不能为空", regex = VerifyRegexEnums.ACCOUNT, regexErrorMsg = "请输入正确的用户账号")
+    @CheckParam(nullErrorMsg = "用户账号不能为空", regex = UserRegexEnums.ACCOUNT, regexErrorMsg = "请输入正确的用户账号")
     private String userAccount;
 
     @ApiModelProperty(value = "用户密码", required = true)
@@ -33,11 +33,11 @@ public class UserPasswordResetDto implements Serializable {
     private String checkPassword;
 
     @ApiModelProperty(value = "邮箱", required = true)
-    @CheckParam(nullErrorMsg = "邮箱不能为空", regex = VerifyRegexEnums.EMAIL, regexErrorMsg = "邮箱格式不正确")
-    private String email;
+    @CheckParam(nullErrorMsg = "邮箱不能为空", regex = UserRegexEnums.EMAIL, regexErrorMsg = "邮箱格式不正确")
+    private String userEmail;
 
     @ApiModelProperty(value = "邮箱验证码", required = true)
-    @CheckParam(nullErrorMsg = "邮箱验证码不能为空", regex = VerifyRegexEnums.EMAIL_CAPTCHA, regexErrorMsg = "邮箱验证码错误")
+    @CheckParam(nullErrorMsg = "邮箱验证码不能为空", regex = UserRegexEnums.EMAIL_CAPTCHA, regexErrorMsg = "邮箱验证码错误")
     private String emailCaptcha;
 
 }

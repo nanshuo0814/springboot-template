@@ -1,4 +1,4 @@
-package com.xiaoyuer.springboot.model.enums;
+package com.xiaoyuer.springboot.model.enums.user;
 
 import lombok.Getter;
 import org.apache.commons.lang3.ObjectUtils;
@@ -30,7 +30,6 @@ public enum UserRoleEnum {
     }
 
     /**
-     * 获取值
      * 获取值列表
      *
      * @return {@code List<String>}

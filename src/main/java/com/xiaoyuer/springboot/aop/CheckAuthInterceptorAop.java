@@ -4,10 +4,9 @@ import com.xiaoyuer.springboot.annotation.CheckAuth;
 import com.xiaoyuer.springboot.common.ErrorCode;
 import com.xiaoyuer.springboot.exception.BusinessException;
 import com.xiaoyuer.springboot.model.entity.User;
-import com.xiaoyuer.springboot.model.enums.UserRoleEnum;
+import com.xiaoyuer.springboot.model.enums.user.UserRoleEnum;
 import com.xiaoyuer.springboot.service.UserService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -26,8 +25,11 @@ import javax.servlet.http.HttpServletRequest;
 @Component("CheckAuthInterceptor")
 public class CheckAuthInterceptorAop {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public CheckAuthInterceptorAop(UserService userService) {
+        this.userService = userService;
+    }
 
     /**
      * 执行身份验证拦截器

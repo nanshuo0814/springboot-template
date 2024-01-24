@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -29,8 +28,11 @@ public class CheckInterceptorAop {
     /**
      * auth拦截器
      */
-    @Autowired
-    private CheckAuthInterceptorAop authInterceptor;
+    private final CheckAuthInterceptorAop authInterceptor;
+
+    public CheckInterceptorAop(CheckAuthInterceptorAop authInterceptor) {
+        this.authInterceptor = authInterceptor;
+    }
 
 
     /**

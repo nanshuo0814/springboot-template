@@ -18,10 +18,11 @@ import java.util.Date;
  * @TableName user
  * @date 2024/01/04 14:43:30
  */
-@TableName(value ="user")
 @Data
+@TableName(value ="user")
 @ApiModel(value = "User", description = "用户实体类")
 public class User implements Serializable {
+
     /**
      * 用户id
      */

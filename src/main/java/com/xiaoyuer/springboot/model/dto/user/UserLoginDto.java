@@ -1,7 +1,7 @@
 package com.xiaoyuer.springboot.model.dto.user;
 
 import com.xiaoyuer.springboot.annotation.CheckParam;
-import com.xiaoyuer.springboot.model.enums.VerifyRegexEnums;
+import com.xiaoyuer.springboot.model.enums.user.UserRegexEnums;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -39,6 +39,6 @@ public class UserLoginDto implements Serializable {
      * 图片验证码
      */
     @ApiModelProperty(value = "图片验证码", required = true)
-    @CheckParam(nullErrorMsg = "图片验证码不能为空", regex = VerifyRegexEnums.IMAGE_CAPTCHA, regexErrorMsg = "图片验证码错误")
+    @CheckParam(nullErrorMsg = "图片验证码不能为空", regex = UserRegexEnums.IMAGE_CAPTCHA, regexErrorMsg = "图片验证码错误")
     private String imageCaptcha;
 }

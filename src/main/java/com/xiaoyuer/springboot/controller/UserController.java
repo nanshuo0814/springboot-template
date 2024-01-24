@@ -1,27 +1,25 @@
 package com.xiaoyuer.springboot.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xiaoyuer.springboot.annotation.Check;
-import com.xiaoyuer.springboot.annotation.CheckAuth;
-import com.xiaoyuer.springboot.annotation.CheckParam;
 import com.xiaoyuer.springboot.common.BaseResponse;
 import com.xiaoyuer.springboot.common.ErrorCode;
 import com.xiaoyuer.springboot.common.ResultUtils;
-import com.xiaoyuer.springboot.constant.NumberConstant;
 import com.xiaoyuer.springboot.constant.UserConstant;
 import com.xiaoyuer.springboot.exception.ThrowUtils;
 import com.xiaoyuer.springboot.model.dto.user.*;
 import com.xiaoyuer.springboot.model.entity.User;
 import com.xiaoyuer.springboot.model.vo.user.UserLoginVO;
+import com.xiaoyuer.springboot.model.vo.user.UserVO;
 import com.xiaoyuer.springboot.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 
 /**
@@ -31,13 +29,16 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2023/12/23 16:33:46
  */
 @Slf4j
-@Api(tags = "用户模块")
+@Api(tags = "普通用户模块")
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     // domain 用户登录相关
 
@@ -95,13 +96,13 @@ public class UserController {
     }
 
     /**
-     * 用户密码重置
+     * 用户密码重置(邮箱验证码)
      *
      * @param userPasswordResetDto 用户密码重置dto
      * @return {@code BaseResponse<Boolean>}
      */
     @PostMapping("/password/reset")
-    @ApiOperation(value = "用户密码重置", notes = "用户密码重置")
+    @ApiOperation(value = "用户密码重置(邮箱验证码)", notes = "用户密码重置(邮箱验证码)")
     @Check(checkParam = true)
     public BaseResponse<Boolean> userPasswordReset(HttpServletRequest request, @RequestBody UserPasswordResetDto userPasswordResetDto) {
         return ResultUtils.success(userService.userPasswordReset(request, userPasswordResetDto));
@@ -116,7 +117,7 @@ public class UserController {
      */
     @PostMapping("/password/update")
     @ApiOperation(value = "修改用户密码", notes = "修改用户密码")
-    @Check(checkParam = true, checkAuth = "user")
+    @Check(checkParam = true, checkAuth = UserConstant.USER_ROLE)
     public BaseResponse<Boolean> updateUserPassword(HttpServletRequest request, @RequestBody UserPasswordUpdateDto userPasswordUpdateDto) {
         return ResultUtils.success(userService.userPasswordUpdate(request, userPasswordUpdateDto));
     }
@@ -126,64 +127,45 @@ public class UserController {
     // domain 用户的增删改查相关
 
     /**
-     * 添加用户(管理员权限)
+     * 按页面获取用户vo列表(脱敏)
      *
-     * @param userAddDto 用户添加dto
-     * @return {@code BaseResponse<Long>}
+     * @param userQueryDto 用户查询dto
+     * @return {@code BaseResponse<Page<UserVO>>}
      */
-    @PostMapping("/add")
-    @ApiOperation(value = "添加用户(管理员权限)", notes = "添加用户(管理员权限)")
-    @Check(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Long> addUser(@RequestBody UserAddDto userAddDto) {
-        return ResultUtils.success(userService.addUser(userAddDto));
+    @PostMapping("/list/page/vo")
+    @ApiOperation(value = "按页面获取用户vo列表(脱敏)", notes = "按页面获取用户vo列表(脱敏)")
+    public BaseResponse<Page<UserVO>> getUserVoListByPage(@RequestBody UserQueryDto userQueryDto) {
+        long current = userQueryDto.getCurrent();
+        long size = userQueryDto.getPageSize();
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        Page<User> userPage = userService.page(new Page<>(current, size),
+                userService.getQueryWrapper(userQueryDto));
+        Page<UserVO> userVOPage = new Page<>(current, size, userPage.getTotal());
+        List<UserVO> userVO = userService.getUserVO(userPage.getRecords());
+        userVOPage.setRecords(userVO);
+        return ResultUtils.success(userVOPage);
     }
 
     /**
-     * 删除用户(管理员权限)
+     * 修改用户信息
      *
-     * @param userId 用户id
+     * @param request           请求
+     * @param userUpdateInfoDto 用户更新信息dto
      * @return {@code BaseResponse<Boolean>}
      */
-    @PostMapping("/delete")
-    @ApiOperation(value = "删除用户(管理员权限)", notes = "删除用户(管理员权限)")
-    @Check(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Long> deleteUser(@RequestBody @ApiParam(value = "用户id", required = true) Long userId) {
-        ThrowUtils.throwIf(!userService.removeById(userId), ErrorCode.OPERATION_ERROR, "删除用户失败,无该用户");
-        return ResultUtils.success(userId);
-    }
-
-    /**
-     * 更新用户(管理员权限)
-     *
-     * @param userUpdateDto 用户更新dto
-     * @return {@code BaseResponse<Long>}
-     */
-    @PostMapping("/update")
-    @ApiOperation(value = "更新用户(管理员权限)", notes = "更新用户(管理员权限)")
-    @Check(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Long> updateUser(@RequestBody UserUpdateDto userUpdateDto) {
+    @PostMapping("/update/my")
+    @ApiOperation(value = "修改用户信息", notes = "修改用户信息")
+    @Check(checkAuth = UserConstant.USER_ROLE, checkParam = true)
+    public BaseResponse<String> updateUserInfo(@RequestBody UserUpdateInfoDto userUpdateInfoDto,
+                                                HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
         User user = new User();
-        BeanUtils.copyProperties(userUpdateDto, user);
+        BeanUtils.copyProperties(userUpdateInfoDto, user);
+        user.setUserId(loginUser.getUserId());
         boolean result = userService.updateById(user);
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "修改用户信息失败,无该用户信息");
-        return ResultUtils.success(user.getUserId());
-    }
-
-    /**
-     * 按id获取用户(管理员权限)
-     *
-     * @param userId 用户id
-     * @return {@code BaseResponse<User>}
-     */
-    @GetMapping("/get")
-    @ApiOperation(value = "按id获取用户(管理员权限)", notes = "按id获取用户(管理员权限)")
-    @CheckAuth(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<User> getUserById(
-            @ApiParam(value = "用户id", required = true)
-            @CheckParam(required = NumberConstant.TRUE_VALUE, nullErrorMsg = "用户id不能为空") Long userId) {
-        User user = userService.getById(userId);
-        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");
-        return ResultUtils.success(user);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success("更新用户信息成功！");
     }
 
     // end domain 用户的增删改查相关

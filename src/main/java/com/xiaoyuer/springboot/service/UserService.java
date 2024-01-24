@@ -1,12 +1,15 @@
 package com.xiaoyuer.springboot.service;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xiaoyuer.springboot.model.dto.user.*;
 import com.xiaoyuer.springboot.model.entity.User;
 import com.xiaoyuer.springboot.model.vo.user.UserLoginVO;
+import com.xiaoyuer.springboot.model.vo.user.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 用户服务
@@ -98,4 +101,36 @@ public interface UserService extends IService<User> {
      * @return {@code Long}
      */
     Long addUser(UserAddDto userAddDto);
+
+    /**
+     * 获取查询条件
+     *
+     * @param userQueryDto 用户查询dto
+     * @return {@code LambdaQueryWrapper<User>}
+     */
+    LambdaQueryWrapper<User> getQueryWrapper(UserQueryDto userQueryDto);
+
+    /**
+     * 获取用户vo
+     *
+     * @param records 记录
+     * @return {@code List<UserVO>}
+     */
+    List<UserVO> getUserVO(List<User> records);
+
+    /**
+     * 获取用户vo(脱敏)
+     *
+     * @param user 用户
+     * @return {@code UserVO}
+     */
+    UserVO getUserVO(User user);
+
+    /**
+     * 用户密码由admin重置
+     *
+     * @param userId 用户id
+     * @return {@code Boolean}
+     */
+    Boolean userPasswordResetByAdmin(Long userId);
 }

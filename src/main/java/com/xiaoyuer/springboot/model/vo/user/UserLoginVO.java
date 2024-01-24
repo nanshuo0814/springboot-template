@@ -46,7 +46,7 @@ public class UserLoginVO implements Serializable {
      * 用户性别
      */
     @ApiModelProperty(value = "用户性别", required = true)
-    private Integer gender;
+    private Integer userGender;
 
     /**
      * 用户简介

@@ -2,7 +2,7 @@ package com.xiaoyuer.springboot.annotation;
 
 
 import com.xiaoyuer.springboot.constant.NumberConstant;
-import com.xiaoyuer.springboot.model.enums.VerifyRegexEnums;
+import com.xiaoyuer.springboot.model.enums.user.UserRegexEnums;
 
 import java.lang.annotation.*;
 
@@ -20,9 +20,9 @@ public @interface CheckParam {
     /**
      * 正则表达式
      *
-     * @return {@code VerifyRegexEnums}
+     * @return {@code UserRegexEnums}
      */
-    VerifyRegexEnums regex() default VerifyRegexEnums.NO;
+    UserRegexEnums regex() default UserRegexEnums.NO;
 
     /**
      * 最小长度

@@ -7,14 +7,13 @@ import com.xiaoyuer.springboot.common.ErrorCode;
 import com.xiaoyuer.springboot.common.ResultUtils;
 import com.xiaoyuer.springboot.constant.NumberConstant;
 import com.xiaoyuer.springboot.constant.RedisKeyConstant;
-import com.xiaoyuer.springboot.model.enums.VerifyRegexEnums;
+import com.xiaoyuer.springboot.model.enums.user.UserRegexEnums;
 import com.xiaoyuer.springboot.utils.captcha.EmailCaptchaUtils;
 import com.xiaoyuer.springboot.utils.captcha.ImageCaptchaUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,8 +35,11 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/captcha")
 public class CaptchaController {
 
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    public CaptchaController(RedisTemplate<String, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
     /**
      * 发送电子邮件验证码
@@ -50,7 +52,7 @@ public class CaptchaController {
     public BaseResponse<String> sendEmailCaptcha(
             @ApiParam(value = "目标电子邮件", required = true)
             @RequestBody @CheckParam(required = NumberConstant.TRUE_VALUE, nullErrorMsg = "邮箱不能为空",
-                    regex = VerifyRegexEnums.EMAIL, regexErrorMsg = "邮箱格式不正确") String targetEmail) {
+                    regex = UserRegexEnums.EMAIL, regexErrorMsg = "邮箱格式不正确") String targetEmail) {
 
         // 将 JSON 数据解析为字符串（String）
         Gson gson = new Gson();

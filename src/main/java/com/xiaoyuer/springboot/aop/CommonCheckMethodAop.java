@@ -4,7 +4,7 @@ import com.xiaoyuer.springboot.annotation.CheckParam;
 import com.xiaoyuer.springboot.common.ErrorCode;
 import com.xiaoyuer.springboot.constant.NumberConstant;
 import com.xiaoyuer.springboot.exception.BusinessException;
-import com.xiaoyuer.springboot.model.enums.VerifyRegexEnums;
+import com.xiaoyuer.springboot.model.enums.user.UserRegexEnums;
 import com.xiaoyuer.springboot.utils.RegexUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;
@@ -44,7 +44,7 @@ public class CommonCheckMethodAop {
             if (isBasicType(parameter.getType())) {
                 // 如果存在 @CheckParam 注解，则根据注解配置进行验证
                 if (checkParam != null) {
-                    if (checkParam.required() == NumberConstant.DEFAULT_VALUE && checkParam.minLength() == NumberConstant.DEFAULT_VALUE && checkParam.maxLength() == NumberConstant.DEFAULT_VALUE && checkParam.regex().equals(VerifyRegexEnums.NO)) {
+                    if (checkParam.required() == NumberConstant.DEFAULT_VALUE && checkParam.minLength() == NumberConstant.DEFAULT_VALUE && checkParam.maxLength() == NumberConstant.DEFAULT_VALUE && checkParam.regex().equals(UserRegexEnums.NO)) {
                         // 如果验证条件允许跳过，则直接退出本次循环
                         continue;
                     }
@@ -118,7 +118,6 @@ public class CommonCheckMethodAop {
         // 如果值不为空
         if (!ObjectUtils.isEmpty(value)) {
             // 获取值的长度
-            log.info("value:{}", value);
             int length = value.toString().length();
             // 如果验证条件要求最大长度大于 0 且小于实际长度，或者最小长度大于 0 且大于实际长度，则抛出 PARAMS_LENGTH_ERROR 异常
             if ((checkParam.maxLength() != NumberConstant.DEFAULT_VALUE && checkParam.maxLength() < length) ||
@@ -159,7 +158,7 @@ public class CommonCheckMethodAop {
                     // 如果字段上存在 @CheckParam 注解，则进行字段值的验证
                     if (checkParam != null) {
                         // 如果验证条件要求不是必须的，且没有校验规则，则跳过后续验证
-                        if (checkParam.required() == NumberConstant.FALSE_VALUE && checkParam.minLength() == NumberConstant.DEFAULT_VALUE && checkParam.maxLength() == NumberConstant.DEFAULT_VALUE && checkParam.regex().equals(VerifyRegexEnums.NO)) {
+                        if (checkParam.required() == NumberConstant.FALSE_VALUE && checkParam.minLength() == NumberConstant.DEFAULT_VALUE && checkParam.maxLength() == NumberConstant.DEFAULT_VALUE && checkParam.regex().equals(UserRegexEnums.NO)) {
                             continue;
                         }
                         // 验证字段值

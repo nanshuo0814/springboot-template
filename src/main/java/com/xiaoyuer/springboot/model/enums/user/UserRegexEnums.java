@@ -1,4 +1,4 @@
-package com.xiaoyuer.springboot.model.enums;
+package com.xiaoyuer.springboot.model.enums.user;
 
 import lombok.Getter;
 
@@ -9,9 +9,10 @@ import lombok.Getter;
  * @date 2023/12/23 20:34:50
  */
 @Getter
-public enum VerifyRegexEnums {
+public enum UserRegexEnums {
 
     NO("", "不校验"),
+    USER_ID("^[0-9]{1,19}$", "用户id"),
     ACCOUNT("^[a-zA-Z][a-zA-Z0-9_]{2,15}$", "字母开头,由数字、英文字母或者下划线组成 3-16位"),
     EMAIL("^[\\w-]+(\\.[\\w-]+)*@[\\w-]+(\\.[\\w-]+)+$", "邮箱"),
     PASSWORD("^(?=.*\\d)(?=.*[a-zA-Z])[\\da-zA-Z~!@#$%^&*_]{6,18}$", "至少包含一个数字，一个字母，可以有特殊字符，长度为6-18位"),
@@ -34,7 +35,7 @@ public enum VerifyRegexEnums {
      */
     private final String desc;
 
-    VerifyRegexEnums(String regex, String desc) {
+    UserRegexEnums(String regex, String desc) {
         this.regex = regex;
         this.desc = desc;
     }

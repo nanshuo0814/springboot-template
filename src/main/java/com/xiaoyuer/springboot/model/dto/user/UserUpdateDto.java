@@ -2,7 +2,7 @@ package com.xiaoyuer.springboot.model.dto.user;
 
 import com.xiaoyuer.springboot.annotation.CheckParam;
 import com.xiaoyuer.springboot.constant.NumberConstant;
-import com.xiaoyuer.springboot.model.enums.VerifyRegexEnums;
+import com.xiaoyuer.springboot.model.enums.user.UserRegexEnums;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -25,15 +25,22 @@ public class UserUpdateDto implements Serializable {
      * 用户id
      */
     @ApiModelProperty(value = "用户id", required = true)
-    @CheckParam(nullErrorMsg = "用户id不能为空")
+    @CheckParam(nullErrorMsg = "用户id不能为空", regex = UserRegexEnums.USER_ID, regexErrorMsg = "用户id格式不正确")
     private Long userId;
 
     /**
      * 用户昵称
      */
-    @ApiModelProperty(value = "用户昵称", required = true)
-    @CheckParam(nullErrorMsg = "用户昵称不能为空", regex = VerifyRegexEnums.USERNAME, regexErrorMsg = "用户昵称只能包含字母、数字或汉字")
+    @ApiModelProperty(value = "用户昵称", required = false)
+    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.USERNAME, regexErrorMsg = "用户昵称只能包含字母、数字或汉字")
     private String userName;
+
+    /**
+     * 用户账号
+     */
+    @ApiModelProperty(value = "用户账号", required = false)
+    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.ACCOUNT, regexErrorMsg = "用户账号只能包含字母、数字或下划线")
+    private String userAccount;
 
     /**
      * 用户头像
@@ -46,7 +53,7 @@ public class UserUpdateDto implements Serializable {
      * 用户邮箱
      */
     @ApiModelProperty(value = "用户邮箱", required = false)
-    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = VerifyRegexEnums.EMAIL, regexErrorMsg = "邮箱格式不正确")
+    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.EMAIL, regexErrorMsg = "邮箱格式不正确")
     private String userEmail;
 
     /**

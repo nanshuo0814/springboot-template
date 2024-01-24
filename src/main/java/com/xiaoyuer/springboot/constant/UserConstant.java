@@ -23,7 +23,7 @@ public interface UserConstant {
     /**
      * 默认角色
      */
-    String DEFAULT_ROLE = "user";
+    String USER_ROLE = "user";
 
     /**
      * 管理员角色
@@ -41,14 +41,14 @@ public interface UserConstant {
     String DEFAULT_USER_PASSWORD = "user123";
 
     /**
-     * 默认用户帐户
+     * 默认用户昵称
      */
     String DEFAULT_USER_NAME = "user";
 
     /**
      * 默认用户简介
      */
-    String DEFAULT_USER_PROFILE = "一条只会冒泡的小鱼儿ya";
+    String DEFAULT_USER_PROFILE = "本人很懒,什么也没有留下ya";
 
     /**
      * 默认用户头像

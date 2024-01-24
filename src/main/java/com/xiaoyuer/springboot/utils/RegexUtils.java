@@ -1,6 +1,6 @@
 package com.xiaoyuer.springboot.utils;
 
-import com.xiaoyuer.springboot.model.enums.VerifyRegexEnums;
+import com.xiaoyuer.springboot.model.enums.user.UserRegexEnums;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.regex.Matcher;
@@ -31,13 +31,13 @@ public class RegexUtils {
     }
 
     /**
-     * 使用 VerifyRegexEnums 枚举中的正则表达式验证字符串
+     * 使用 UserRegexEnums 枚举中的正则表达式验证字符串
      *
-     * @param regexEnums VerifyRegexEnums 枚举
+     * @param regexEnums UserRegexEnums 枚举
      * @param value      要验证的字符串
      * @return 如果匹配返回 true，否则返回 false
      */
-    public static boolean matches(VerifyRegexEnums regexEnums, String value) {
+    public static boolean matches(UserRegexEnums regexEnums, String value) {
         return matches(regexEnums.getRegex(), value);
     }
 }
