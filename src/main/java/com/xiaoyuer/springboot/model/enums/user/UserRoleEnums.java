@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * @date 2023/12/30 20:18:27
  */
 @Getter
-public enum UserRoleEnum {
+public enum UserRoleEnums {
 
     USER("用户", "user"),
     ADMIN("管理员", "admin"),
@@ -24,7 +24,7 @@ public enum UserRoleEnum {
 
     private final String value;
 
-    UserRoleEnum(String text, String value) {
+    UserRoleEnums(String text, String value) {
         this.text = text;
         this.value = value;
     }
@@ -45,11 +45,11 @@ public enum UserRoleEnum {
      * @param value 价值
      * @return {@code UserRoleEnum}
      */
-    public static UserRoleEnum getEnumByValue(String value) {
+    public static UserRoleEnums getEnumByValue(String value) {
         if (ObjectUtils.isEmpty(value)) {
             return null;
         }
-        for (UserRoleEnum anEnum : UserRoleEnum.values()) {
+        for (UserRoleEnums anEnum : UserRoleEnums.values()) {
             if (anEnum.value.equals(value)) {
                 return anEnum;
             }

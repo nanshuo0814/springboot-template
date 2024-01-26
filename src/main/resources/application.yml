@@ -69,3 +69,12 @@ logging:
     # 日志文件路径,可以使用绝对路径和相对路径
     path: ${user.dir}/logs  # 当前项目根路径${user.dir}
     #path: E:/project_logs/springboot-template # 绝对路径
+
+# 阿里云对象存储（至少需要配置为公共读）
+# todo 需替换配置
+oss:
+  client:
+    accessKey: LTAI5tJbzepWP5Uw4E9UTdPq
+    secretKey: ccK9h6VNbPQbOuQgNWOCLRbUkaARra
+    bucket: ydg-image
+    region: oss-cn-guangzhou.aliyuncs.com

@@ -4,7 +4,7 @@ import com.xiaoyuer.springboot.annotation.CheckAuth;
 import com.xiaoyuer.springboot.common.ErrorCode;
 import com.xiaoyuer.springboot.exception.BusinessException;
 import com.xiaoyuer.springboot.model.entity.User;
-import com.xiaoyuer.springboot.model.enums.user.UserRoleEnum;
+import com.xiaoyuer.springboot.model.enums.user.UserRoleEnums;
 import com.xiaoyuer.springboot.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -59,19 +59,19 @@ public class CheckAuthInterceptorAop {
 
         // 检查用户是否具有必要的权限
         if (StringUtils.isNotBlank(mustRole)) {
-            UserRoleEnum mustUserRoleEnum = UserRoleEnum.getEnumByValue(mustRole);
-            if (mustUserRoleEnum == null) {
+            UserRoleEnums mustUserRoleEnums = UserRoleEnums.getEnumByValue(mustRole);
+            if (mustUserRoleEnums == null) {
                 throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
             }
 
             String userRole = loginUser.getUserRole();
             // 如果用户被封号，直接拒绝
-            if (UserRoleEnum.BAN.equals(mustUserRoleEnum)) {
+            if (UserRoleEnums.BAN.equals(mustUserRoleEnums)) {
                 throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
             }
 
             // 如果需要管理员权限，但用户不是管理员，拒绝
-            if (UserRoleEnum.ADMIN.equals(mustUserRoleEnum)) {
+            if (UserRoleEnums.ADMIN.equals(mustUserRoleEnums)) {
                 if (!mustRole.equals(userRole)) {
                     throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
                 }
