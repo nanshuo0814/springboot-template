@@ -12,6 +12,8 @@ import com.xiaoyuer.springboot.model.dto.file.UploadFileDto;
 import com.xiaoyuer.springboot.model.entity.User;
 import com.xiaoyuer.springboot.model.enums.file.FileUploadTypeEnums;
 import com.xiaoyuer.springboot.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +31,7 @@ import java.util.Arrays;
  * @author 小鱼儿
  * @date 2024/01/26 13:27:14
  */
+@Api(tags = "文件模块")
 @RestController
 @RequestMapping("/file")
 @Slf4j
@@ -53,10 +56,11 @@ public class FileController {
      */
     @PostMapping("/upload")
     @CheckAuth(mustRole = "user")
+    @ApiOperation(value = "文件上传", notes = "文件上传")
     public BaseResponse<String> uploadFile(@RequestPart("file") MultipartFile multipartFile,
                                            UploadFileDto uploadFileDto, HttpServletRequest request) {
         String type = uploadFileDto.getType();
-        FileUploadTypeEnums fileUploadTypeEnums =  FileUploadTypeEnums.getEnumByValue(type);
+        FileUploadTypeEnums fileUploadTypeEnums = FileUploadTypeEnums.getEnumByValue(type);
         if (fileUploadTypeEnums == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "上传文件的参数类型错误");
         }
