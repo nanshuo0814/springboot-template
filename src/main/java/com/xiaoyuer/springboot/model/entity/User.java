@@ -45,20 +45,6 @@ public class User implements Serializable {
     private String userPassword;
 
     /**
-     * 微信开放平台id
-     */
-    @ApiModelProperty(value = "微信开放平台id")
-    @TableField(value = "union_id")
-    private String unionId;
-
-    /**
-     * 公众号openId
-     */
-    @ApiModelProperty(value = "公众号openId")
-    @TableField(value = "mp_open_id")
-    private String mpOpenId;
-
-    /**
      * 用户昵称
      */
     @ApiModelProperty(value = "用户昵称")
