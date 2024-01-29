@@ -21,8 +21,8 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -43,11 +43,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    public UserServiceImpl(RedisTemplate<String, Object> redisTemplate, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserServiceImpl(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
 
@@ -107,10 +104,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "该账号已被注册,请重新输入一个");
             }
 
-            // BCrypt加密
-            String encryptPassword = bCryptPasswordEncoder.encode(UserConstant.SALT + userPassword);
             // MD5加密
-            //String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userPassword).getBytes());
+            String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userPassword).getBytes());
 
             // 插入数据
             User user = new User();
@@ -162,8 +157,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "账号已被禁用,请联系管理员解封");
         }
 
-        boolean matches = bCryptPasswordEncoder.matches(UserConstant.SALT + userPassword, user.getUserPassword());
-        if (!matches) {
+        String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userPassword).getBytes());
+        if (!encryptPassword.equals(user.getUserPassword())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或密码错误");
         }
 
@@ -285,8 +280,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User loginUser = this.getById(this.getLoginUser(request).getUserId());
 
         // 判断旧密码是否正确
-        boolean matches = bCryptPasswordEncoder.matches(UserConstant.SALT + oldPassword, loginUser.getUserPassword());
-        if (!matches) {
+        String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + oldPassword).getBytes());
+        if (!encryptPassword.equals(loginUser.getUserPassword())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请输入正确旧密码");
         }
 
@@ -296,10 +291,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 修改密码
-        String encryptPassword = bCryptPasswordEncoder.encode(UserConstant.SALT + userPassword);
+        String newEncryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userPassword).getBytes());
         User user = new User();
         user.setUserId(loginUser.getUserId());
-        user.setUserPassword(encryptPassword);
+        user.setUserPassword(newEncryptPassword);
         // 更新用户密码
         return this.updateById(user);
     }
@@ -365,7 +360,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 修改密码
         synchronized (userAccount.intern()) {
             // 加密密码
-            String encryptPassword = bCryptPasswordEncoder.encode(UserConstant.SALT + userPassword);
+            String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userPassword).getBytes());
+
             // 更新用户密码
             user.setUserPassword(encryptPassword);
             return this.updateById(user);
@@ -429,7 +425,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 加密密码
-        String encryptPassword = bCryptPasswordEncoder.encode(UserConstant.SALT + userAddDto.getUserPassword());
+        String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userAddDto.getUserPassword()).getBytes());
         userAddDto.setUserPassword(encryptPassword);
 
         // 保存用户
@@ -538,7 +534,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public Boolean userPasswordResetByAdmin(Long userId) {
         User user = this.getById(userId);
         if (user != null) {
-            String encryptPassword = bCryptPasswordEncoder.encode(UserConstant.SALT + UserConstant.DEFAULT_USER_PASSWORD);
+            String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + UserConstant.DEFAULT_USER_PASSWORD).getBytes());
             user.setUserPassword(encryptPassword);
             this.updateById(user);
             return true;
