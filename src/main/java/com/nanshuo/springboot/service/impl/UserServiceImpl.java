@@ -14,7 +14,7 @@ import com.nanshuo.springboot.mapper.UserMapper;
 import com.nanshuo.springboot.model.request.user.*;
 import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.vo.user.UserLoginVO;
-import com.nanshuo.springboot.model.vo.user.UserVO;
+import com.nanshuo.springboot.model.vo.user.UserSafetyVO;
 import com.nanshuo.springboot.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -99,7 +99,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 账户不能重复
             LambdaQueryWrapper<User> qw = new LambdaQueryWrapper<>();
             qw.eq(User::getUserAccount, userAccount);
-            long userAccountId = this.baseMapper.selectCount(queryWrapper);
+            long userAccountId = this.baseMapper.selectCount(qw);
             if (userAccountId > 0) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "该账号已被注册,请重新输入一个");
             }
@@ -501,13 +501,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return {@code UserVO}
      */
     @Override
-    public UserVO getUserVO(User user) {
+    public UserSafetyVO getUserVO(User user) {
         if (user == null) {
             return null;
         }
-        UserVO userVO = new UserVO();
-        BeanUtils.copyProperties(user, userVO);
-        return userVO;
+        UserSafetyVO userSafetyVO = new UserSafetyVO();
+        BeanUtils.copyProperties(user, userSafetyVO);
+        return userSafetyVO;
     }
 
     /**
@@ -517,7 +517,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return {@code List<UserVO>}
      */
     @Override
-    public List<UserVO> getUserVO(List<User> userList) {
+    public List<UserSafetyVO> getUserVO(List<User> userList) {
         if (CollectionUtils.isEmpty(userList)) {
             return new ArrayList<>();
         }

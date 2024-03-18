@@ -10,7 +10,7 @@ import com.nanshuo.springboot.exception.ThrowUtils;
 import com.nanshuo.springboot.model.request.user.*;
 import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.vo.user.UserLoginVO;
-import com.nanshuo.springboot.model.vo.user.UserVO;
+import com.nanshuo.springboot.model.vo.user.UserSafetyVO;
 import com.nanshuo.springboot.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -134,16 +134,16 @@ public class UserController {
      */
     @PostMapping("/list/page/vo")
     @ApiOperation(value = "按页面获取用户vo列表(脱敏)", notes = "按页面获取用户vo列表(脱敏)")
-    public BaseResponse<Page<UserVO>> getUserVoListByPage(@RequestBody UserQueryRequest userQueryRequest) {
+    public BaseResponse<Page<UserSafetyVO>> getUserVoListByPage(@RequestBody UserQueryRequest userQueryRequest) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
         Page<User> userPage = userService.page(new Page<>(current, size),
                 userService.getQueryWrapper(userQueryRequest));
-        Page<UserVO> userVOPage = new Page<>(current, size, userPage.getTotal());
-        List<UserVO> userVO = userService.getUserVO(userPage.getRecords());
-        userVOPage.setRecords(userVO);
+        Page<UserSafetyVO> userVOPage = new Page<>(current, size, userPage.getTotal());
+        List<UserSafetyVO> userSafetyVO = userService.getUserVO(userPage.getRecords());
+        userVOPage.setRecords(userSafetyVO);
         return ResultUtils.success(userVOPage);
     }
 

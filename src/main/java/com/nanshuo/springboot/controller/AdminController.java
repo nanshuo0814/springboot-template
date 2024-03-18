@@ -14,7 +14,7 @@ import com.nanshuo.springboot.model.request.user.UserAddRequest;
 import com.nanshuo.springboot.model.request.user.UserQueryRequest;
 import com.nanshuo.springboot.model.request.user.UserUpdateRequest;
 import com.nanshuo.springboot.model.domain.User;
-import com.nanshuo.springboot.model.vo.user.UserVO;
+import com.nanshuo.springboot.model.vo.user.UserSafetyVO;
 import com.nanshuo.springboot.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -123,7 +123,7 @@ public class AdminController {
      */
     @GetMapping("/get/vo")
     @ApiOperation(value = "根据 id 获取包装类", notes = "根据 id 获取包装类")
-    public BaseResponse<UserVO> getUserVOById(@CheckParam(required = NumberConstant.TRUE_VALUE, nullErrorMsg = "用户id不能为空") Long id) {
+    public BaseResponse<UserSafetyVO> getUserVOById(@CheckParam(required = NumberConstant.TRUE_VALUE, nullErrorMsg = "用户id不能为空") Long id) {
         BaseResponse<User> response = getUserById(id);
         User user = response.getData();
         return ResultUtils.success(userService.getUserVO(user));

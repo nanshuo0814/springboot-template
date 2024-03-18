@@ -12,7 +12,7 @@ import java.util.Date;
  * @date 2024/01/13 20:09:31
  */
 @Data
-public class UserVO implements Serializable {
+public class UserSafetyVO implements Serializable {
 
     /**
      * 用户id

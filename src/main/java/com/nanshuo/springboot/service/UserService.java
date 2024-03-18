@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.nanshuo.springboot.model.request.user.*;
 import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.vo.user.UserLoginVO;
-import com.nanshuo.springboot.model.vo.user.UserVO;
+import com.nanshuo.springboot.model.vo.user.UserSafetyVO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -116,7 +116,7 @@ public interface UserService extends IService<User> {
      * @param records 记录
      * @return {@code List<UserVO>}
      */
-    List<UserVO> getUserVO(List<User> records);
+    List<UserSafetyVO> getUserVO(List<User> records);
 
     /**
      * 获取用户vo(脱敏)
@@ -124,7 +124,7 @@ public interface UserService extends IService<User> {
      * @param user 用户
      * @return {@code UserVO}
      */
-    UserVO getUserVO(User user);
+    UserSafetyVO getUserVO(User user);
 
     /**
      * 用户密码由admin重置
