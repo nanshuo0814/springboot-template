@@ -20,3 +20,4 @@
 - Gson: 2.9.1
 - EasyExcel: 3.1.1
 - Hutool-All: 5.8.8
+- devtools: 热部署
