@@ -14,7 +14,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 /**
  * Knife4j 接口文档配置
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/06 21:42:46
  */
 @Configuration
@@ -27,7 +27,7 @@ public class Knife4jConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(new ApiInfoBuilder()
                         .title("接口文档")
-                        .contact(new Contact("小鱼儿", "https://blog.ydg.icu/", "inanshuo@foxmail.com"))
+                        .contact(new Contact("nanshuo", "https://blog.ydg.icu/", "inanshuo@foxmail.com"))
                         .description("springboot-template")
                         .termsOfServiceUrl("https://doc.xiaominfo.com/")
                         .version("1.0")

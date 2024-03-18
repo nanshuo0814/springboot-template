@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 /**
  * 用户角色枚举
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2023/12/30 20:18:27
  */
 @Getter

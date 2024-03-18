@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 验证码控制器
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/05 15:29:46
  */
 @Slf4j

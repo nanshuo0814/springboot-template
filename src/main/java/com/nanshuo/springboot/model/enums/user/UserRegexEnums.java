@@ -5,7 +5,7 @@ import lombok.Getter;
 /**
  * 验证正则表达式枚举
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2023/12/23 20:34:50
  */
 @Getter

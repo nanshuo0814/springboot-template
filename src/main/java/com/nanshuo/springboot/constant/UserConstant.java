@@ -3,7 +3,7 @@ package com.nanshuo.springboot.constant;
 /**
  * 用户常量
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/03 19:33:58
  */
 public interface UserConstant {

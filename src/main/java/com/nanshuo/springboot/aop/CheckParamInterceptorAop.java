@@ -15,7 +15,7 @@ import java.util.Arrays;
  * 该类用于拦截带有 @CheckParam 注解的方法，并执行相应的参数校验逻辑。
  * 支持对参数的非空、长度、正则表达式等进行校验。
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2023/12/31 00:11:45
  */
 @Slf4j

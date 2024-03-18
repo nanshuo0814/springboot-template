@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * 阿里云对象存储客户端
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/26 13:21:40
  */
 @Data

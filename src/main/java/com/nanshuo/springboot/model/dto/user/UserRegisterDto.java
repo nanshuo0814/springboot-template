@@ -11,7 +11,7 @@ import java.io.Serializable;
 /**
  * 用户注册 DTO
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2023/12/23 19:00:34
  */
 @Data

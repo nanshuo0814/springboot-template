@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * 用户登录vo
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/04 19:08:31
  */
 @Data

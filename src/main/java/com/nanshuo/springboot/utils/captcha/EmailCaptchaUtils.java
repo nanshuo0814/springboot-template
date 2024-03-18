@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 /**
  * 邮箱验证码工具类
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/05 17:07:19
  */
 @Component

@@ -11,7 +11,7 @@ import java.io.Serializable;
 /**
  * 用户密码重置dto
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/04 21:24:00
  */
 @Data

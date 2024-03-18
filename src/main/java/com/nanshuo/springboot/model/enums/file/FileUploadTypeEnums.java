@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 /**
  * 文件上传业务类型枚举
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/26 14:23:52
  */
 @Getter

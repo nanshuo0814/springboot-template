@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * 通用返回类
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2023/12/23 16:35:07
  */
 @Data

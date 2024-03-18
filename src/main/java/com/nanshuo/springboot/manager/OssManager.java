@@ -11,7 +11,7 @@ import java.io.File;
 /**
  * oss 对象存储操作
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/26 13:26:04
  */
 @Component

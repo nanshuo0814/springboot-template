@@ -10,7 +10,7 @@ import java.util.Random;
 /**
  * 图片验证码工具类
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/05 19:46:00
  */
 public class ImageCaptchaUtils {

@@ -10,7 +10,7 @@ import java.io.Serializable;
 /**
  * 用户密码更新dto
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/04 22:50:31
  */
 @Data

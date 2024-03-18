@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * 上传文件dto
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/26 14:21:07
  */
 @Data

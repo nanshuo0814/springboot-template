@@ -6,7 +6,7 @@ import com.nanshuo.springboot.common.ErrorCode;
 /**
  * 抛异常工具类
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2023/12/23 18:36:01
  */
 public class ThrowUtils {

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 /**
  * Spring Bean 上下文获取工具
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/07 13:45:04
  */
 @Component

@@ -3,7 +3,7 @@ package com.nanshuo.springboot.common;
 /**
  * 返回工具类
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2023/12/23 18:25:00
  */
 public class ResultUtils {

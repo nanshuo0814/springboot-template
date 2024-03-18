@@ -3,7 +3,7 @@ package com.nanshuo.springboot.constant;
 /**
  * redis密钥常量
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/03 19:26:32
  */
 public interface RedisKeyConstant {

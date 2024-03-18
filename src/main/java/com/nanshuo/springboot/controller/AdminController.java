@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * 管理员控制器
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/23 20:48:22
  */
 @Slf4j

@@ -12,7 +12,7 @@ import java.io.Serializable;
 /**
  * 用户更新信息dto
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/23 16:51:11
  */
 @Data

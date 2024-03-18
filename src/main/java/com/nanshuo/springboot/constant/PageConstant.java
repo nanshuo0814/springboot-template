@@ -3,7 +3,7 @@ package com.nanshuo.springboot.constant;
 /**
  * 页面常量
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/11 21:08:48
  */
 public interface PageConstant {

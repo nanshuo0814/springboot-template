@@ -18,7 +18,7 @@ import java.util.Arrays;
  * 该类用于拦截带有 @Check 注解的方法，执行参数和身份验证的校验逻辑。
  * 支持对方法参数的非空、长度、正则表达式等进行校验，以及对身份的权限验证。
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2023/12/30 20:36:34
  */
 @Slf4j

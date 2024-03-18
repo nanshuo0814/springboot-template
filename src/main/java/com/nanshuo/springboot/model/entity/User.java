@@ -14,7 +14,7 @@ import java.util.Date;
 /**
  * 用户实体类
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @TableName user
  * @date 2024/01/04 14:43:30
  */

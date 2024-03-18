@@ -24,7 +24,7 @@ import java.time.Duration;
 /**
  * redis配置
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/03 20:24:33
  */
 @EnableCaching

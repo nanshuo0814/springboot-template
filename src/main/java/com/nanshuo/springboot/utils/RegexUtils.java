@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 /**
  * 正则表达式验证工具类
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2023/12/23 21:45:27
  */
 public class RegexUtils {

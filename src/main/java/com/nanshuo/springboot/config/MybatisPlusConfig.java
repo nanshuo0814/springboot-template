@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * mybatis plus配置分页插件
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/03 20:28:58
  */
 @Configuration

@@ -8,7 +8,7 @@ import lombok.Getter;
  * 业务异常
  * 自定义异常类
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2023/12/23 18:35:31
  */
 @Getter

@@ -5,7 +5,7 @@ import lombok.Getter;
 /**
  * 自定义错误码
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2023/12/23 16:35:29
  */
 @Getter

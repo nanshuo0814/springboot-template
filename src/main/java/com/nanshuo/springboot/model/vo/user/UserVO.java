@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * 用户视图（脱敏）
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/13 20:09:31
  */
 @Data

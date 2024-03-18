@@ -12,7 +12,7 @@ import java.io.Serializable;
 /**
  * 用户添加dto
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/06 12:00:19
  */
 @Data
@@ -22,7 +22,7 @@ public class UserAddDto implements Serializable {
     private static final long serialVersionUID = -119754408044041182L;
 
     /**
-     * 用户昵称(不是必须的，可以设置默认昵称或者留空，如：“小鱼儿”)
+     * 用户昵称(不是必须的，可以设置默认昵称或者留空，如：“nanshuo”)
      */
     @ApiModelProperty(value = "用户昵称", required = false)
     @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.USERNAME, regexErrorMsg = "用户名只能包含字母、数字或汉字")
@@ -50,7 +50,7 @@ public class UserAddDto implements Serializable {
     private String userEmail;
 
     /**
-     * 用户简介(不是必须的，可以设置默认昵称或者留空，如：“一条只会冒泡的小鱼儿ya”)
+     * 用户简介(不是必须的，可以设置默认昵称或者留空，如：“一条只会冒泡的nanshuoya”)
      */
     @ApiModelProperty(value = "用户简介", required = false)
     @CheckParam(required = NumberConstant.FALSE_VALUE, maxLength = 200, lenghtErrorMsg = "用户简介长度必须在1-200字之间")

@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * 用户查询dto
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2024/01/12 23:11:49
  */
 @Data

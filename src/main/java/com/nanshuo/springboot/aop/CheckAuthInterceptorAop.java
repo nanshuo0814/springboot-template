@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
  * 该类用于检查用户身份验证，并确保用户具有必要的权限。
  * 实现了对 `CheckAuth` 注解和字符串类型的身份验证要求的处理。
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2023/12/31 00:11:45
  */
 @Component("CheckAuthInterceptor")

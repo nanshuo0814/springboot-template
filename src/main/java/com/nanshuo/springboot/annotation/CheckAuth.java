@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * 检查身份验证
  *
- * @author 小鱼儿
+ * @author nanshuo
  * @date 2023/12/31 00:10:46
  */
 @Target(ElementType.METHOD)
