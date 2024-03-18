@@ -1,20 +1,20 @@
-package com.nanshuo.springboot.model.dto.user;
+package com.nanshuo.springboot.model.request.user;
 
-import com.nanshuo.springboot.common.PageBaseDto;
+import com.nanshuo.springboot.common.PageBaseRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 /**
- * 用户查询dto
+ * 用户查询Request
  *
  * @author nanshuo
  * @date 2024/01/12 23:11:49
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class UserQueryDto extends PageBaseDto implements Serializable {
+public class UserQueryRequest extends PageBaseRequest implements Serializable {
 
     private static final long serialVersionUID = -7808183174434904160L;
 

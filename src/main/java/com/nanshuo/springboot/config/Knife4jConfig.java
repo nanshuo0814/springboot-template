@@ -46,7 +46,7 @@ public class Knife4jConfig {
 //基本信息注解：
 //
 //@Api: 用于描述整个 API 文档的信息，包括标题、描述、版本等。
-//@ApiModel: 用于描述数据模型（DTO等）的信息。
+//@ApiModel: 用于描述数据模型（Request等）的信息。
 //@ApiModelProperty: 用于描述模型属性的信息。
 //操作注解：
 //

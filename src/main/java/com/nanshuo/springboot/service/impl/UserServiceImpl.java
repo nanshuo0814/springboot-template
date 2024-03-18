@@ -11,8 +11,8 @@ import com.nanshuo.springboot.constant.UserConstant;
 import com.nanshuo.springboot.exception.BusinessException;
 import com.nanshuo.springboot.exception.ThrowUtils;
 import com.nanshuo.springboot.mapper.UserMapper;
-import com.nanshuo.springboot.model.dto.user.*;
-import com.nanshuo.springboot.model.entity.User;
+import com.nanshuo.springboot.model.request.user.*;
+import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.vo.user.UserLoginVO;
 import com.nanshuo.springboot.model.vo.user.UserVO;
 import com.nanshuo.springboot.service.UserService;
@@ -51,18 +51,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 用户注册
      *
-     * @param userRegisterDto 用户注册 DTO
+     * @param userRegisterRequest 用户注册 Request
      * @return long
      */
     @Override
-    public long userRegister(UserRegisterDto userRegisterDto) {
+    public long userRegister(UserRegisterRequest userRegisterRequest) {
         // 获取参数
-        String userAccount = userRegisterDto.getUserAccount();
-        String userPassword = userRegisterDto.getUserPassword();
-        String checkPassword = userRegisterDto.getCheckPassword();
-        String email = userRegisterDto.getEmail();
-        String emailCaptcha = userRegisterDto.getEmailCaptcha();
-        String imageCaptcha = userRegisterDto.getImageCaptcha();
+        String userAccount = userRegisterRequest.getUserAccount();
+        String userPassword = userRegisterRequest.getUserPassword();
+        String checkPassword = userRegisterRequest.getCheckPassword();
+        String email = userRegisterRequest.getEmail();
+        String emailCaptcha = userRegisterRequest.getEmailCaptcha();
+        String imageCaptcha = userRegisterRequest.getImageCaptcha();
 
         // 确认密码校验
         if (checkPassword != null && !checkPassword.equals(userPassword)) {
@@ -109,7 +109,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
             // 插入数据
             User user = new User();
-            user.setUserName(userRegisterDto.getUserName());
+            user.setUserName(userRegisterRequest.getUserName());
             user.setUserAccount(userAccount);
             user.setUserPassword(encryptPassword);
             user.setUserEmail(email);
@@ -124,16 +124,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 用户登录
      *
-     * @param userLoginDto 用户登录dto
+     * @param userLoginRequest 用户登录Request
      * @return {@code UserLoginVO}
      */
     @Override
-    public UserLoginVO userLogin(HttpServletRequest request, UserLoginDto userLoginDto) {
+    public UserLoginVO userLogin(HttpServletRequest request, UserLoginRequest userLoginRequest) {
 
         // 获取参数
-        String userAccount = userLoginDto.getUserAccount();
-        String userPassword = userLoginDto.getUserPassword();
-        String imageCaptcha = userLoginDto.getImageCaptcha();
+        String userAccount = userLoginRequest.getUserAccount();
+        String userPassword = userLoginRequest.getUserPassword();
+        String imageCaptcha = userLoginRequest.getImageCaptcha();
 
         // 校验图片验证码
         Object trueImageCaptcha = redisTemplate.opsForValue().get(RedisKeyConstant.IMAGE_CAPTCHA_KEY);
@@ -266,15 +266,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 用户密码更新
      *
      * @param request               请求
-     * @param userPasswordUpdateDto 用户密码重置dto
+     * @param userPasswordUpdateRequest 用户密码重置Request
      * @return {@code Boolean}
      */
     @Override
-    public Boolean userPasswordUpdate(HttpServletRequest request, UserPasswordUpdateDto userPasswordUpdateDto) {
+    public Boolean userPasswordUpdate(HttpServletRequest request, UserPasswordUpdateRequest userPasswordUpdateRequest) {
         // 获取参数
-        String oldPassword = userPasswordUpdateDto.getOldPassword();
-        String userPassword = userPasswordUpdateDto.getNewPassword();
-        String checkPassword = userPasswordUpdateDto.getCheckPassword();
+        String oldPassword = userPasswordUpdateRequest.getOldPassword();
+        String userPassword = userPasswordUpdateRequest.getNewPassword();
+        String checkPassword = userPasswordUpdateRequest.getCheckPassword();
 
         // 获取当前用户
         User loginUser = this.getById(this.getLoginUser(request).getUserId());
@@ -319,17 +319,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 用户密码重置
      *
      * @param request              请求
-     * @param userPasswordResetDto 用户密码重置dto
+     * @param userPasswordResetRequest 用户密码重置Request
      * @return {@code Boolean}
      */
     @Override
-    public Boolean userPasswordReset(HttpServletRequest request, UserPasswordResetDto userPasswordResetDto) {
+    public Boolean userPasswordReset(HttpServletRequest request, UserPasswordResetRequest userPasswordResetRequest) {
         // 获取参数
-        String userAccount = userPasswordResetDto.getUserAccount();
-        String userPassword = userPasswordResetDto.getUserPassword();
-        String checkPassword = userPasswordResetDto.getCheckPassword();
-        String email = userPasswordResetDto.getUserEmail();
-        String emailCaptcha = userPasswordResetDto.getEmailCaptcha();
+        String userAccount = userPasswordResetRequest.getUserAccount();
+        String userPassword = userPasswordResetRequest.getUserPassword();
+        String checkPassword = userPasswordResetRequest.getCheckPassword();
+        String email = userPasswordResetRequest.getUserEmail();
+        String emailCaptcha = userPasswordResetRequest.getEmailCaptcha();
 
         // 校验两次密码是否一致
         if (!userPassword.equals(checkPassword)) {
@@ -375,49 +375,49 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 添加用户
      *
-     * @param userAddDto 用户添加dto
+     * @param userAddRequest 用户添加Request
      * @return {@code Long}
      */
     @Override
-    public Long addUser(UserAddDto userAddDto) {
+    public Long addUser(UserAddRequest userAddRequest) {
         // 判断参数（不是必须的）,设置默认值
-        if (StringUtils.isEmpty(userAddDto.getUserName())) {
+        if (StringUtils.isEmpty(userAddRequest.getUserName())) {
             // 设置默认的用户名（UserConstant.DEFAULT_USER_NAME+当时的时间戳）
-            userAddDto.setUserName(UserConstant.DEFAULT_USER_NAME + System.currentTimeMillis());
+            userAddRequest.setUserName(UserConstant.DEFAULT_USER_NAME + System.currentTimeMillis());
         }
-        if (StringUtils.isEmpty(userAddDto.getUserPassword())) {
+        if (StringUtils.isEmpty(userAddRequest.getUserPassword())) {
             // 设置默认的密码（UserConstant.DEFAULT_USER_PASSWORD）
-            userAddDto.setUserPassword(UserConstant.DEFAULT_USER_PASSWORD);
+            userAddRequest.setUserPassword(UserConstant.DEFAULT_USER_PASSWORD);
         }
-        if (StringUtils.isEmpty(userAddDto.getUserProfile())) {
+        if (StringUtils.isEmpty(userAddRequest.getUserProfile())) {
             // 设置默认的简介（UserConstant.DEFAULT_USER_PROFILE）
-            userAddDto.setUserProfile(UserConstant.DEFAULT_USER_PROFILE);
+            userAddRequest.setUserProfile(UserConstant.DEFAULT_USER_PROFILE);
         }
-        if (StringUtils.isEmpty(userAddDto.getUserAvatar())) {
+        if (StringUtils.isEmpty(userAddRequest.getUserAvatar())) {
             // 设置默认的头像（UserConstant.DEFAULT_USER_AVATAR）
-            userAddDto.setUserAvatar(UserConstant.DEFAULT_USER_AVATAR);
+            userAddRequest.setUserAvatar(UserConstant.DEFAULT_USER_AVATAR);
         }
-        if (StringUtils.isEmpty(userAddDto.getUserRole())) {
+        if (StringUtils.isEmpty(userAddRequest.getUserRole())) {
             // 设置默认的角色（UserConstant.DEFAULT_ROLE）
-            userAddDto.setUserRole(UserConstant.USER_ROLE);
+            userAddRequest.setUserRole(UserConstant.USER_ROLE);
         }
-        if (userAddDto.getUserGender() == null || userAddDto.getUserGender() < 0 || userAddDto.getUserGender() > 2) {
+        if (userAddRequest.getUserGender() == null || userAddRequest.getUserGender() < 0 || userAddRequest.getUserGender() > 2) {
             // 设置默认的性别（UserConstant.DEFAULT_USER_GENDER）
-            userAddDto.setUserGender(UserConstant.DEFAULT_USER_GENDER);
+            userAddRequest.setUserGender(UserConstant.DEFAULT_USER_GENDER);
         }
 
         // 校验用户账号是否存在
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUserAccount, userAddDto.getUserAccount());
+        queryWrapper.eq(User::getUserAccount, userAddRequest.getUserAccount());
         User user = this.baseMapper.selectOne(queryWrapper);
         if (user != null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号已存在,请换一个");
         }
 
         // 校验用户邮箱是否存在
-        if (!StringUtils.isEmpty(userAddDto.getUserEmail())) {
+        if (!StringUtils.isEmpty(userAddRequest.getUserEmail())) {
             queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(User::getUserEmail, userAddDto.getUserEmail());
+            queryWrapper.eq(User::getUserEmail, userAddRequest.getUserEmail());
             user = this.baseMapper.selectOne(queryWrapper);
             if (user != null) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户邮箱已存在,请换一个");
@@ -425,12 +425,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 加密密码
-        String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userAddDto.getUserPassword()).getBytes());
-        userAddDto.setUserPassword(encryptPassword);
+        String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userAddRequest.getUserPassword()).getBytes());
+        userAddRequest.setUserPassword(encryptPassword);
 
         // 保存用户
         User userEntity = new User();
-        BeanUtils.copyProperties(userAddDto, userEntity);
+        BeanUtils.copyProperties(userAddRequest, userEntity);
         boolean result = this.save(userEntity);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "未知错误,添加用户失败");
         return userEntity.getUserId();
@@ -439,20 +439,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 获取查询条件
      *
-     * @param userQueryDto 用户查询dto
+     * @param userQueryRequest 用户查询Request
      * @return {@code LambdaQueryWrapper<User>}
      */
     @Override
-    public LambdaQueryWrapper<User> getQueryWrapper(UserQueryDto userQueryDto) {
+    public LambdaQueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
         // 获取参数
-        Long id = userQueryDto.getUserId();
-        String userName = userQueryDto.getUserName();
-        String userProfile = userQueryDto.getUserProfile();
-        String userRole = userQueryDto.getUserRole();
-        Integer gender = userQueryDto.getUserGender();
-        String email = userQueryDto.getUserEmail();
-        String sortField = userQueryDto.getSortField();
-        String sortOrder = userQueryDto.getSortOrder();
+        Long id = userQueryRequest.getUserId();
+        String userName = userQueryRequest.getUserName();
+        String userProfile = userQueryRequest.getUserProfile();
+        String userRole = userQueryRequest.getUserRole();
+        Integer gender = userQueryRequest.getUserGender();
+        String email = userQueryRequest.getUserEmail();
+        String sortField = userQueryRequest.getSortField();
+        String sortOrder = userQueryRequest.getSortOrder();
 
         LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(id != null, User::getUserId, id)

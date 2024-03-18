@@ -1,4 +1,4 @@
-package com.nanshuo.springboot.model.dto.user;
+package com.nanshuo.springboot.model.request.user;
 
 import com.nanshuo.springboot.annotation.CheckParam;
 import com.nanshuo.springboot.constant.NumberConstant;
@@ -10,14 +10,14 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 用户添加dto
+ * 用户添加Request
  *
  * @author nanshuo
  * @date 2024/01/06 12:00:19
  */
 @Data
-@ApiModel(value = "UserAddDto", description = "用户添加信息DTO")
-public class UserAddDto implements Serializable {
+@ApiModel(value = "UserAddRequest", description = "用户添加信息Request")
+public class UserAddRequest implements Serializable {
 
     private static final long serialVersionUID = -119754408044041182L;
 

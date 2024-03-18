@@ -3,7 +3,7 @@ package com.nanshuo.springboot.aop;
 import com.nanshuo.springboot.annotation.CheckAuth;
 import com.nanshuo.springboot.common.ErrorCode;
 import com.nanshuo.springboot.exception.BusinessException;
-import com.nanshuo.springboot.model.entity.User;
+import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.enums.user.UserRoleEnums;
 import com.nanshuo.springboot.service.UserService;
 import org.apache.commons.lang3.StringUtils;

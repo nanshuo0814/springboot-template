@@ -3,8 +3,8 @@ package com.nanshuo.springboot.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.nanshuo.springboot.model.dto.user.*;
-import com.nanshuo.springboot.model.entity.User;
+import com.nanshuo.springboot.model.request.user.*;
+import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.vo.user.UserLoginVO;
 import com.nanshuo.springboot.model.vo.user.UserVO;
 
@@ -22,19 +22,19 @@ public interface UserService extends IService<User> {
     /**
      * 用户注册
      *
-     * @param userRegisterDto 用户注册信息
+     * @param userRegisterRequest 用户注册信息
      * @return 注册成功的用户id
      */
-    long userRegister(UserRegisterDto userRegisterDto);
+    long userRegister(UserRegisterRequest userRegisterRequest);
 
     /**
      * 用户登录
      *
-     * @param userLoginDto 用户登录dto
+     * @param userLoginRequest 用户登录Request
      * @param request      请求
      * @return {@code UserLoginVO}
      */
-    UserLoginVO userLogin(HttpServletRequest request, UserLoginDto userLoginDto);
+    UserLoginVO userLogin(HttpServletRequest request, UserLoginRequest userLoginRequest);
 
     /**
      * 获取登录用户
@@ -78,37 +78,37 @@ public interface UserService extends IService<User> {
     /**
      * 用户密码重置
      *
-     * @param userPasswordResetDto 用户密码重置dto
+     * @param userPasswordResetRequest 用户密码重置Request
      * @return {@code Boolean}
      */
-    Boolean userPasswordReset(HttpServletRequest request, UserPasswordResetDto userPasswordResetDto);
+    Boolean userPasswordReset(HttpServletRequest request, UserPasswordResetRequest userPasswordResetRequest);
 
     /**
      * 用户密码更新
      *
      * @param request               请求
-     * @param userPasswordUpdateDto 用户密码更新dto
+     * @param userPasswordUpdateRequest 用户密码更新Request
      * @return {@code Boolean}
      */
-    Boolean userPasswordUpdate(HttpServletRequest request, UserPasswordUpdateDto userPasswordUpdateDto);
+    Boolean userPasswordUpdate(HttpServletRequest request, UserPasswordUpdateRequest userPasswordUpdateRequest);
 
     // end domain 用户登录相关
 
     /**
      * 添加用户
      *
-     * @param userAddDto 用户添加dto
+     * @param userAddRequest 用户添加Request
      * @return {@code Long}
      */
-    Long addUser(UserAddDto userAddDto);
+    Long addUser(UserAddRequest userAddRequest);
 
     /**
      * 获取查询条件
      *
-     * @param userQueryDto 用户查询dto
+     * @param userQueryRequest 用户查询Request
      * @return {@code LambdaQueryWrapper<User>}
      */
-    LambdaQueryWrapper<User> getQueryWrapper(UserQueryDto userQueryDto);
+    LambdaQueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
     /**
      * 获取用户vo

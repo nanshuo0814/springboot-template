@@ -10,10 +10,10 @@ import com.nanshuo.springboot.common.ResultUtils;
 import com.nanshuo.springboot.constant.NumberConstant;
 import com.nanshuo.springboot.constant.UserConstant;
 import com.nanshuo.springboot.exception.ThrowUtils;
-import com.nanshuo.springboot.model.dto.user.UserAddDto;
-import com.nanshuo.springboot.model.dto.user.UserQueryDto;
-import com.nanshuo.springboot.model.dto.user.UserUpdateDto;
-import com.nanshuo.springboot.model.entity.User;
+import com.nanshuo.springboot.model.request.user.UserAddRequest;
+import com.nanshuo.springboot.model.request.user.UserQueryRequest;
+import com.nanshuo.springboot.model.request.user.UserUpdateRequest;
+import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.vo.user.UserVO;
 import com.nanshuo.springboot.service.UserService;
 import io.swagger.annotations.Api;
@@ -46,14 +46,14 @@ public class AdminController {
     /**
      * 添加用户
      *
-     * @param userAddDto 用户添加dto
+     * @param userAddRequest 用户添加Request
      * @return {@code BaseResponse<Long>}
      */
     @PostMapping("/add")
     @ApiOperation(value = "添加用户", notes = "添加用户")
     @Check(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Long> addUser(@RequestBody UserAddDto userAddDto) {
-        return ResultUtils.success(userService.addUser(userAddDto));
+    public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest) {
+        return ResultUtils.success(userService.addUser(userAddRequest));
     }
 
     /**
@@ -73,15 +73,15 @@ public class AdminController {
     /**
      * 修改用户信息
      *
-     * @param userUpdateDto 用户更新dto
+     * @param userUpdateRequest 用户更新Request
      * @return {@code BaseResponse<Long>}
      */
     @PostMapping("/update")
     @ApiOperation(value = "修改用户信息", notes = "修改用户信息")
     @Check(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Long> updateUser(@RequestBody UserUpdateDto userUpdateDto) {
+    public BaseResponse<Long> updateUser(@RequestBody UserUpdateRequest userUpdateRequest) {
         User user = new User();
-        BeanUtils.copyProperties(userUpdateDto, user);
+        BeanUtils.copyProperties(userUpdateRequest, user);
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "修改用户信息失败,无该用户信息");
         return ResultUtils.success(user.getUserId());
@@ -108,10 +108,10 @@ public class AdminController {
     @PostMapping("/list/page")
     @Check(checkAuth = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "获取用户列表", notes = "获取用户列表")
-    public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryDto userQueryDto) {
-        long current = userQueryDto.getCurrent();
-        long size = userQueryDto.getPageSize();
-        Page<User> userPage = userService.page(new Page<>(current, size), userService.getQueryWrapper(userQueryDto));
+    public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest) {
+        long current = userQueryRequest.getCurrent();
+        long size = userQueryRequest.getPageSize();
+        Page<User> userPage = userService.page(new Page<>(current, size), userService.getQueryWrapper(userQueryRequest));
         return ResultUtils.success(userPage);
     }
 

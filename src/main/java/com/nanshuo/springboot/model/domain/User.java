@@ -1,4 +1,4 @@
-package com.nanshuo.springboot.model.entity;
+package com.nanshuo.springboot.model.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;

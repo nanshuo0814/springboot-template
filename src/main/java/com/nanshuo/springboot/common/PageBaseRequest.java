@@ -10,7 +10,7 @@ import lombok.Data;
  * @date 2024/01/11 21:07:14
  */
 @Data
-public class PageBaseDto {
+public class PageBaseRequest {
 
     /**
      * 当前页号

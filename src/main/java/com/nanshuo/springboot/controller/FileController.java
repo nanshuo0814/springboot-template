@@ -8,8 +8,8 @@ import com.nanshuo.springboot.common.ResultUtils;
 import com.nanshuo.springboot.constant.FileConstant;
 import com.nanshuo.springboot.exception.BusinessException;
 import com.nanshuo.springboot.manager.OssManager;
-import com.nanshuo.springboot.model.dto.file.UploadFileDto;
-import com.nanshuo.springboot.model.entity.User;
+import com.nanshuo.springboot.model.request.file.UploadFileRequest;
+import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.enums.file.FileUploadTypeEnums;
 import com.nanshuo.springboot.service.UserService;
 import io.swagger.annotations.Api;
@@ -51,15 +51,15 @@ public class FileController {
      *
      * @param multipartFile 多部分文件
      * @param request       请求
-     * @param uploadFileDto 上传文件dto
+     * @param uploadFileRequest 上传文件Request
      * @return {@code BaseResponse<String>}
      */
     @PostMapping("/upload")
     @CheckAuth(mustRole = "user")
     @ApiOperation(value = "文件上传", notes = "文件上传")
     public BaseResponse<String> uploadFile(@RequestPart("file") MultipartFile multipartFile,
-                                           UploadFileDto uploadFileDto, HttpServletRequest request) {
-        String type = uploadFileDto.getType();
+                                           UploadFileRequest uploadFileRequest, HttpServletRequest request) {
+        String type = uploadFileRequest.getType();
         FileUploadTypeEnums fileUploadTypeEnums = FileUploadTypeEnums.getEnumByValue(type);
         if (fileUploadTypeEnums == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "上传文件的参数类型错误");

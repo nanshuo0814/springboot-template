@@ -1,4 +1,4 @@
-package com.nanshuo.springboot.model.dto.user;
+package com.nanshuo.springboot.model.request.user;
 
 import com.nanshuo.springboot.annotation.CheckParam;
 import com.nanshuo.springboot.model.enums.user.UserRegexEnums;
@@ -9,14 +9,14 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 用户登录dto
+ * 用户登录Request
  *
  * @author nanshuo
  * @date 2024/01/04 18:58:48
  */
 @Data
-@ApiModel(value = "UserLoginDto", description = "用户登录信息DTO")
-public class UserLoginDto implements Serializable {
+@ApiModel(value = "UserLoginRequest", description = "用户登录信息Request")
+public class UserLoginRequest implements Serializable {
 
 
     private static final long serialVersionUID = -5262836669010105900L;
