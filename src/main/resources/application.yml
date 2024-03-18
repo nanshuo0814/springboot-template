@@ -1,7 +1,7 @@
 # 服务器配置
 server:
   address: 0.0.0.0 # IP访问地址
-  port: 8888 # 端口
+  port: 8080 # 端口
   servlet:
     context-path: /api # 访问路径开头
     # cookie 30 天过期
@@ -31,6 +31,8 @@ spring:
     host: localhost
     port: 6379
     timeout: 5000
+    # todo 若你的 Redis 需要密码，请打开注释，并填写密码
+    #    password: root
   # session 配置
   session:
     # todo 开启分布式 session（须先配置 Redis）
