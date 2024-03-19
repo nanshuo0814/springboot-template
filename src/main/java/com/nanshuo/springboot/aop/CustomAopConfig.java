@@ -19,7 +19,6 @@ import java.lang.reflect.Method;
  * 包含三个切入点：
  * 1. checkPointcut: 切入带有 @Check 注解的方法。
  * 2. checkAuthPointcut: 切入带有 @CheckAuth 注解的方法。
- * 3. paramCheckPointcut: 切入 controller 包下的所有方法，但排除带有 @Check 注解的方法。
  * 通过 @Order 注解指定拦截器的执行顺序。
  * 在切入点前执行相应的拦截逻辑。
  *
@@ -35,12 +34,10 @@ public class CustomAopConfig {
 
     private final CheckInterceptorAop checkInterceptorAop;
 
-    private final CheckParamInterceptorAop checkParamInterceptorAop;
 
-    public CustomAopConfig(CheckAuthInterceptorAop authInterceptor, CheckInterceptorAop checkInterceptorAop, CheckParamInterceptorAop checkParamInterceptorAop) {
+    public CustomAopConfig(CheckAuthInterceptorAop authInterceptor, CheckInterceptorAop checkInterceptorAop) {
         this.authInterceptor = authInterceptor;
         this.checkInterceptorAop = checkInterceptorAop;
-        this.checkParamInterceptorAop = checkParamInterceptorAop;
     }
 
     /**
@@ -85,10 +82,6 @@ public class CustomAopConfig {
     @Before("checkPointcut()")
     public void doCheckInterceptor(JoinPoint joinPoint) throws BusinessException {
         checkInterceptorAop.interceptor(joinPoint);
-        // 判断 @Check 注解里的 checkParam 属性，如果为 false，则执行 doCheckParamInterceptor 的拦截逻辑。
-        if (!checkParamEnabled(joinPoint)) {
-            doCheckParamInterceptor(joinPoint);
-        }
     }
 
     /**
@@ -104,17 +97,5 @@ public class CustomAopConfig {
         Check checkAnnotation = method.getAnnotation(Check.class);
         // 如果注解存在，并且 checkParam 为 false，则返回 false
         return checkAnnotation.checkParam();
-    }
-
-    /**
-     * 在 controller 包下的方法执行前，执行 CheckParamInterceptorAop 的拦截逻辑。
-     *
-     * @param joinPoint 切入点对象，包含方法的相关信息。
-     * @throws BusinessException 拦截到业务异常时抛出 BusinessException。
-     */
-    @Order(3)
-    @Before("paramCheckPointcut()")
-    public void doCheckParamInterceptor(JoinPoint joinPoint) throws BusinessException {
-        checkParamInterceptorAop.interceptor(joinPoint);
     }
 }
