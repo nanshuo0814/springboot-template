@@ -46,24 +46,8 @@ public @interface CheckParam {
     int required() default NumberConstant.DEFAULT_VALUE;
 
     /**
-     * 正则表达式错误消息
-     *
-     * @return {@code String}
+     * 别名
      */
-    String regexErrorMsg() default "请求的参数格式不正确";
-
-    /**
-     * null错误消息
-     *
-     * @return {@code String}
-     */
-    String nullErrorMsg() default "请求的参数为空";
-
-    /**
-     * 长度错误信息
-     *
-     * @return {@code String}
-     */
-    String lenghtErrorMsg() default "请求的参数长度不符合要求";
+    String alias() default "参数";
 
 }

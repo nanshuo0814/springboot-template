@@ -107,12 +107,12 @@ public class CommonCheckMethodAop {
 
         // 从@Check注解过来的且是必填的
         if (haveCheckAnnotation && checkParam.required() != NumberConstant.FALSE_VALUE && ObjectUtils.isEmpty(value)) {
-            throw new BusinessException(ErrorCode.PARAMS_NULL, checkParam.nullErrorMsg());
+            throw new BusinessException(ErrorCode.PARAMS_NULL, checkParam.alias() + "不能为空");
         }
 
         // 如果验证条件要求非空，且值为空，则抛出 PARAMS_NULL 异常
         if (checkParam.required() == NumberConstant.TRUE_VALUE && ObjectUtils.isEmpty(value)) {
-            throw new BusinessException(ErrorCode.PARAMS_NULL, checkParam.nullErrorMsg());
+            throw new BusinessException(ErrorCode.PARAMS_NULL, checkParam.alias() + "不能为空");
         }
 
         // 如果值不为空
@@ -120,13 +120,20 @@ public class CommonCheckMethodAop {
             // 获取值的长度
             int length = value.toString().length();
             // 如果验证条件要求最大长度大于 0 且小于实际长度，或者最小长度大于 0 且大于实际长度，则抛出 PARAMS_LENGTH_ERROR 异常
-            if ((checkParam.maxLength() != NumberConstant.DEFAULT_VALUE && checkParam.maxLength() < length) ||
-                    (checkParam.minLength() != NumberConstant.DEFAULT_VALUE && checkParam.minLength() > length)) {
-                throw new BusinessException(ErrorCode.PARAMS_LENGTH_ERROR, checkParam.lenghtErrorMsg());
+            if (checkParam.minLength() != NumberConstant.DEFAULT_VALUE && checkParam.maxLength() != NumberConstant.DEFAULT_VALUE) {
+                if (checkParam.minLength() > length && checkParam.maxLength() < length) {
+                    throw new BusinessException(ErrorCode.PARAMS_LENGTH_ERROR, checkParam.alias() + "长度必须在" + checkParam.minLength() + "-" + checkParam.maxLength() + "之间");
+                }
+            }
+            if (checkParam.minLength() != NumberConstant.DEFAULT_VALUE && checkParam.minLength() > length) {
+                throw new BusinessException(ErrorCode.PARAMS_LENGTH_ERROR, checkParam.alias() + "长度必须大于" + checkParam.minLength());
+            }
+            if (checkParam.minLength() != NumberConstant.DEFAULT_VALUE && checkParam.maxLength() < length) {
+                throw new BusinessException(ErrorCode.PARAMS_LENGTH_ERROR, checkParam.alias() + "长度必须小于" + checkParam.maxLength());
             }
             // 如果验证条件要求的正则表达式不为空，且值不符合该正则表达式要求，则抛出 PARAMS_FORMAT_ERROR 异常
             if (!StringUtils.isEmpty(checkParam.regex().getRegex()) && !RegexUtils.matches(checkParam.regex(), String.valueOf(value))) {
-                throw new BusinessException(ErrorCode.PARAMS_FORMAT_ERROR, checkParam.regexErrorMsg());
+                throw new BusinessException(ErrorCode.PARAMS_FORMAT_ERROR, checkParam.alias() + "非法/错误");
             }
         }
     }

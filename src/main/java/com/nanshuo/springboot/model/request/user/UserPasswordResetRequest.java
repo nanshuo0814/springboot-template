@@ -21,23 +21,23 @@ public class UserPasswordResetRequest implements Serializable {
     private static final long serialVersionUID = 7417360309354655142L;
 
     @ApiModelProperty(value = "用户账号", required = true)
-    @CheckParam(nullErrorMsg = "用户账号不能为空", regex = UserRegexEnums.ACCOUNT, regexErrorMsg = "请输入正确的用户账号")
+    @CheckParam(alias = "账号", minLength = 3, maxLength = 16, regex = UserRegexEnums.ACCOUNT)
     private String userAccount;
 
-    @ApiModelProperty(value = "用户密码", required = true)
-    @CheckParam(nullErrorMsg = "用户密码不能为空", minLength = 6, maxLength = 18, lenghtErrorMsg = "用户密码长度必须在6-18之间")
+    @ApiModelProperty(value = "密码", required = true)
+    @CheckParam(alias = "用户密码", minLength = 6, maxLength = 18,regex = UserRegexEnums.PASSWORD)
     private String userPassword;
 
     @ApiModelProperty(value = "第二遍输入的密码", required = true)
-    @CheckParam(nullErrorMsg = "第二遍输入的密码不能为空", minLength = 6, maxLength = 18, lenghtErrorMsg = "第二遍输入的密码长度必须在6-18之间")
+    @CheckParam(alias = "第二遍输入的密码", minLength = 6, maxLength = 18, regex = UserRegexEnums.PASSWORD)
     private String checkPassword;
 
     @ApiModelProperty(value = "邮箱", required = true)
-    @CheckParam(nullErrorMsg = "邮箱不能为空", regex = UserRegexEnums.EMAIL, regexErrorMsg = "邮箱格式不正确")
+    @CheckParam(alias = "邮箱", regex = UserRegexEnums.EMAIL)
     private String userEmail;
 
     @ApiModelProperty(value = "邮箱验证码", required = true)
-    @CheckParam(nullErrorMsg = "邮箱验证码不能为空", regex = UserRegexEnums.EMAIL_CAPTCHA, regexErrorMsg = "邮箱验证码错误")
+    @CheckParam(alias = "邮箱验证码",regex = UserRegexEnums.EMAIL_CAPTCHA)
     private String emailCaptcha;
 
 }

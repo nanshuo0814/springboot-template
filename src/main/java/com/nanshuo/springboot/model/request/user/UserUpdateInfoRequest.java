@@ -25,34 +25,34 @@ public class UserUpdateInfoRequest implements Serializable {
      * 用户昵称
      */
     @ApiModelProperty(value = "用户昵称")
-    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.USERNAME, regexErrorMsg = "用户名只能包含字母、数字或汉字")
+    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.USERNAME,alias = "用户昵称")
     private String userName;
 
     /**
      * 用户头像
      */
     @ApiModelProperty(value = "用户头像")
-    @CheckParam(required = NumberConstant.FALSE_VALUE)
+    @CheckParam(required = NumberConstant.FALSE_VALUE,alias = "用户头像")
     private String userAvatar;
 
     /**
      * 用户邮箱
      */
     @ApiModelProperty(value = "用户邮箱")
-    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.EMAIL, regexErrorMsg = "邮箱格式不正确")
+    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.EMAIL,alias = "用户邮箱")
     private String userEmail;
 
     /**
      * 用户性别
      */
     @ApiModelProperty(value = "用户性别")
-    @CheckParam(required = NumberConstant.FALSE_VALUE,regex = UserRegexEnums.USER_GENDER, regexErrorMsg = "性别参数错误,请输入对应的性别,0:女,1:男,2:未知")
+    @CheckParam(required = NumberConstant.FALSE_VALUE,regex = UserRegexEnums.USER_GENDER,alias = "性别")
     private Integer userGender;
 
     /**
      * 简介
      */
     @ApiModelProperty(value = "用户简介")
-    @CheckParam(required = NumberConstant.FALSE_VALUE, maxLength = 200, lenghtErrorMsg = "用户简介长度必须在1-200字之间")
+    @CheckParam(required = NumberConstant.FALSE_VALUE, maxLength = 200, alias = "用户简介")
     private String userProfile;
 }

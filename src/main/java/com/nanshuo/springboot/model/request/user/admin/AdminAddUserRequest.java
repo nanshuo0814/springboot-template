@@ -1,4 +1,4 @@
-package com.nanshuo.springboot.model.request.user;
+package com.nanshuo.springboot.model.request.user.admin;
 
 import com.nanshuo.springboot.annotation.CheckParam;
 import com.nanshuo.springboot.constant.NumberConstant;
@@ -17,50 +17,50 @@ import java.io.Serializable;
  */
 @Data
 @ApiModel(value = "UserAddRequest", description = "用户添加信息Request")
-public class UserAddRequest implements Serializable {
+public class AdminAddUserRequest implements Serializable {
 
     private static final long serialVersionUID = -119754408044041182L;
 
     /**
-     * 用户昵称(不是必须的，可以设置默认昵称或者留空，如：“nanshuo”)
+     * 用户昵称(不是必须的，可以设置默认昵称或者留空，如：“nanshuo/南烁”)
      */
     @ApiModelProperty(value = "用户昵称", required = false)
-    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.USERNAME, regexErrorMsg = "用户名只能包含字母、数字或汉字")
+    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.USERNAME,alias = "用户名")
     private String userName;
 
     /**
      * 账号
      */
     @ApiModelProperty(value = "账号", required = true)
-    @CheckParam(nullErrorMsg = "账号不能为空", minLength = 3, maxLength = 11, lenghtErrorMsg = "账号长度必须在3-11之间", regex = UserRegexEnums.ACCOUNT, regexErrorMsg = "账号必须以字母开头且只能包含字母、数字或下划线")
+    @CheckParam(alias = "账号", minLength = 3, maxLength = 11, regex = UserRegexEnums.ACCOUNT)
     private String userAccount;
 
     /**
      * 用户密码(不是必须的，如果不写，则使用默认密码)
      */
     @ApiModelProperty(value = "密码", required = false)
-    @CheckParam(required = NumberConstant.FALSE_VALUE, minLength = 6, maxLength = 18, lenghtErrorMsg = "密码长度必须在6-18之间", regex = UserRegexEnums.PASSWORD, regexErrorMsg = "密码必须包含字母、数字,可以有特殊字符")
+    @CheckParam(required = NumberConstant.FALSE_VALUE, minLength = 6, maxLength = 18, regex = UserRegexEnums.PASSWORD,alias = "密码")
     private String userPassword;
 
     /**
      * 用户邮箱(不是必须的)
      */
     @ApiModelProperty(value = "邮箱", required = false)
-    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.EMAIL, regexErrorMsg = "邮箱格式不正确")
+    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.EMAIL,alias = "邮箱")
     private String userEmail;
 
     /**
-     * 用户简介(不是必须的，可以设置默认昵称或者留空，如：“一条只会冒泡的nanshuoya”)
+     * 用户简介(不是必须的，可以设置默认昵称或者留空)
      */
     @ApiModelProperty(value = "用户简介", required = false)
-    @CheckParam(required = NumberConstant.FALSE_VALUE, maxLength = 200, lenghtErrorMsg = "用户简介长度必须在1-200字之间")
+    @CheckParam(required = NumberConstant.FALSE_VALUE, maxLength = 200, alias = "用户简介")
     private String userProfile;
 
     /**
      * 用户性别(不是必须的，默认是未知，0:女, 1:男, 2:未知)
      */
     @ApiModelProperty(value = "用户性别", required = false)
-    @CheckParam(required = NumberConstant.FALSE_VALUE,regex = UserRegexEnums.USER_GENDER, regexErrorMsg = "性别参数错误,请输入对应的性别,0:女,1:男,2:未知")
+    @CheckParam(required = NumberConstant.FALSE_VALUE,regex = UserRegexEnums.USER_GENDER,alias = "性别")
     private Integer userGender;
 
     /**
@@ -74,6 +74,6 @@ public class UserAddRequest implements Serializable {
      * 用户角色(不是必须的): user(默认), admin
      */
     @ApiModelProperty(value = "用户角色", required = false)
-    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.USER_ROLE, regexErrorMsg = "用户角色只能是user或admin")
+    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.USER_ROLE,alias = "用户角色")
     private String userRole;
 }

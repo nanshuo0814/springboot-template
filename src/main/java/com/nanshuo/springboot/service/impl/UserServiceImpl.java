@@ -13,6 +13,7 @@ import com.nanshuo.springboot.exception.ThrowUtils;
 import com.nanshuo.springboot.mapper.UserMapper;
 import com.nanshuo.springboot.model.request.user.*;
 import com.nanshuo.springboot.model.domain.User;
+import com.nanshuo.springboot.model.request.user.admin.AdminAddUserRequest;
 import com.nanshuo.springboot.model.vo.user.UserLoginVO;
 import com.nanshuo.springboot.model.vo.user.UserSafetyVO;
 import com.nanshuo.springboot.service.UserService;
@@ -375,49 +376,49 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 添加用户
      *
-     * @param userAddRequest 用户添加Request
+     * @param adminAddUserRequest 用户添加Request
      * @return {@code Long}
      */
     @Override
-    public Long addUser(UserAddRequest userAddRequest) {
+    public Long addUser(AdminAddUserRequest adminAddUserRequest) {
         // 判断参数（不是必须的）,设置默认值
-        if (StringUtils.isEmpty(userAddRequest.getUserName())) {
+        if (StringUtils.isEmpty(adminAddUserRequest.getUserName())) {
             // 设置默认的用户名（UserConstant.DEFAULT_USER_NAME+当时的时间戳）
-            userAddRequest.setUserName(UserConstant.DEFAULT_USER_NAME + System.currentTimeMillis());
+            adminAddUserRequest.setUserName(UserConstant.DEFAULT_USER_NAME + System.currentTimeMillis());
         }
-        if (StringUtils.isEmpty(userAddRequest.getUserPassword())) {
+        if (StringUtils.isEmpty(adminAddUserRequest.getUserPassword())) {
             // 设置默认的密码（UserConstant.DEFAULT_USER_PASSWORD）
-            userAddRequest.setUserPassword(UserConstant.DEFAULT_USER_PASSWORD);
+            adminAddUserRequest.setUserPassword(UserConstant.DEFAULT_USER_PASSWORD);
         }
-        if (StringUtils.isEmpty(userAddRequest.getUserProfile())) {
+        if (StringUtils.isEmpty(adminAddUserRequest.getUserProfile())) {
             // 设置默认的简介（UserConstant.DEFAULT_USER_PROFILE）
-            userAddRequest.setUserProfile(UserConstant.DEFAULT_USER_PROFILE);
+            adminAddUserRequest.setUserProfile(UserConstant.DEFAULT_USER_PROFILE);
         }
-        if (StringUtils.isEmpty(userAddRequest.getUserAvatar())) {
+        if (StringUtils.isEmpty(adminAddUserRequest.getUserAvatar())) {
             // 设置默认的头像（UserConstant.DEFAULT_USER_AVATAR）
-            userAddRequest.setUserAvatar(UserConstant.DEFAULT_USER_AVATAR);
+            adminAddUserRequest.setUserAvatar(UserConstant.DEFAULT_USER_AVATAR);
         }
-        if (StringUtils.isEmpty(userAddRequest.getUserRole())) {
+        if (StringUtils.isEmpty(adminAddUserRequest.getUserRole())) {
             // 设置默认的角色（UserConstant.DEFAULT_ROLE）
-            userAddRequest.setUserRole(UserConstant.USER_ROLE);
+            adminAddUserRequest.setUserRole(UserConstant.USER_ROLE);
         }
-        if (userAddRequest.getUserGender() == null || userAddRequest.getUserGender() < 0 || userAddRequest.getUserGender() > 2) {
+        if (adminAddUserRequest.getUserGender() == null || adminAddUserRequest.getUserGender() < 0 || adminAddUserRequest.getUserGender() > 2) {
             // 设置默认的性别（UserConstant.DEFAULT_USER_GENDER）
-            userAddRequest.setUserGender(UserConstant.DEFAULT_USER_GENDER);
+            adminAddUserRequest.setUserGender(UserConstant.DEFAULT_USER_GENDER);
         }
 
         // 校验用户账号是否存在
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUserAccount, userAddRequest.getUserAccount());
+        queryWrapper.eq(User::getUserAccount, adminAddUserRequest.getUserAccount());
         User user = this.baseMapper.selectOne(queryWrapper);
         if (user != null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号已存在,请换一个");
         }
 
         // 校验用户邮箱是否存在
-        if (!StringUtils.isEmpty(userAddRequest.getUserEmail())) {
+        if (!StringUtils.isEmpty(adminAddUserRequest.getUserEmail())) {
             queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(User::getUserEmail, userAddRequest.getUserEmail());
+            queryWrapper.eq(User::getUserEmail, adminAddUserRequest.getUserEmail());
             user = this.baseMapper.selectOne(queryWrapper);
             if (user != null) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户邮箱已存在,请换一个");
@@ -425,12 +426,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 加密密码
-        String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userAddRequest.getUserPassword()).getBytes());
-        userAddRequest.setUserPassword(encryptPassword);
+        String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + adminAddUserRequest.getUserPassword()).getBytes());
+        adminAddUserRequest.setUserPassword(encryptPassword);
 
         // 保存用户
         User userEntity = new User();
-        BeanUtils.copyProperties(userAddRequest, userEntity);
+        BeanUtils.copyProperties(adminAddUserRequest, userEntity);
         boolean result = this.save(userEntity);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "未知错误,添加用户失败");
         return userEntity.getUserId();

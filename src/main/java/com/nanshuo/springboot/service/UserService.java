@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.nanshuo.springboot.model.request.user.*;
 import com.nanshuo.springboot.model.domain.User;
+import com.nanshuo.springboot.model.request.user.admin.AdminAddUserRequest;
 import com.nanshuo.springboot.model.vo.user.UserLoginVO;
 import com.nanshuo.springboot.model.vo.user.UserSafetyVO;
 
@@ -97,10 +98,10 @@ public interface UserService extends IService<User> {
     /**
      * 添加用户
      *
-     * @param userAddRequest 用户添加Request
+     * @param adminAddUserRequest 用户添加Request
      * @return {@code Long}
      */
-    Long addUser(UserAddRequest userAddRequest);
+    Long addUser(AdminAddUserRequest adminAddUserRequest);
 
     /**
      * 获取查询条件

@@ -1,4 +1,4 @@
-package com.nanshuo.springboot.model.request.user;
+package com.nanshuo.springboot.model.request.user.admin;
 
 import com.nanshuo.springboot.annotation.CheckParam;
 import com.nanshuo.springboot.constant.NumberConstant;
@@ -17,7 +17,7 @@ import java.io.Serializable;
  */
 @Data
 @ApiModel(value = "UserUpdateRequest", description = "用户更新信息Request")
-public class UserUpdateRequest implements Serializable {
+public class AdminUpdateUserInfoRequest implements Serializable {
 
     private static final long serialVersionUID = -4905623571700412110L;
 
@@ -25,55 +25,56 @@ public class UserUpdateRequest implements Serializable {
      * 用户id
      */
     @ApiModelProperty(value = "用户id", required = true)
-    @CheckParam(nullErrorMsg = "用户id不能为空", regex = UserRegexEnums.USER_ID, regexErrorMsg = "用户id格式不正确")
+    @CheckParam(alias = "用户id", regex = UserRegexEnums.USER_ID)
     private Long userId;
 
     /**
      * 用户昵称
      */
     @ApiModelProperty(value = "用户昵称", required = false)
-    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.USERNAME, regexErrorMsg = "用户昵称只能包含字母、数字或汉字")
+    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.USERNAME,alias = "用户昵称")
     private String userName;
 
     /**
      * 用户账号
      */
     @ApiModelProperty(value = "用户账号", required = false)
-    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.ACCOUNT, regexErrorMsg = "用户账号只能包含字母、数字或下划线")
+    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.ACCOUNT, alias = "用户账号")
     private String userAccount;
 
     /**
      * 用户头像
      */
     @ApiModelProperty(value = "用户头像", required = false)
-    @CheckParam(required = NumberConstant.FALSE_VALUE)
+    @CheckParam(required = NumberConstant.FALSE_VALUE,alias = "用户头像")
     private String userAvatar;
 
     /**
      * 用户邮箱
      */
     @ApiModelProperty(value = "用户邮箱", required = false)
-    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.EMAIL, regexErrorMsg = "邮箱格式不正确")
+    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.EMAIL, alias = "用户邮箱")
     private String userEmail;
 
     /**
      * 用户性别
      */
     @ApiModelProperty(value = "用户性别", required = false)
-    @CheckParam(required = NumberConstant.FALSE_VALUE)
+    @CheckParam(required = NumberConstant.FALSE_VALUE,regex = UserRegexEnums.USER_GENDER, alias = "用户性别")
     private Integer userGender;
 
     /**
      * 简介
      */
     @ApiModelProperty(value = "用户简介", required = false)
-    @CheckParam(required = NumberConstant.FALSE_VALUE, maxLength = 200, lenghtErrorMsg = "用户简介长度必须在1-200字之间")
+    @CheckParam(required = NumberConstant.FALSE_VALUE, maxLength = 200, alias = "用户简介")
     private String userProfile;
 
     /**
      * 用户角色：user/admin/ban
      */
     @ApiModelProperty(value = "用户角色", required = false)
-    @CheckParam(required = NumberConstant.FALSE_VALUE)
+    @CheckParam(required = NumberConstant.FALSE_VALUE, regex = UserRegexEnums.USER_ROLE, alias = "用户角色")
     private String userRole;
+
 }

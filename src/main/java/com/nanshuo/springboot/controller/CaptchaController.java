@@ -51,8 +51,8 @@ public class CaptchaController {
     @ApiOperation(value = "发送电子邮件验证码", notes = "发送电子邮件验证码")
     public BaseResponse<String> sendEmailCaptcha(
             @ApiParam(value = "目标电子邮件", required = true)
-            @RequestBody @CheckParam(required = NumberConstant.TRUE_VALUE, nullErrorMsg = "邮箱不能为空",
-                    regex = UserRegexEnums.EMAIL, regexErrorMsg = "邮箱格式不正确") String targetEmail) {
+            @RequestBody @CheckParam(required = NumberConstant.TRUE_VALUE, alias = "邮箱",
+                    regex = UserRegexEnums.EMAIL) String targetEmail) {
 
         // 将 JSON 数据解析为字符串（String）
         Gson gson = new Gson();

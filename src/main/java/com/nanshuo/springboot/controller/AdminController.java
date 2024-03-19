@@ -10,9 +10,9 @@ import com.nanshuo.springboot.common.ResultUtils;
 import com.nanshuo.springboot.constant.NumberConstant;
 import com.nanshuo.springboot.constant.UserConstant;
 import com.nanshuo.springboot.exception.ThrowUtils;
-import com.nanshuo.springboot.model.request.user.UserAddRequest;
+import com.nanshuo.springboot.model.request.user.admin.AdminAddUserRequest;
 import com.nanshuo.springboot.model.request.user.UserQueryRequest;
-import com.nanshuo.springboot.model.request.user.UserUpdateRequest;
+import com.nanshuo.springboot.model.request.user.admin.AdminUpdateUserInfoRequest;
 import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.vo.user.UserSafetyVO;
 import com.nanshuo.springboot.service.UserService;
@@ -46,14 +46,14 @@ public class AdminController {
     /**
      * 添加用户
      *
-     * @param userAddRequest 用户添加Request
+     * @param adminAddUserRequest 用户添加Request
      * @return {@code BaseResponse<Long>}
      */
     @PostMapping("/add")
     @ApiOperation(value = "添加用户", notes = "添加用户")
     @Check(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest) {
-        return ResultUtils.success(userService.addUser(userAddRequest));
+    public BaseResponse<Long> addUser(@RequestBody AdminAddUserRequest adminAddUserRequest) {
+        return ResultUtils.success(userService.addUser(adminAddUserRequest));
     }
 
     /**
@@ -73,15 +73,15 @@ public class AdminController {
     /**
      * 修改用户信息
      *
-     * @param userUpdateRequest 用户更新Request
+     * @param adminUpdateUserInfoRequest 用户更新Request
      * @return {@code BaseResponse<Long>}
      */
     @PostMapping("/update")
     @ApiOperation(value = "修改用户信息", notes = "修改用户信息")
     @Check(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Long> updateUser(@RequestBody UserUpdateRequest userUpdateRequest) {
+    public BaseResponse<Long> updateUser(@RequestBody AdminUpdateUserInfoRequest adminUpdateUserInfoRequest) {
         User user = new User();
-        BeanUtils.copyProperties(userUpdateRequest, user);
+        BeanUtils.copyProperties(adminUpdateUserInfoRequest, user);
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "修改用户信息失败,无该用户信息");
         return ResultUtils.success(user.getUserId());
@@ -96,7 +96,7 @@ public class AdminController {
     @GetMapping("/get")
     @ApiOperation(value = "按id获取用户", notes = "按id获取用户")
     @CheckAuth(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<User> getUserById(@ApiParam(value = "用户id", required = true) @CheckParam(required = NumberConstant.TRUE_VALUE, nullErrorMsg = "用户id不能为空") Long userId) {
+    public BaseResponse<User> getUserById(@ApiParam(value = "用户id", required = true) @CheckParam(required = NumberConstant.TRUE_VALUE, alias = "用户id") Long userId) {
         User user = userService.getById(userId);
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");
         return ResultUtils.success(user);
@@ -123,7 +123,7 @@ public class AdminController {
      */
     @GetMapping("/get/vo")
     @ApiOperation(value = "根据 id 获取包装类", notes = "根据 id 获取包装类")
-    public BaseResponse<UserSafetyVO> getUserVOById(@CheckParam(required = NumberConstant.TRUE_VALUE, nullErrorMsg = "用户id不能为空") Long id) {
+    public BaseResponse<UserSafetyVO> getUserVOById(@CheckParam(required = NumberConstant.TRUE_VALUE, alias = "用户id") Long id) {
         BaseResponse<User> response = getUserById(id);
         User user = response.getData();
         return ResultUtils.success(userService.getUserVO(user));
@@ -138,7 +138,7 @@ public class AdminController {
     @PostMapping("/password/reset")
     @ApiOperation(value = "重置用户密码", notes = "重置用户密码")
     @CheckAuth(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> userPasswordReset(@RequestBody @ApiParam(value = "用户id", required = true) @CheckParam(required = NumberConstant.TRUE_VALUE, nullErrorMsg = "用户id不能为空") Long userId) {
+    public BaseResponse<Boolean> userPasswordReset(@RequestBody @ApiParam(value = "用户id", required = true) @CheckParam(required = NumberConstant.TRUE_VALUE, alias = "用户id") Long userId) {
         return ResultUtils.success(userService.userPasswordResetByAdmin(userId));
     }
 

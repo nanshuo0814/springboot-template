@@ -18,27 +18,26 @@ import java.io.Serializable;
 @ApiModel(value = "UserLoginRequest", description = "用户登录信息Request")
 public class UserLoginRequest implements Serializable {
 
-
     private static final long serialVersionUID = -5262836669010105900L;
 
     /**
      * 账号
      */
     @ApiModelProperty(value = "账号", required = true)
-    @CheckParam(nullErrorMsg = "账号不能为空", minLength = 3, maxLength = 16, lenghtErrorMsg = "账号长度必须在3-16之间")
+    @CheckParam(alias = "账号", minLength = 3, maxLength = 16, regex = UserRegexEnums.ACCOUNT)
     private String userAccount;
 
     /**
      * 用户密码
      */
     @ApiModelProperty(value = "密码", required = true)
-    @CheckParam(nullErrorMsg = "密码不能为空", minLength = 6, maxLength = 18, lenghtErrorMsg = "密码长度必须在6-18之间")
+    @CheckParam(alias = "密码", minLength = 6, maxLength = 18,regex = UserRegexEnums.PASSWORD)
     private String userPassword;
 
     /**
      * 图片验证码
      */
     @ApiModelProperty(value = "图片验证码", required = true)
-    @CheckParam(nullErrorMsg = "图片验证码不能为空", regex = UserRegexEnums.IMAGE_CAPTCHA, regexErrorMsg = "图片验证码错误")
+    @CheckParam(alias = "图片验证码", regex = UserRegexEnums.IMAGE_CAPTCHA)
     private String imageCaptcha;
 }
