@@ -18,6 +18,7 @@ spring:
     active: dev
   mvc:
     pathmatch:
+      # 解决 Spring Boot 2.6.0 版本以上无法访问路径的问题（配合使用swagger文档时）
       matching-strategy: ant_path_matcher
   # 数据库配置
   datasource:
