@@ -1,4 +1,4 @@
-package com.nanshuo.springboot.model.request.user.admin;
+package com.nanshuo.springboot.model.dto.user.admin;
 
 import com.nanshuo.springboot.annotation.CheckParam;
 import com.nanshuo.springboot.constant.NumberConstant;

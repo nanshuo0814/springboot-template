@@ -34,7 +34,7 @@ public class Knife4jConfig {
                         .build())
                 //分组名称
                 .select()
-                // 指定 Controller 扫描包路径
+                // todo 指定 Controller 扫描包路径
                 .apis(RequestHandlerSelectors.basePackage("com.nanshuo.springboot.controller"))
                 .paths(PathSelectors.any())
                 .build();

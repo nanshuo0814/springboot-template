@@ -3,9 +3,9 @@ package com.nanshuo.springboot.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.nanshuo.springboot.model.request.user.*;
+import com.nanshuo.springboot.model.dto.user.*;
 import com.nanshuo.springboot.model.domain.User;
-import com.nanshuo.springboot.model.request.user.admin.AdminAddUserRequest;
+import com.nanshuo.springboot.model.dto.user.admin.AdminAddUserRequest;
 import com.nanshuo.springboot.model.vo.user.UserLoginVO;
 import com.nanshuo.springboot.model.vo.user.UserSafetyVO;
 

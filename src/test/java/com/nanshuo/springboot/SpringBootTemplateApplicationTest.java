@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Slf4j
 @SpringBootTest
-class MainApplicationTest {
+class SpringBootTemplateApplicationTest {
 
     /**
      * md5加密

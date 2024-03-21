@@ -2,13 +2,13 @@ package com.nanshuo.springboot.controller;
 
 import cn.hutool.core.io.FileUtil;
 import com.nanshuo.springboot.annotation.CheckAuth;
-import com.nanshuo.springboot.common.BaseResponse;
+import com.nanshuo.springboot.common.ApiResponse;
 import com.nanshuo.springboot.common.ErrorCode;
-import com.nanshuo.springboot.common.ResultUtils;
+import com.nanshuo.springboot.common.ApiResult;
 import com.nanshuo.springboot.constant.FileConstant;
 import com.nanshuo.springboot.exception.BusinessException;
-import com.nanshuo.springboot.manager.OssManager;
-import com.nanshuo.springboot.model.request.file.UploadFileRequest;
+import com.nanshuo.springboot.utils.OssUtils;
+import com.nanshuo.springboot.model.dto.file.UploadFileRequest;
 import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.enums.file.FileUploadTypeEnums;
 import com.nanshuo.springboot.service.UserService;
@@ -38,10 +38,10 @@ import java.util.Arrays;
 public class FileController {
 
     private final UserService userService;
-    private final OssManager ossManager;
+    private final OssUtils ossUtils;
 
-    public FileController(OssManager ossManager, UserService userService) {
-        this.ossManager = ossManager;
+    public FileController(OssUtils ossUtils, UserService userService) {
+        this.ossUtils = ossUtils;
         this.userService = userService;
     }
 
@@ -57,8 +57,8 @@ public class FileController {
     @PostMapping("/upload")
     @CheckAuth(mustRole = "user")
     @ApiOperation(value = "文件上传", notes = "文件上传")
-    public BaseResponse<String> uploadFile(@RequestPart("file") MultipartFile multipartFile,
-                                           UploadFileRequest uploadFileRequest, HttpServletRequest request) {
+    public ApiResponse<String> uploadFile(@RequestPart("file") MultipartFile multipartFile,
+                                          UploadFileRequest uploadFileRequest, HttpServletRequest request) {
         String type = uploadFileRequest.getType();
         FileUploadTypeEnums fileUploadTypeEnums = FileUploadTypeEnums.getEnumByValue(type);
         if (fileUploadTypeEnums == null) {
@@ -75,9 +75,9 @@ public class FileController {
             // 上传文件
             file = File.createTempFile(filepath, null);
             multipartFile.transferTo(file);
-            ossManager.putObject(filepath, file);
+            ossUtils.putObject(filepath, file);
             // 返回可访问地址
-            return ResultUtils.success(FileConstant.OSS_HOST_ADDRESS + filepath);
+            return ApiResult.success(FileConstant.OSS_HOST_ADDRESS + filepath);
         } catch (Exception e) {
             log.error("file upload error, filepath = " + filepath, e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败,请联系管理员");

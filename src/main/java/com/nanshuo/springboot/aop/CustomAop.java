@@ -28,14 +28,14 @@ import java.lang.reflect.Method;
 @Slf4j
 @Aspect
 @Configuration("CustomAopConfig")
-public class CustomAopConfig {
+public class CustomAop {
 
     private final CheckAuthInterceptorAop authInterceptor;
 
     private final CheckInterceptorAop checkInterceptorAop;
 
 
-    public CustomAopConfig(CheckAuthInterceptorAop authInterceptor, CheckInterceptorAop checkInterceptorAop) {
+    public CustomAop(CheckAuthInterceptorAop authInterceptor, CheckInterceptorAop checkInterceptorAop) {
         this.authInterceptor = authInterceptor;
         this.checkInterceptorAop = checkInterceptorAop;
     }

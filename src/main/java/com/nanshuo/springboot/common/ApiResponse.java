@@ -11,7 +11,7 @@ import java.io.Serializable;
  * @date 2023/12/23 16:35:07
  */
 @Data
-public class BaseResponse<T> implements Serializable {
+public class ApiResponse<T> implements Serializable {
 
     private int code;
 
@@ -19,17 +19,17 @@ public class BaseResponse<T> implements Serializable {
 
     private String message;
 
-    public BaseResponse(int code, T data, String message) {
+    public ApiResponse(int code, T data, String message) {
         this.code = code;
         this.data = data;
         this.message = message;
     }
 
-    public BaseResponse(int code, T data) {
+    public ApiResponse(int code, T data) {
         this(code, data, "");
     }
 
-    public BaseResponse(ErrorCode errorCode) {
+    public ApiResponse(ErrorCode errorCode) {
         this(errorCode.getCode(), null, errorCode.getMessage());
     }
 }

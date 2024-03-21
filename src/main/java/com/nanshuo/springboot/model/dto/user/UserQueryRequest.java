@@ -1,6 +1,6 @@
-package com.nanshuo.springboot.model.request.user;
+package com.nanshuo.springboot.model.dto.user;
 
-import com.nanshuo.springboot.common.PageBaseRequest;
+import com.nanshuo.springboot.model.dto.page.PageBaseRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

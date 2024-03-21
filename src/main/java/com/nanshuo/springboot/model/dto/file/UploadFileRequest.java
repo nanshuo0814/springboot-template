@@ -1,4 +1,4 @@
-package com.nanshuo.springboot.model.request.file;
+package com.nanshuo.springboot.model.dto.file;
 
 import lombok.Data;
 

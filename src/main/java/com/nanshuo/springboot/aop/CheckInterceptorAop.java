@@ -63,7 +63,7 @@ public class CheckInterceptorAop {
 
             // 如果存在 @Check 注解并且需要进行参数验证，则执行参数验证
             if (checkAnnotation != null && checkAnnotation.checkParam()) {
-                CommonCheckMethodAop.validateParams(true, method, arguments);
+                CommonCheckMethod.validateParams(true, method, arguments);
             }
 
         } catch (BusinessException e) {

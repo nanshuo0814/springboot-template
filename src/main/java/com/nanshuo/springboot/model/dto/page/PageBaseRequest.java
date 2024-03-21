@@ -1,4 +1,4 @@
-package com.nanshuo.springboot.common;
+package com.nanshuo.springboot.model.dto.page;
 
 import com.nanshuo.springboot.constant.PageConstant;
 import lombok.Data;

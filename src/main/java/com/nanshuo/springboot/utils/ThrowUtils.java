@@ -1,7 +1,8 @@
-package com.nanshuo.springboot.exception;
+package com.nanshuo.springboot.utils;
 
 
 import com.nanshuo.springboot.common.ErrorCode;
+import com.nanshuo.springboot.exception.BusinessException;
 
 /**
  * 抛异常工具类

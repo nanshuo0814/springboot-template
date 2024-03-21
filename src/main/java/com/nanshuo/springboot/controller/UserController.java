@@ -2,12 +2,12 @@ package com.nanshuo.springboot.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.nanshuo.springboot.annotation.Check;
-import com.nanshuo.springboot.common.BaseResponse;
+import com.nanshuo.springboot.common.ApiResponse;
 import com.nanshuo.springboot.common.ErrorCode;
-import com.nanshuo.springboot.common.ResultUtils;
+import com.nanshuo.springboot.common.ApiResult;
 import com.nanshuo.springboot.constant.UserConstant;
-import com.nanshuo.springboot.exception.ThrowUtils;
-import com.nanshuo.springboot.model.request.user.*;
+import com.nanshuo.springboot.utils.ThrowUtils;
+import com.nanshuo.springboot.model.dto.user.*;
 import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.vo.user.UserLoginVO;
 import com.nanshuo.springboot.model.vo.user.UserSafetyVO;
@@ -51,9 +51,9 @@ public class UserController {
     @PostMapping("/register")
     @ApiOperation(value = "用户注册", notes = "用户注册")
     @Check(checkParam = true)
-    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
+    public ApiResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         // 调用用户注册服务方法,返回注册结果
-        return ResultUtils.success(userService.userRegister(userRegisterRequest));
+        return ApiResult.success(userService.userRegister(userRegisterRequest));
     }
 
     /**
@@ -65,8 +65,8 @@ public class UserController {
     @PostMapping("/login")
     @ApiOperation(value = "用户登录", notes = "用户登录")
     @Check(checkParam = true)
-    public BaseResponse<UserLoginVO> userLogin(HttpServletRequest request, @RequestBody UserLoginRequest userLoginRequest) {
-        return ResultUtils.success(userService.userLogin(request, userLoginRequest));
+    public ApiResponse<UserLoginVO> userLogin(HttpServletRequest request, @RequestBody UserLoginRequest userLoginRequest) {
+        return ApiResult.success(userService.userLogin(request, userLoginRequest));
     }
 
     /**
@@ -77,9 +77,9 @@ public class UserController {
      */
     @GetMapping("/get/login")
     @ApiOperation(value = "获取登录用户", notes = "获取登录用户")
-    public BaseResponse<UserLoginVO> getLoginUser(HttpServletRequest request) {
+    public ApiResponse<UserLoginVO> getLoginUser(HttpServletRequest request) {
         User user = userService.getLoginUser(request);
-        return ResultUtils.success(userService.getLoginUserVO(user));
+        return ApiResult.success(userService.getLoginUserVO(user));
     }
 
     /**
@@ -90,9 +90,9 @@ public class UserController {
      */
     @PostMapping("/logout")
     @ApiOperation(value = "用户注销", notes = "用户注销")
-    public BaseResponse<String> userLogout(HttpServletRequest request) {
+    public ApiResponse<String> userLogout(HttpServletRequest request) {
         ThrowUtils.throwIfNull(request);
-        return ResultUtils.success(userService.userLogout(request));
+        return ApiResult.success(userService.userLogout(request));
     }
 
     /**
@@ -104,8 +104,8 @@ public class UserController {
     @PostMapping("/password/reset")
     @ApiOperation(value = "用户密码重置(邮箱验证码)", notes = "用户密码重置(邮箱验证码)")
     @Check(checkParam = true)
-    public BaseResponse<Boolean> userPasswordReset(HttpServletRequest request, @RequestBody UserPasswordResetRequest userPasswordResetRequest) {
-        return ResultUtils.success(userService.userPasswordReset(request, userPasswordResetRequest));
+    public ApiResponse<Boolean> userPasswordReset(HttpServletRequest request, @RequestBody UserPasswordResetRequest userPasswordResetRequest) {
+        return ApiResult.success(userService.userPasswordReset(request, userPasswordResetRequest));
     }
 
     /**
@@ -118,8 +118,8 @@ public class UserController {
     @PostMapping("/password/update")
     @ApiOperation(value = "修改用户密码", notes = "修改用户密码")
     @Check(checkParam = true, checkAuth = UserConstant.USER_ROLE)
-    public BaseResponse<Boolean> updateUserPassword(HttpServletRequest request, @RequestBody UserPasswordUpdateRequest userPasswordUpdateRequest) {
-        return ResultUtils.success(userService.userPasswordUpdate(request, userPasswordUpdateRequest));
+    public ApiResponse<Boolean> updateUserPassword(HttpServletRequest request, @RequestBody UserPasswordUpdateRequest userPasswordUpdateRequest) {
+        return ApiResult.success(userService.userPasswordUpdate(request, userPasswordUpdateRequest));
     }
 
     // end domain 用户登录相关
@@ -134,7 +134,7 @@ public class UserController {
      */
     @PostMapping("/list/page/vo")
     @ApiOperation(value = "按页面获取用户vo列表(脱敏)", notes = "按页面获取用户vo列表(脱敏)")
-    public BaseResponse<Page<UserSafetyVO>> getUserVoListByPage(@RequestBody UserQueryRequest userQueryRequest) {
+    public ApiResponse<Page<UserSafetyVO>> getUserVoListByPage(@RequestBody UserQueryRequest userQueryRequest) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
         // 限制爬虫
@@ -144,7 +144,7 @@ public class UserController {
         Page<UserSafetyVO> userVOPage = new Page<>(current, size, userPage.getTotal());
         List<UserSafetyVO> userSafetyVO = userService.getUserVO(userPage.getRecords());
         userVOPage.setRecords(userSafetyVO);
-        return ResultUtils.success(userVOPage);
+        return ApiResult.success(userVOPage);
     }
 
     /**
@@ -157,15 +157,15 @@ public class UserController {
     @PostMapping("/update/my")
     @ApiOperation(value = "修改用户信息", notes = "修改用户信息")
     @Check(checkAuth = UserConstant.USER_ROLE, checkParam = true)
-    public BaseResponse<String> updateUserInfo(@RequestBody UserUpdateInfoRequest userUpdateInfoRequest,
-                                                HttpServletRequest request) {
+    public ApiResponse<String> updateUserInfo(@RequestBody UserUpdateInfoRequest userUpdateInfoRequest,
+                                              HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         User user = new User();
         BeanUtils.copyProperties(userUpdateInfoRequest, user);
         user.setUserId(loginUser.getUserId());
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-        return ResultUtils.success("更新用户信息成功！");
+        return ApiResult.success("更新用户信息成功！");
     }
 
     // end domain 用户的增删改查相关

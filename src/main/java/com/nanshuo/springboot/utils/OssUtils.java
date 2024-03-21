@@ -1,4 +1,4 @@
-package com.nanshuo.springboot.manager;
+package com.nanshuo.springboot.utils;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.PutObjectRequest;
@@ -15,11 +15,11 @@ import java.io.File;
  * @date 2024/01/26 13:26:04
  */
 @Component
-public class OssManager {
+public class OssUtils {
 
     private final OssClientConfig cosClientConfig;
     private final OSS ossClient;
-    public OssManager(OssClientConfig cosClientConfig, OSS ossClient) {
+    public OssUtils(OssClientConfig cosClientConfig, OSS ossClient) {
         this.cosClientConfig = cosClientConfig;
         this.ossClient = ossClient;
     }

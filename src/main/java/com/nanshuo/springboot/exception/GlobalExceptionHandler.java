@@ -1,8 +1,8 @@
 package com.nanshuo.springboot.exception;
 
-import com.nanshuo.springboot.common.BaseResponse;
+import com.nanshuo.springboot.common.ApiResponse;
 import com.nanshuo.springboot.common.ErrorCode;
-import com.nanshuo.springboot.common.ResultUtils;
+import com.nanshuo.springboot.common.ApiResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -24,9 +24,9 @@ public class GlobalExceptionHandler {
      * @return {@code BaseResponse<?>}
      */
     @ExceptionHandler(BusinessException.class)
-    public BaseResponse<?> businessExceptionHandler(BusinessException e) {
+    public ApiResponse<?> businessExceptionHandler(BusinessException e) {
         log.error("BusinessException", e);
-        return ResultUtils.fail(e.getCode(), e.getMessage());
+        return ApiResult.fail(e.getCode(), e.getMessage());
     }
 
     /**
@@ -36,8 +36,8 @@ public class GlobalExceptionHandler {
      * @return {@code BaseResponse<?>}
      */
     @ExceptionHandler(RuntimeException.class)
-    public BaseResponse<?> runtimeExceptionHandler(RuntimeException e) {
+    public ApiResponse<?> runtimeExceptionHandler(RuntimeException e) {
         log.error("RuntimeException", e);
-        return ResultUtils.fail(ErrorCode.SYSTEM_ERROR, "系统内部错误,请联系管理员");
+        return ApiResult.fail(ErrorCode.SYSTEM_ERROR, "系统内部错误,请联系管理员");
     }
 }

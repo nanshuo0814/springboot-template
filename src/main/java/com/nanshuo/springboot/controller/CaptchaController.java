@@ -2,9 +2,9 @@ package com.nanshuo.springboot.controller;
 
 import com.google.gson.Gson;
 import com.nanshuo.springboot.annotation.CheckParam;
-import com.nanshuo.springboot.common.BaseResponse;
+import com.nanshuo.springboot.common.ApiResponse;
 import com.nanshuo.springboot.common.ErrorCode;
-import com.nanshuo.springboot.common.ResultUtils;
+import com.nanshuo.springboot.common.ApiResult;
 import com.nanshuo.springboot.constant.NumberConstant;
 import com.nanshuo.springboot.constant.RedisKeyConstant;
 import com.nanshuo.springboot.model.enums.user.UserRegexEnums;
@@ -49,7 +49,7 @@ public class CaptchaController {
      */
     @PostMapping("/sendEmailCaptcha")
     @ApiOperation(value = "发送电子邮件验证码", notes = "发送电子邮件验证码")
-    public BaseResponse<String> sendEmailCaptcha(
+    public ApiResponse<String> sendEmailCaptcha(
             @ApiParam(value = "目标电子邮件", required = true)
             @RequestBody @CheckParam(required = NumberConstant.TRUE_VALUE, alias = "邮箱",
                     regex = UserRegexEnums.EMAIL) String targetEmail) {
@@ -74,7 +74,7 @@ public class CaptchaController {
         }
         log.info("{}的邮箱验证码为：{}", targetEmail, captcha);
         // 返回结果
-        return ResultUtils.success(result);
+        return ApiResult.success(result);
     }
 
     /**
@@ -84,7 +84,7 @@ public class CaptchaController {
      */
     @GetMapping("/getImageCaptcha")
     @ApiOperation(value = "获取图片验证码", notes = "获取图片验证码")
-    public BaseResponse<String> getImageCaptcha() {
+    public ApiResponse<String> getImageCaptcha() {
         try {
             ImageCaptchaUtils imageCaptchaUtils = new ImageCaptchaUtils();
 
@@ -101,7 +101,7 @@ public class CaptchaController {
             // 获取验证码
             String captcha = imageCaptchaUtils.getCaptcha();
             if (captcha == null) {
-                return ResultUtils.fail(ErrorCode.SYSTEM_ERROR, "获取验证码失败,系统故障,请联系管理员");
+                return ApiResult.fail(ErrorCode.SYSTEM_ERROR, "获取验证码失败,系统故障,请联系管理员");
             }
             log.info("图片验证码为：{}", captcha);
             // 将验证码写入 redis，过期时间为1分钟
@@ -110,10 +110,10 @@ public class CaptchaController {
             redisTemplate.opsForValue().set(RedisKeyConstant.IMAGE_CAPTCHA_KEY, captchaJson, RedisKeyConstant.IMAGE_CAPTCHA_TIME_OUT, TimeUnit.SECONDS);
 
             // 返回 Base64 编码的验证码图片字符串
-            return ResultUtils.success(base64Image);
+            return ApiResult.success(base64Image);
         } catch (IOException e) {
             log.error("获取验证码失败", e);
-            return ResultUtils.fail(ErrorCode.SYSTEM_ERROR, "获取验证码失败,系统故障,请联系管理员");
+            return ApiResult.fail(ErrorCode.SYSTEM_ERROR, "获取验证码失败,系统故障,请联系管理员");
         }
     }
 

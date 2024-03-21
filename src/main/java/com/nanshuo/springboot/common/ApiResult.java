@@ -1,12 +1,12 @@
 package com.nanshuo.springboot.common;
 
 /**
- * 返回工具类
+ * 返回Api结果类
  *
  * @author nanshuo
  * @date 2023/12/23 18:25:00
  */
-public class ResultUtils {
+public class ApiResult {
 
     /**
      * 成功
@@ -14,8 +14,8 @@ public class ResultUtils {
      * @param data 数据
      * @return {@code BaseResponse<T>}
      */
-    public static <T> BaseResponse<T> success(T data) {
-        return new BaseResponse<>(20000, data, "操作成功");
+    public static <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<>(20000, data, "操作成功");
     }
 
     /**
@@ -24,8 +24,8 @@ public class ResultUtils {
      * @param errorCode 错误代码
      * @return {@code BaseResponse<T>}
      */
-    public static <T> BaseResponse<T> fail(ErrorCode errorCode) {
-        return new BaseResponse<>(errorCode);
+    public static <T> ApiResponse<T> fail(ErrorCode errorCode) {
+        return new ApiResponse<>(errorCode);
     }
 
     /**
@@ -35,8 +35,8 @@ public class ResultUtils {
      * @param message 消息
      * @return {@code BaseResponse<T>}
      */
-    public static <T> BaseResponse<T> fail(int code, String message) {
-        return new BaseResponse<>(code, null, message);
+    public static <T> ApiResponse<T> fail(int code, String message) {
+        return new ApiResponse<>(code, null, message);
     }
 
     /**
@@ -46,7 +46,7 @@ public class ResultUtils {
      * @param message   消息
      * @return {@code BaseResponse<T>}
      */
-    public static <T> BaseResponse<T> fail(ErrorCode errorCode, String message) {
-        return new BaseResponse<>(errorCode.getCode(), null, message);
+    public static <T> ApiResponse<T> fail(ErrorCode errorCode, String message) {
+        return new ApiResponse<>(errorCode.getCode(), null, message);
     }
 }

@@ -22,7 +22,7 @@ import java.lang.reflect.Parameter;
  * @date 2024/01/03 14:40:04
  */
 @Slf4j
-public class CommonCheckMethodAop {
+public class CommonCheckMethod {
 
     /**
      * 验证参数
