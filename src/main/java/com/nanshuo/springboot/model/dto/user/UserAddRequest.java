@@ -1,4 +1,4 @@
-package com.nanshuo.springboot.model.dto.user.admin;
+package com.nanshuo.springboot.model.dto.user;
 
 import com.nanshuo.springboot.annotation.CheckParam;
 import com.nanshuo.springboot.constant.NumberConstant;
@@ -17,7 +17,7 @@ import java.io.Serializable;
  */
 @Data
 @ApiModel(value = "UserAddRequest", description = "用户添加信息Request")
-public class AdminAddUserRequest implements Serializable {
+public class UserAddRequest implements Serializable {
 
     private static final long serialVersionUID = -119754408044041182L;
 

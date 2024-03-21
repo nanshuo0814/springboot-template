@@ -3,9 +3,8 @@ package com.nanshuo.springboot.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.nanshuo.springboot.model.dto.user.*;
 import com.nanshuo.springboot.model.domain.User;
-import com.nanshuo.springboot.model.dto.user.admin.AdminAddUserRequest;
+import com.nanshuo.springboot.model.dto.user.*;
 import com.nanshuo.springboot.model.vo.user.UserLoginVO;
 import com.nanshuo.springboot.model.vo.user.UserSafetyVO;
 
@@ -26,7 +25,7 @@ public interface UserService extends IService<User> {
      * @param userRegisterRequest 用户注册信息
      * @return 注册成功的用户id
      */
-    long userRegister(UserRegisterRequest userRegisterRequest);
+    Long userRegister(UserRegisterRequest userRegisterRequest);
 
     /**
      * 用户登录
@@ -62,7 +61,7 @@ public interface UserService extends IService<User> {
     User getUserCacheById(Long userId);
 
     /**
-     * 将用户保存到缓存
+     * 将用户保存到redis缓存
      *
      * @param user 用户
      */
@@ -77,31 +76,22 @@ public interface UserService extends IService<User> {
     String userLogout(HttpServletRequest request);
 
     /**
-     * 用户密码重置
+     * 用户密码重置(通过邮箱重置)
      *
      * @param userPasswordResetRequest 用户密码重置Request
      * @return {@code Boolean}
      */
-    Boolean userPasswordReset(HttpServletRequest request, UserPasswordResetRequest userPasswordResetRequest);
+    Boolean userPasswordResetByEmail(HttpServletRequest request, UserPasswordResetRequest userPasswordResetRequest);
 
     /**
-     * 用户密码更新
+     * 用户密码自行更新
      *
      * @param request               请求
      * @param userPasswordUpdateRequest 用户密码更新Request
      * @return {@code Boolean}
      */
-    Boolean userPasswordUpdate(HttpServletRequest request, UserPasswordUpdateRequest userPasswordUpdateRequest);
+    Boolean userPasswordUpdateByMyself(HttpServletRequest request, UserPasswordUpdateRequest userPasswordUpdateRequest);
 
-    // end domain 用户登录相关
-
-    /**
-     * 添加用户
-     *
-     * @param adminAddUserRequest 用户添加Request
-     * @return {@code Long}
-     */
-    Long addUser(AdminAddUserRequest adminAddUserRequest);
 
     /**
      * 获取查询条件
@@ -112,12 +102,20 @@ public interface UserService extends IService<User> {
     LambdaQueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
     /**
-     * 获取用户vo
+     * 添加用户(admin)
+     *
+     * @param userAddRequest 用户添加Request
+     * @return {@code Long}
+     */
+    Long addUser(UserAddRequest userAddRequest);
+
+    /**
+     * 获取用户脱敏的VO list
      *
      * @param records 记录
-     * @return {@code List<UserVO>}
+     * @return {@code List<UserSafetyVO>}
      */
-    List<UserSafetyVO> getUserVO(List<User> records);
+    List<UserSafetyVO> getUserSafeVOList(List<User> records);
 
     /**
      * 获取用户vo(脱敏)
@@ -125,13 +123,23 @@ public interface UserService extends IService<User> {
      * @param user 用户
      * @return {@code UserVO}
      */
-    UserSafetyVO getUserVO(User user);
+    UserSafetyVO getUserSafeVO(User user);
 
     /**
-     * 用户密码由admin重置
+     * 用户密码重置(admin)
      *
      * @param userId 用户id
      * @return {@code Boolean}
      */
     Boolean userPasswordResetByAdmin(Long userId);
+
+    /**
+     * 更新用户
+     *
+     * @param userUpdateRequest 用户更新请求
+     * @param request           请求
+     * @return boolean
+     */
+    Integer updateUserInfo(UserUpdateRequest userUpdateRequest, HttpServletRequest request);
+
 }

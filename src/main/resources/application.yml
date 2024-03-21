@@ -13,26 +13,26 @@ server:
 spring:
   application:
     name: springboot-template # 项目名称
-  # 默认 dev 环境
+  # todo 默认 dev 环境 , prod/test/dev
   profiles:
     active: dev
   mvc:
     pathmatch:
       # 解决 Spring Boot 2.6.0 版本以上无法访问路径的问题（配合使用swagger文档时）
       matching-strategy: ant_path_matcher
-  # 数据库配置
+  # todo 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/springboot_template?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
     username: root
     password: root
-  # Redis 配置
+  # todo Redis 配置
   redis:
     database: 1
     host: localhost
     port: 6379
     timeout: 5000
-    # todo 若你的 Redis 需要密码，请打开注释，并填写密码
+    # 若你的 Redis 需要密码，请打开注释，并填写密码
     #    password: root
   # session 配置
   session:
@@ -48,6 +48,7 @@ spring:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
+    # 开启 SQL 语句的打印
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     # 关闭mybatis-plus的logo日志
@@ -79,7 +80,11 @@ logging:
 # todo 需替换配置
 oss:
   client:
+    # key
     accessKey: LTAI5tJbzepWP5Uw4E9UTdPq
+    # secret
     secretKey: ccK9h6VNbPQbOuQgNWOCLRbUkaARra
+    # 桶的名字
     bucket: ydg-image
+    # 地域
     region: oss-cn-guangzhou.aliyuncs.com

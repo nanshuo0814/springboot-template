@@ -7,6 +7,7 @@ import com.nanshuo.springboot.common.ErrorCode;
 import com.nanshuo.springboot.common.ApiResult;
 import com.nanshuo.springboot.constant.NumberConstant;
 import com.nanshuo.springboot.constant.RedisKeyConstant;
+import com.nanshuo.springboot.constant.UserConstant;
 import com.nanshuo.springboot.model.enums.user.UserRegexEnums;
 import com.nanshuo.springboot.utils.captcha.EmailCaptchaUtils;
 import com.nanshuo.springboot.utils.captcha.ImageCaptchaUtils;
@@ -107,7 +108,7 @@ public class CaptchaController {
             // 将验证码写入 redis，过期时间为1分钟
             Gson gson = new Gson();
             String captchaJson = gson.toJson(captcha);
-            redisTemplate.opsForValue().set(RedisKeyConstant.IMAGE_CAPTCHA_KEY, captchaJson, RedisKeyConstant.IMAGE_CAPTCHA_TIME_OUT, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(RedisKeyConstant.IMAGE_CAPTCHA_KEY, captchaJson, UserConstant.IMAGE_CAPTCHA_TIME_OUT, TimeUnit.SECONDS);
 
             // 返回 Base64 编码的验证码图片字符串
             return ApiResult.success(base64Image);

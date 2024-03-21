@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 @Getter
 public enum UserRoleEnums {
 
-    USER("用户", "user"),
-    ADMIN("管理员", "admin"),
-    BAN("被封号", "ban");
+    USER("普通用户", "user"),
+    ADMIN("超级管理员", "admin"),
+    BAN("账号已被封号", "ban");
 
     private final String text;
 

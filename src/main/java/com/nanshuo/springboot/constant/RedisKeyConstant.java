@@ -19,12 +19,8 @@ public interface RedisKeyConstant {
     String IMAGE_CAPTCHA_KEY = "image_captcha:";
 
     /**
-     * 图片验证码过期时间（秒）
-     */
-    Integer IMAGE_CAPTCHA_TIME_OUT = 180;
-
-    /**
      * 用户登录状态缓存
      */
     String USER_LOGIN_STATE_CACHE = "user_login_cache:";
+
 }

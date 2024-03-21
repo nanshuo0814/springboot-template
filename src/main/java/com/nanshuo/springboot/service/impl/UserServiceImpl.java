@@ -1,7 +1,6 @@
 package com.nanshuo.springboot.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nanshuo.springboot.common.ErrorCode;
@@ -9,20 +8,20 @@ import com.nanshuo.springboot.constant.PageConstant;
 import com.nanshuo.springboot.constant.RedisKeyConstant;
 import com.nanshuo.springboot.constant.UserConstant;
 import com.nanshuo.springboot.exception.BusinessException;
-import com.nanshuo.springboot.utils.ThrowUtils;
 import com.nanshuo.springboot.mapper.UserMapper;
-import com.nanshuo.springboot.model.dto.user.*;
 import com.nanshuo.springboot.model.domain.User;
-import com.nanshuo.springboot.model.dto.user.admin.AdminAddUserRequest;
+import com.nanshuo.springboot.model.dto.user.*;
 import com.nanshuo.springboot.model.vo.user.UserLoginVO;
 import com.nanshuo.springboot.model.vo.user.UserSafetyVO;
 import com.nanshuo.springboot.service.UserService;
+import com.nanshuo.springboot.utils.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,9 +42,11 @@ import java.util.stream.Collectors;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final UserMapper userMapper;
 
-    public UserServiceImpl(RedisTemplate<String, Object> redisTemplate) {
+    public UserServiceImpl(RedisTemplate<String, Object> redisTemplate, UserMapper userMapper) {
         this.redisTemplate = redisTemplate;
+        this.userMapper = userMapper;
     }
 
 
@@ -56,7 +57,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return long
      */
     @Override
-    public long userRegister(UserRegisterRequest userRegisterRequest) {
+    public Long userRegister(UserRegisterRequest userRegisterRequest) {
         // 获取参数
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
@@ -130,12 +131,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public UserLoginVO userLogin(HttpServletRequest request, UserLoginRequest userLoginRequest) {
-
         // 获取参数
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         String imageCaptcha = userLoginRequest.getImageCaptcha();
-
         // 校验图片验证码
         Object trueImageCaptcha = redisTemplate.opsForValue().get(RedisKeyConstant.IMAGE_CAPTCHA_KEY);
         if (ObjectUtils.isEmpty(trueImageCaptcha)) {
@@ -144,7 +143,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!imageCaptcha.equals(trueImageCaptcha.toString())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "图片验证码错误");
         }
-
         // 查询用户信息
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getUserAccount, userAccount);
@@ -153,21 +151,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "账号或密码错误");
         }
-
         if (user.getUserRole().equals(UserConstant.BAN_ROLE)) {
             throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "账号已被禁用,请联系管理员解封");
         }
-
         String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userPassword).getBytes());
         if (!encryptPassword.equals(user.getUserPassword())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或密码错误");
         }
-
         // 记录用户的登录状态
         request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
         // 缓存用户信息
         redisTemplate.opsForValue().set(RedisKeyConstant.USER_LOGIN_STATE_CACHE + user.getUserId(), user);
-
         // 返回用户登录信息
         return this.getLoginUserVO(user);
     }
@@ -189,27 +183,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 获取登录用户
+     * 获取当前登录用户
      *
      * @param request 请求
      * @return {@code User}
      */
     @Override
     public User getLoginUser(HttpServletRequest request) {
-
         // 先判断是否已登录,获取用户信息
         User user = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
         if (user == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
-
         // 尝试从缓存redis中通过用户id获取用户信息
         User cachedUser = this.getUserCacheById(user.getUserId());
-
         if (cachedUser == null) {
             // 缓存中不存在，从数据库查询
             cachedUser = this.getById(user.getUserId());
-
             if (cachedUser != null) {
                 // 将用户信息放入缓存
                 this.saveUserToCache(cachedUser);
@@ -241,7 +231,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public void saveUserToCache(User user) {
         String cacheKey = RedisKeyConstant.USER_LOGIN_STATE_CACHE + user.getUserId();
-        redisTemplate.opsForValue().set(cacheKey, user, 1, TimeUnit.HOURS);
+        redisTemplate.opsForValue().set(cacheKey, user, UserConstant.USER_CACHE_TIME_OUT, TimeUnit.HOURS);
     }
 
     /**
@@ -264,33 +254,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 用户密码更新
+     * 用户密码自行更新
      *
      * @param request               请求
      * @param userPasswordUpdateRequest 用户密码重置Request
      * @return {@code Boolean}
      */
     @Override
-    public Boolean userPasswordUpdate(HttpServletRequest request, UserPasswordUpdateRequest userPasswordUpdateRequest) {
+    public Boolean userPasswordUpdateByMyself(HttpServletRequest request, UserPasswordUpdateRequest userPasswordUpdateRequest) {
         // 获取参数
         String oldPassword = userPasswordUpdateRequest.getOldPassword();
         String userPassword = userPasswordUpdateRequest.getNewPassword();
         String checkPassword = userPasswordUpdateRequest.getCheckPassword();
-
         // 获取当前用户
         User loginUser = this.getById(this.getLoginUser(request).getUserId());
-
         // 判断旧密码是否正确
         String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + oldPassword).getBytes());
         if (!encryptPassword.equals(loginUser.getUserPassword())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请输入正确旧密码");
         }
-
         // 判断两次密码是否一致
         if (!userPassword.equals(checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次新密码输入不一致");
         }
-
         // 修改密码
         String newEncryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userPassword).getBytes());
         User user = new User();
@@ -317,26 +303,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 用户密码重置
+     * 用户密码重置通过邮箱重置
      *
      * @param request              请求
      * @param userPasswordResetRequest 用户密码重置Request
      * @return {@code Boolean}
      */
     @Override
-    public Boolean userPasswordReset(HttpServletRequest request, UserPasswordResetRequest userPasswordResetRequest) {
+    public Boolean userPasswordResetByEmail(HttpServletRequest request, UserPasswordResetRequest userPasswordResetRequest) {
         // 获取参数
         String userAccount = userPasswordResetRequest.getUserAccount();
         String userPassword = userPasswordResetRequest.getUserPassword();
         String checkPassword = userPasswordResetRequest.getCheckPassword();
         String email = userPasswordResetRequest.getUserEmail();
         String emailCaptcha = userPasswordResetRequest.getEmailCaptcha();
-
         // 校验两次密码是否一致
         if (!userPassword.equals(checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次新密码输入不一致");
         }
-
         // 验证账号是否存在
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getUserAccount, userAccount);
@@ -344,97 +328,181 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "用户账号不存在");
         }
-
         // 验证用户是否被禁用
         if (user.getUserRole().equals(UserConstant.BAN_ROLE)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "该用户已被禁用,请联系管理员解封");
         }
-
         // 验证邮箱
         if (!user.getUserEmail().equals(email)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱不匹配当前用户,请输入当前用户的邮箱");
         }
-
         // 验证邮箱验证码
         validateEmailCode(email, emailCaptcha);
-
         // 修改密码
         synchronized (userAccount.intern()) {
             // 加密密码
             String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userPassword).getBytes());
-
             // 更新用户密码
             user.setUserPassword(encryptPassword);
             return this.updateById(user);
         }
     }
 
-    // end domain 用户登录相关
-
-    // domain 用户增删改查相关
-
     /**
      * 添加用户
      *
-     * @param adminAddUserRequest 用户添加Request
+     * @param userAddRequest 用户添加Request
      * @return {@code Long}
      */
     @Override
-    public Long addUser(AdminAddUserRequest adminAddUserRequest) {
+    public Long addUser(UserAddRequest userAddRequest) {
         // 判断参数（不是必须的）,设置默认值
-        if (StringUtils.isEmpty(adminAddUserRequest.getUserName())) {
+        if (StringUtils.isEmpty(userAddRequest.getUserName())) {
             // 设置默认的用户名（UserConstant.DEFAULT_USER_NAME+当时的时间戳）
-            adminAddUserRequest.setUserName(UserConstant.DEFAULT_USER_NAME + System.currentTimeMillis());
+            userAddRequest.setUserName(UserConstant.DEFAULT_USER_NAME + System.currentTimeMillis());
         }
-        if (StringUtils.isEmpty(adminAddUserRequest.getUserPassword())) {
+        if (StringUtils.isEmpty(userAddRequest.getUserPassword())) {
             // 设置默认的密码（UserConstant.DEFAULT_USER_PASSWORD）
-            adminAddUserRequest.setUserPassword(UserConstant.DEFAULT_USER_PASSWORD);
+            userAddRequest.setUserPassword(UserConstant.DEFAULT_USER_PASSWORD);
         }
-        if (StringUtils.isEmpty(adminAddUserRequest.getUserProfile())) {
+        if (StringUtils.isEmpty(userAddRequest.getUserProfile())) {
             // 设置默认的简介（UserConstant.DEFAULT_USER_PROFILE）
-            adminAddUserRequest.setUserProfile(UserConstant.DEFAULT_USER_PROFILE);
+            userAddRequest.setUserProfile(UserConstant.DEFAULT_USER_PROFILE);
         }
-        if (StringUtils.isEmpty(adminAddUserRequest.getUserAvatar())) {
+        if (StringUtils.isEmpty(userAddRequest.getUserAvatar())) {
             // 设置默认的头像（UserConstant.DEFAULT_USER_AVATAR）
-            adminAddUserRequest.setUserAvatar(UserConstant.DEFAULT_USER_AVATAR);
+            userAddRequest.setUserAvatar(UserConstant.DEFAULT_USER_AVATAR);
         }
-        if (StringUtils.isEmpty(adminAddUserRequest.getUserRole())) {
+        if (StringUtils.isEmpty(userAddRequest.getUserRole())) {
             // 设置默认的角色（UserConstant.DEFAULT_ROLE）
-            adminAddUserRequest.setUserRole(UserConstant.USER_ROLE);
+            userAddRequest.setUserRole(UserConstant.USER_ROLE);
         }
-        if (adminAddUserRequest.getUserGender() == null || adminAddUserRequest.getUserGender() < 0 || adminAddUserRequest.getUserGender() > 2) {
+        if (userAddRequest.getUserGender() == null || userAddRequest.getUserGender() < 0 || userAddRequest.getUserGender() > 2) {
             // 设置默认的性别（UserConstant.DEFAULT_USER_GENDER）
-            adminAddUserRequest.setUserGender(UserConstant.DEFAULT_USER_GENDER);
+            userAddRequest.setUserGender(UserConstant.DEFAULT_USER_GENDER);
         }
 
         // 校验用户账号是否存在
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUserAccount, adminAddUserRequest.getUserAccount());
+        queryWrapper.eq(User::getUserAccount, userAddRequest.getUserAccount());
         User user = this.baseMapper.selectOne(queryWrapper);
         if (user != null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号已存在,请换一个");
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "用户账号已存在,请换一个");
         }
 
         // 校验用户邮箱是否存在
-        if (!StringUtils.isEmpty(adminAddUserRequest.getUserEmail())) {
+        if (!StringUtils.isEmpty(userAddRequest.getUserEmail())) {
             queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(User::getUserEmail, adminAddUserRequest.getUserEmail());
+            queryWrapper.eq(User::getUserEmail, userAddRequest.getUserEmail());
             user = this.baseMapper.selectOne(queryWrapper);
             if (user != null) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户邮箱已存在,请换一个");
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "用户邮箱已存在,请换一个");
             }
         }
 
         // 加密密码
-        String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + adminAddUserRequest.getUserPassword()).getBytes());
-        adminAddUserRequest.setUserPassword(encryptPassword);
+        String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userAddRequest.getUserPassword()).getBytes());
+        userAddRequest.setUserPassword(encryptPassword);
 
         // 保存用户
         User userEntity = new User();
-        BeanUtils.copyProperties(adminAddUserRequest, userEntity);
+        BeanUtils.copyProperties(userAddRequest, userEntity);
         boolean result = this.save(userEntity);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "未知错误,添加用户失败");
         return userEntity.getUserId();
+    }
+
+    /**
+     * 获取用户脱敏 vo
+     *
+     * @param user 用户
+     * @return {@code UserVO}
+     */
+    @Override
+    public UserSafetyVO getUserSafeVO(User user) {
+        if (user == null) {
+            return null;
+        }
+        UserSafetyVO userSafetyVO = new UserSafetyVO();
+        BeanUtils.copyProperties(user, userSafetyVO);
+        return userSafetyVO;
+    }
+
+    /**
+     * 获取用户脱敏 vo list
+     *
+     * @param userList 用户列表
+     * @return {@code List<UserSafetyVO>}
+     */
+    @Override
+    public List<UserSafetyVO> getUserSafeVOList(List<User> userList) {
+        if (CollectionUtils.isEmpty(userList)) {
+            return new ArrayList<>();
+        }
+        return userList.stream().map(this::getUserSafeVO).collect(Collectors.toList());
+    }
+
+    /**
+     * 用户密码由admin重置
+     *
+     * @param userId 用户id
+     * @return {@code Boolean}
+     */
+    @Override
+    public Boolean userPasswordResetByAdmin(Long userId) {
+        // 根据id获取用户
+        User user = this.getById(userId);
+        // 用户存在
+        if (user != null) {
+            String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + UserConstant.DEFAULT_USER_PASSWORD).getBytes());
+            user.setUserPassword(encryptPassword);
+            return this.updateById(user);
+        }
+        throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "用户不存在!");
+    }
+
+    /**
+     * 更新用户信息
+     * 更新用户
+     *
+     * @param userUpdateRequest 用户更新请求
+     * @param request           请求
+     * @return {@code Integer}
+     */
+    @Override
+    public Integer updateUserInfo(UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
+        // 获取要修改update更新的用户ID
+        long updateUserId = userUpdateRequest.getUserId();
+        // 判断用户id是否合法
+        if (updateUserId < 1) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 获取当前的登录用户信息
+        User loginUser = this.getLoginUser(request);
+        // 如果是管理员，允许更新任意用户
+        // 如果不是管理员，只允许更新当前（自己的）信息
+        if (!loginUser.getUserRole().equals(UserConstant.ADMIN_ROLE) && updateUserId != loginUser.getUserId()) {
+            // 即不是管理员也不是当前登录的用户，无权限修改update用户信息，抛异常
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        // 通过用户id来查询要update的用户信息，更新前原始用户数据
+        User oldUser = userMapper.selectById(updateUserId);
+        if (oldUser == null) {
+            // 用户不存在，抛异常
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "用户不存在！");
+        }
+        // new一个空用户对象
+        User updateUser = new User();
+        // 判断传进来的各个参数是否为空，不为空则更新
+        updateUser.setUserId(oldUser.getUserId());
+        updateUser.setUserAccount(!ObjectUtils.isEmpty(userUpdateRequest.getUserAccount()) ? userUpdateRequest.getUserAccount() : oldUser.getUserAccount());
+        updateUser.setUserName(!ObjectUtils.isEmpty(userUpdateRequest.getUserName()) ? userUpdateRequest.getUserName() : oldUser.getUserName());
+        updateUser.setUserAvatar(!ObjectUtils.isEmpty(userUpdateRequest.getUserAvatar()) ? userUpdateRequest.getUserAvatar() : oldUser.getUserAvatar());
+        updateUser.setUserEmail(!ObjectUtils.isEmpty(userUpdateRequest.getUserEmail()) ? userUpdateRequest.getUserEmail() : oldUser.getUserEmail());
+        updateUser.setUserGender(!ObjectUtils.isEmpty(userUpdateRequest.getUserGender()) ? userUpdateRequest.getUserGender() : oldUser.getUserGender());
+        updateUser.setUserProfile(!ObjectUtils.isEmpty(userUpdateRequest.getUserProfile()) ? userUpdateRequest.getUserProfile() : oldUser.getUserProfile());
+        // 返回更新结果
+        return userMapper.updateById(updateUser);
     }
 
     /**
@@ -454,7 +522,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String email = userQueryRequest.getUserEmail();
         String sortField = userQueryRequest.getSortField();
         String sortOrder = userQueryRequest.getSortOrder();
-
         LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(id != null, User::getUserId, id)
                 .eq(gender != null, User::getUserGender, gender)
@@ -495,51 +562,4 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         throw new BusinessException(ErrorCode.PARAMS_ERROR, "未知排序字段");
     }
 
-    /**
-     * 获取用户vo
-     *
-     * @param user 用户
-     * @return {@code UserVO}
-     */
-    @Override
-    public UserSafetyVO getUserVO(User user) {
-        if (user == null) {
-            return null;
-        }
-        UserSafetyVO userSafetyVO = new UserSafetyVO();
-        BeanUtils.copyProperties(user, userSafetyVO);
-        return userSafetyVO;
-    }
-
-    /**
-     * 获取用户vo
-     *
-     * @param userList 用户列表
-     * @return {@code List<UserVO>}
-     */
-    @Override
-    public List<UserSafetyVO> getUserVO(List<User> userList) {
-        if (CollectionUtils.isEmpty(userList)) {
-            return new ArrayList<>();
-        }
-        return userList.stream().map(this::getUserVO).collect(Collectors.toList());
-    }
-
-    /**
-     * 用户密码由admin重置
-     *
-     * @param userId 用户id
-     * @return {@code Boolean}
-     */
-    @Override
-    public Boolean userPasswordResetByAdmin(Long userId) {
-        User user = this.getById(userId);
-        if (user != null) {
-            String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + UserConstant.DEFAULT_USER_PASSWORD).getBytes());
-            user.setUserPassword(encryptPassword);
-            this.updateById(user);
-            return true;
-        }
-        throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "用户不存在");
-    }
 }

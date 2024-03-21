@@ -15,7 +15,7 @@ public interface UserConstant {
     String SALT = "ydg0814";
 
     /**
-     * 用户登录态键
+     * 用户登录session键
      */
     String USER_LOGIN_STATE = "user_login";
 
@@ -59,5 +59,15 @@ public interface UserConstant {
      * 默认用户性别(0:女 1:男 2:未知)
      */
     Integer DEFAULT_USER_GENDER = 2;
+
+    /**
+     * 图片验证码过期时间（秒）
+     */
+    Integer IMAGE_CAPTCHA_TIME_OUT = 180;
+
+    /**
+     * 用户Redis缓存过期时间(小时)
+     */
+    Integer USER_CACHE_TIME_OUT = 1;
 
 }
