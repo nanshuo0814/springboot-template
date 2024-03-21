@@ -173,7 +173,7 @@ public class CommonCheckMethod {
                     } else {
                         // 如果字段上不存在 @CheckParam 注解，则检查字段值是否为空，为空则抛出 PARAMS_NULL 异常
                         if (ObjectUtils.isEmpty(fieldValue)) {
-                            throw new BusinessException(ErrorCode.PARAMS_NULL, "请求的参数" + fieldType.getName() + "不能为空");
+                            throw new BusinessException(ErrorCode.PARAMS_NULL, "请求的参数" + field.getName() + "不能为空");
                         }
                     }
                 } else {
