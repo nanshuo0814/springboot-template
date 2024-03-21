@@ -15,7 +15,7 @@ public class ApiResult {
      * @return {@code BaseResponse<T>}
      */
     public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse<>(20000, data, "操作成功");
+        return new ApiResponse<>(ErrorCode.SUCCESS.getCode(), data, "操作成功");
     }
 
     /**
