@@ -21,6 +21,8 @@ public enum ErrorCode {
 
     PARAMS_FORMAT_ERROR(40003, "请求参数格式不符合要求"),
 
+    PARAMS_VALUE_ERROR(40004, "请求参数值不符合要求"),
+
     NOT_LOGIN_ERROR(40100, "未登录"),
 
     NO_AUTH_ERROR(40101, "无权限"),

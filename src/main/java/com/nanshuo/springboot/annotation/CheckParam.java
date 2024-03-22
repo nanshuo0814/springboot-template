@@ -46,6 +46,20 @@ public @interface CheckParam {
     int required() default NumberConstant.DEFAULT_VALUE;
 
     /**
+     * 最小值
+     *
+     * @return int
+     */
+    int minValue() default NumberConstant.DEFAULT_VALUE;
+
+    /**
+     * 最大值
+     *
+     * @return int
+     */
+    int maxValue() default NumberConstant.DEFAULT_VALUE;
+
+    /**
      * 别名
      */
     String alias() default "参数";

@@ -17,16 +17,11 @@ public interface NumberConstant {
     /**
      * 假值
      */
-    int FALSE_VALUE = 0;
+    int FALSE_ZERO_VALUE = 0;
 
     /**
      * 真值
      */
-    int TRUE_VALUE = 1;
-
-    /**
-     * 邮箱验证码6位
-     */
-    int EMAIL_CODE_LENGTH = 6;
+    int TRUE_ONE_VALUE = 1;
 
 }

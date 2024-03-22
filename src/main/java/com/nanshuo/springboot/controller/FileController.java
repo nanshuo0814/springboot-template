@@ -1,7 +1,6 @@
 package com.nanshuo.springboot.controller;
 
 import cn.hutool.core.io.FileUtil;
-import com.nanshuo.springboot.annotation.CheckAuth;
 import com.nanshuo.springboot.common.ApiResponse;
 import com.nanshuo.springboot.common.ErrorCode;
 import com.nanshuo.springboot.common.ApiResult;
@@ -55,7 +54,6 @@ public class FileController {
      * @return {@code BaseResponse<String>}
      */
     @PostMapping("/upload")
-    @CheckAuth(mustRole = "user")
     @ApiOperation(value = "文件上传", notes = "文件上传")
     public ApiResponse<String> uploadFile(@RequestPart("file") MultipartFile multipartFile,
                                           UploadFileRequest uploadFileRequest, HttpServletRequest request) {

@@ -2,7 +2,6 @@ package com.nanshuo.springboot.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.nanshuo.springboot.annotation.Check;
-import com.nanshuo.springboot.annotation.CheckAuth;
 import com.nanshuo.springboot.annotation.CheckParam;
 import com.nanshuo.springboot.common.ApiResponse;
 import com.nanshuo.springboot.common.ApiResult;
@@ -130,8 +129,7 @@ public class UserController {
      */
     @PostMapping("/pwd/reset")
     @ApiOperation(value = "重置用户密码", notes = "重置用户密码")
-    @CheckAuth(mustRole = UserConstant.ADMIN_ROLE)
-    public ApiResponse<Boolean> userPasswordResetByAdmin(@RequestBody @ApiParam(value = "用户id", required = true) @CheckParam(required = NumberConstant.TRUE_VALUE, alias = "用户id") Long userId) {
+    public ApiResponse<Boolean> userPasswordResetByAdmin(@RequestBody @ApiParam(value = "用户id", required = true) @CheckParam(required = NumberConstant.TRUE_ONE_VALUE, alias = "用户id") Long userId) {
         return ApiResult.success(userService.userPasswordResetByAdmin(userId));
     }
 
@@ -185,8 +183,7 @@ public class UserController {
      */
     @GetMapping("/get")
     @ApiOperation(value = "按id获取用户", notes = "按id获取用户")
-    @CheckAuth(mustRole = UserConstant.ADMIN_ROLE)
-    public ApiResponse<User> getUserById(@ApiParam(value = "用户id", required = true) @CheckParam(required = NumberConstant.TRUE_VALUE, alias = "用户id") Long userId) {
+    public ApiResponse<User> getUserById(@ApiParam(value = "用户id", required = true) @CheckParam(required = NumberConstant.TRUE_ONE_VALUE, alias = "用户id") Long userId) {
         User user = userService.getById(userId);
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");
         return ApiResult.success(user);
