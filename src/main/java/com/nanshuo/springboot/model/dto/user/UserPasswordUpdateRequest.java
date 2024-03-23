@@ -21,7 +21,7 @@ public class UserPasswordUpdateRequest implements Serializable {
     private static final long serialVersionUID = 8383202174723157092L;
 
     @ApiModelProperty(value = "原密码", required = true)
-    @CheckParam(alias = "原密码", minLength = 6, maxLength = 18, regex = UserRegexEnums.PASSWORD)
+    @CheckParam(alias = "原密码", regex = UserRegexEnums.PASSWORD)
     private String oldPassword;
 
     @ApiModelProperty(value = "新密码", required = true)

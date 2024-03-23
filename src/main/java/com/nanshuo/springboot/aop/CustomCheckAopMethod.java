@@ -40,6 +40,7 @@ import java.util.Arrays;
 public class CustomCheckAopMethod {
 
     private final UserService userService;
+
     public CustomCheckAopMethod(UserService userService) {
         this.userService = userService;
     }
@@ -145,15 +146,11 @@ public class CustomCheckAopMethod {
             CheckParam checkParam = parameter.getAnnotation(CheckParam.class);
             Object argument = arguments[i];
             // 如果参数是基本数据类型，则进行基本数据类型验证
-            if (isBasicType(parameter.getType())) {
+            Class<?> type = parameter.getType();
+            if (isBasicType(type) || NotCustomRequestType(type)) {
                 // 如果存在 @CheckParam 注解，则根据注解配置进行验证
                 if (checkParam != null) {
-                    if (checkParam.required() == NumberConstant.DEFAULT_VALUE
-                            && checkParam.minLength() == NumberConstant.DEFAULT_VALUE
-                            && checkParam.maxLength() == NumberConstant.DEFAULT_VALUE
-                            && checkParam.minValue() == NumberConstant.DEFAULT_VALUE
-                            && checkParam.maxValue() == NumberConstant.DEFAULT_VALUE
-                            && checkParam.regex().equals(UserRegexEnums.NO)) {
+                    if (checkParam.required() == NumberConstant.DEFAULT_VALUE && checkParam.minLength() == NumberConstant.DEFAULT_VALUE && checkParam.maxLength() == NumberConstant.DEFAULT_VALUE && checkParam.minValue() == NumberConstant.DEFAULT_VALUE && checkParam.maxValue() == NumberConstant.DEFAULT_VALUE && checkParam.regex().equals(UserRegexEnums.NO)) {
                         // 如果验证条件允许跳过不校验，则直接退出本次循环
                         continue;
                     }
@@ -198,6 +195,28 @@ public class CustomCheckAopMethod {
      */
     private static boolean isBasicType(Class<?> type) {
         return ClassUtils.isPrimitiveOrWrapper(type) || type.equals(String.class) || Number.class.isAssignableFrom(type);
+    }
+
+    /**
+     * 是否为自定义请求类型
+     *
+     * @param type 待判断的类型。
+     * @return 如果是，则返回 true；否则返回 false。
+     */
+    private static boolean NotCustomRequestType(Class<?> type) {
+        // 判断type是否在项目的包目录下,且后缀名为request/dto/req
+        String projectPackageName = CustomCheckAopMethod.class.getPackage().getName();
+        int lastSpotIndex = projectPackageName.lastIndexOf(".");
+        projectPackageName = projectPackageName.substring(0, lastSpotIndex);
+        String typePackageName = type.getPackage().getName();
+        int typeLastSpotIndex = typePackageName.lastIndexOf(".");
+        typePackageName = typePackageName.substring(0, typeLastSpotIndex);
+        String className = type.getSimpleName();
+        // 检查 typePackageName 是否包含 projectPackageName
+        if (typePackageName.contains(projectPackageName)) {
+            return false;
+        }
+        return !className.endsWith("Request") || !className.endsWith("Dto") || !className.endsWith("Req");
     }
 
     /**
@@ -261,29 +280,32 @@ public class CustomCheckAopMethod {
                 CheckParam checkParam = field.getAnnotation(CheckParam.class);
                 // 设置字段可访问，使得可以获取到私有字段的值
                 field.setAccessible(true);
-                // 获取字段的值
-                Object fieldValue = field.get(value);
                 // 获取字段的类型
                 Class<?> fieldType = field.getType();
+                // 获取字段的值
+                if (value == null) {
+                    throw new BusinessException(ErrorCode.PARAMS_NULL);
+                }
+                Object fieldValue = field.get(value);
                 // 如果字段是基本数据类型
-                if (isBasicType(fieldType)) {
-                    // 如果字段上存在 @CheckParam 注解，则进行字段值的验证
-                    if (checkParam != null) {
-                        // 如果验证条件要求不是必须的，且没有校验规则，则跳过后续验证
-                        if (checkParam.required() == NumberConstant.FALSE_ZERO_VALUE && checkParam.minLength() == NumberConstant.DEFAULT_VALUE && checkParam.maxLength() == NumberConstant.DEFAULT_VALUE && checkParam.regex().equals(UserRegexEnums.NO)) {
-                            continue;
-                        }
+                // 如果字段上存在 @CheckParam 注解，则进行字段值的验证
+                if (checkParam != null) {
+                    // 如果验证条件要求不是必须的，且没有校验规则，则跳过后续验证
+                    if (checkParam.required() == NumberConstant.FALSE_ZERO_VALUE && checkParam.minLength() == NumberConstant.DEFAULT_VALUE && checkParam.maxLength() == NumberConstant.DEFAULT_VALUE && checkParam.regex().equals(UserRegexEnums.NO)) {
+                        continue;
+                    }
+                    if (isBasicType(fieldType) || NotCustomRequestType(fieldType)) {
                         // 验证字段值
                         checkBasicValue(fieldValue, checkParam);
                     } else {
-                        // 如果字段上不存在 @CheckParam 注解，则检查字段值是否为空
-                        if (ObjectUtils.isEmpty(fieldValue)) {
-                            throw new BusinessException(ErrorCode.PARAMS_NULL, "请求的参数" + field.getName() + "不能为空");
-                        }
+                        // 如果字段不是基本数据类型,递归调用 checkObjValue 方法进行验证
+                        checkObjValue(fieldType, fieldValue);
                     }
                 } else {
-                    // 如果字段不是基本数据类型,递归调用 checkObjValue 方法进行验证
-                    checkObjValue(fieldType, fieldValue);
+                    // 如果字段上不存在 @CheckParam 注解，则检查字段值是否为空
+                    if (ObjectUtils.isEmpty(fieldValue)) {
+                        throw new BusinessException(ErrorCode.PARAMS_NULL, "请求的参数" + field.getName() + "不能为空");
+                    }
                 }
             }
         } catch (IllegalAccessException e) {

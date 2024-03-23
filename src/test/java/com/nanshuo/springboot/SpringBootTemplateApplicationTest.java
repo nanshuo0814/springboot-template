@@ -17,7 +17,7 @@ class SpringBootTemplateApplicationTest {
      */
     @Test
     void testMd5() {
-        String password = "admin123";
+        String password = "user123";
         String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + password).getBytes());
         System.out.println(encryptPassword);
     }

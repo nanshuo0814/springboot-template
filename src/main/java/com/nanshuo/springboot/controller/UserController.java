@@ -128,6 +128,7 @@ public class UserController {
      * @return {@code BaseResponse<Boolean>}
      */
     @PostMapping("/pwd/reset")
+    @Check(checkAuth = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "重置用户密码", notes = "重置用户密码")
     public ApiResponse<Boolean> userPasswordResetByAdmin(@RequestBody @ApiParam(value = "用户id", required = true) @CheckParam(required = NumberConstant.TRUE_ONE_VALUE, alias = "用户id") Long userId) {
         return ApiResult.success(userService.userPasswordResetByAdmin(userId));
@@ -215,8 +216,7 @@ public class UserController {
         long size = userQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        Page<User> userPage = userService.page(new Page<>(current, size),
-                userService.getQueryWrapper(userQueryRequest));
+        Page<User> userPage = userService.page(new Page<>(current, size), userService.getQueryWrapper(userQueryRequest));
         Page<UserSafetyVO> userSafetyVOPage = new Page<>(current, size, userPage.getTotal());
         List<UserSafetyVO> userSafetyVOList = userService.getUserSafeVOList(userPage.getRecords());
         userSafetyVOPage.setRecords(userSafetyVOList);
