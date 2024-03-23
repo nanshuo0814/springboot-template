@@ -88,3 +88,22 @@ oss:
     bucket: ydg-image
     # 地域
     region: oss-cn-guangzhou.aliyuncs.com
+
+# 接口文档配置
+knife4j:
+  enable: true
+  openapi:
+    title: 接口文档  # 标题
+    description: springboot模板项目的接口文档  # 简介/描述
+    email: nanshuo.icu@qq.com # 邮箱
+    concat: 南烁  # 作者
+    url: https://www.github.com/nanshuo0814 # 作者链接
+    version: v4.0
+    license: Apache 2.0
+    license-url: https://stackoverflow.com/
+    terms-of-service-url: https://stackoverflow.com/
+    group:
+      nanshuo: # 分组名称
+        api-rule: package # 接口规则包扫描
+        api-rule-resources: # 接口规则资源扫描(controller包路径)
+          - com.nanshuo.springboot.controller

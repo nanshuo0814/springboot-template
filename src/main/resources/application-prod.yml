@@ -21,3 +21,10 @@ mybatis-plus:
   configuration:
     # 生产环境关闭日志
     log-impl: ''
+
+# 接口文档配置(prod环境设置密码访问或者关闭等等)
+knife4j:
+  basic:
+    enable: true
+    username: prod
+    password: prod

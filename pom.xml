@@ -26,7 +26,7 @@
         <!-- wx版本号 -->
         <wx.version>4.4.0</wx.version>
         <!-- knife4j版本号 -->
-        <knife4j.version>3.0.3</knife4j.version>
+        <knife4j.version>4.4.0</knife4j.version>
         <!-- 阿里云oss版本号 -->
         <oss.version>3.15.1</oss.version>
         <!-- 邮箱验证码版本号 -->
@@ -113,10 +113,10 @@
             <artifactId>commons-email</artifactId>
             <version>${email.version}</version>
         </dependency>
-        <!-- https://doc.xiaominfo.com/docs/quick-start-->
+        <!-- https://doc.xiaominfo.com/docs/quick-start#openapi2 -->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-spring-boot-starter</artifactId>
+            <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
             <version>${knife4j.version}</version>
         </dependency>
         <!--        阿里云对象存储-->

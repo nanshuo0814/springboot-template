@@ -17,3 +17,10 @@ spring:
     timeout: 5000
     # todo 若你的 Redis 需要密码，请打开注释，并填写密码
 #    password: 123456
+
+# 接口文档配置(test环境设置密码访问或者关闭等等)
+knife4j:
+  basic:
+    enable: true
+    username: test
+    password: test
