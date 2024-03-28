@@ -23,8 +23,6 @@
         <mybatis.version>2.2.2</mybatis.version>
         <!-- mybatis-plus版本号 -->
         <mybatis-plus.version>3.5.2</mybatis-plus.version>
-        <!-- wx版本号 -->
-        <wx.version>4.4.0</wx.version>
         <!-- knife4j版本号 -->
         <knife4j.version>4.4.0</knife4j.version>
         <!-- 阿里云oss版本号 -->

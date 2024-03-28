@@ -1,6 +1,7 @@
 package com.nanshuo.springboot.model.dto.user;
 
 import com.nanshuo.springboot.annotation.CheckParam;
+import com.nanshuo.springboot.constant.NumberConstant;
 import com.nanshuo.springboot.model.enums.user.UserRegexEnums;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -37,22 +38,22 @@ public class UserRegisterRequest implements Serializable {
     private String checkPassword;
 
     @ApiModelProperty(value = "邮箱", required = true)
-    @CheckParam(alias = "邮箱", regex = UserRegexEnums.EMAIL)
+    @CheckParam(required = NumberConstant.FALSE_ZERO_VALUE, alias = "邮箱", regex = UserRegexEnums.EMAIL)
     private String email;
 
     @ApiModelProperty(value = "邮箱验证码", required = true)
-    @CheckParam(alias = "邮箱验证码", regex = UserRegexEnums.EMAIL_CAPTCHA)
+    @CheckParam(required = NumberConstant.FALSE_ZERO_VALUE, alias = "邮箱验证码", regex = UserRegexEnums.EMAIL_CAPTCHA)
     private String emailCaptcha;
 
     @ApiModelProperty(value = "图片验证码", required = true)
-    @CheckParam(alias = "图片验证码", regex = UserRegexEnums.IMAGE_CAPTCHA)
+    @CheckParam(required = NumberConstant.FALSE_ZERO_VALUE, alias = "图片验证码", regex = UserRegexEnums.IMAGE_CAPTCHA)
     private String imageCaptcha;
 
     /**
      * 图片验证码key
      */
     @ApiModelProperty(value = "图片验证码key", required = true)
-    @CheckParam(alias = "图片验证码key")
+    @CheckParam(required = NumberConstant.FALSE_ZERO_VALUE, alias = "图片验证码key")
     private String captchaKey;
 
 }

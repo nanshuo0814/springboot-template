@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nanshuo.springboot.common.ErrorCode;
+import com.nanshuo.springboot.config.CaptchaConfig;
 import com.nanshuo.springboot.constant.PageConstant;
 import com.nanshuo.springboot.constant.RedisKeyConstant;
 import com.nanshuo.springboot.constant.UserConstant;
@@ -14,8 +15,8 @@ import com.nanshuo.springboot.model.dto.user.*;
 import com.nanshuo.springboot.model.vo.user.UserLoginVO;
 import com.nanshuo.springboot.model.vo.user.UserSafetyVO;
 import com.nanshuo.springboot.service.UserService;
-import com.nanshuo.springboot.utils.RedisUtils;
 import com.nanshuo.springboot.utils.ThrowUtils;
+import com.nanshuo.springboot.utils.redis.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,9 +44,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private final RedisUtils redisUtils;
     private final UserMapper userMapper;
-    public UserServiceImpl(RedisUtils redisUtils, UserMapper userMapper) {
+    private final CaptchaConfig captchaConfig;
+
+    public UserServiceImpl(RedisUtils redisUtils, UserMapper userMapper, CaptchaConfig captchaConfig) {
         this.redisUtils = redisUtils;
         this.userMapper = userMapper;
+        this.captchaConfig = captchaConfig;
     }
 
     /**
@@ -70,8 +74,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
         }
 
-        // 校验邮箱验证码,在邮箱不为null的情况下校验
-        validateEmailCode(email, emailCaptcha);
+        // 只有邮箱验证码和它的key不为空且开启了邮箱验证码功能
+        if (email != null && emailCaptcha != null && captchaConfig.isEmailEnabled()) {
+            // 校验邮箱验证码,在邮箱不为null的情况下校验
+            validateEmailCode(email, emailCaptcha);
+        }
 
         // 邮箱校验
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
@@ -81,8 +88,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "该邮箱已被注册,请重新输入一个");
         }
 
-        // 校验图片验证码
-        validateImageCaptcha(imageCaptcha, captchaKey);
+        // 只有图片验证码和它的key不为空且开启了图片验证码功能
+        if (imageCaptcha != null && captchaKey != null && captchaConfig.isImageEnabled()) {
+            // 校验图片验证码
+            validateImageCaptcha(imageCaptcha, captchaKey);
+        }
 
         synchronized (userAccount.intern()) {
             // 账户不能重复
@@ -141,8 +151,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String userPassword = userLoginRequest.getUserPassword();
         String imageCaptcha = userLoginRequest.getImageCaptcha();
         String captchaKey = userLoginRequest.getCaptchaKey();
-        // 校验图片验证码
-        validateImageCaptcha(imageCaptcha,captchaKey);
+
+        // 只有图片验证码和它的key不为空且开启了图片验证码功能
+        if (imageCaptcha != null && captchaKey != null && captchaConfig.isImageEnabled()) {
+            // 校验图片验证码
+            validateImageCaptcha(imageCaptcha, captchaKey);
+        }
+
         // 查询用户信息
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getUserAccount, userAccount);
@@ -336,7 +351,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!user.getUserEmail().equals(email)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱不匹配当前用户,请输入当前用户的邮箱");
         }
-        // 验证邮箱验证码
+        // 验证邮箱验证码，这里就一定要验证邮箱了
         validateEmailCode(email, emailCaptcha);
         // 修改密码
         synchronized (userAccount.intern()) {

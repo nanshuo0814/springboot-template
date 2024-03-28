@@ -1,5 +1,8 @@
 package com.nanshuo.springboot.utils.captcha;
 
+import com.esotericsoftware.minlog.Log;
+import com.nanshuo.springboot.common.ErrorCode;
+import com.nanshuo.springboot.exception.BusinessException;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 import org.springframework.beans.factory.annotation.Value;
@@ -127,7 +130,8 @@ public class EmailCaptchaUtils {
             mail.send();
             return "邮箱验证码发送成功，请注意查收！";
         } catch (EmailException e) {
-            return e.getMessage();
+            Log.error("发送邮件失败！");
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "系统异常，发送邮件失败！");
         }
     }
 }

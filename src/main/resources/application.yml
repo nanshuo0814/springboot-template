@@ -1,7 +1,7 @@
 # 服务器配置
 server:
   address: 0.0.0.0 # IP访问地址
-  port: 8080 # 端口
+  port: 8080 # todo 端口
   servlet:
     context-path: /api # 访问路径开头
     # cookie 30 天过期
@@ -62,7 +62,7 @@ mybatis-plus:
 # todo 邮箱配置,根据自己的邮箱需求配置
 email:
   hostName: smtp.qq.com # 邮箱域名
-  emailAddress : ydg0814@qq.com # 邮箱地址
+  emailAddress: test0814@qq.com # 邮箱地址
   password: mphrixxtyjdxdeah # 邮箱密码
   senderName: springboot-template # 发件人昵称
   sslSmtpPort: 465 # 邮箱端口
@@ -81,13 +81,13 @@ logging:
 oss:
   client:
     # key
-    accessKey: LTAI5tJbzepWP5Uw4E9UTdPq
+    accessKey: xxxxx
     # secret
-    secretKey: ccK9h6VNbPQbOuQgNWOCLRbUkaARra
+    secretKey: xxxxx
     # 桶的名字
-    bucket: ydg-image
+    bucket: ydg-demo
     # 地域
-    region: oss-cn-guangzhou.aliyuncs.com
+    region: xxxxx
 
 # 接口文档配置
 knife4j:
@@ -107,3 +107,8 @@ knife4j:
         api-rule: package # 接口规则包扫描
         api-rule-resources: # 接口规则资源扫描(controller包路径)
           - com.nanshuo.springboot.controller
+
+# todo 全局验证码开关，包括有登录、注册的验证码，默认关闭
+captcha:
+  email-enabled: false # 邮箱验证码
+  image-enabled: false # 图片验证码

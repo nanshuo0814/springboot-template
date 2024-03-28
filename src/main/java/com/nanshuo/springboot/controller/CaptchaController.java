@@ -9,7 +9,7 @@ import com.nanshuo.springboot.constant.RedisKeyConstant;
 import com.nanshuo.springboot.constant.UserConstant;
 import com.nanshuo.springboot.model.enums.user.UserRegexEnums;
 import com.nanshuo.springboot.utils.JsonUtils;
-import com.nanshuo.springboot.utils.RedisUtils;
+import com.nanshuo.springboot.utils.redis.RedisUtils;
 import com.nanshuo.springboot.utils.captcha.EmailCaptchaUtils;
 import com.nanshuo.springboot.utils.captcha.ImageCaptchaUtils;
 import io.swagger.annotations.Api;
@@ -59,7 +59,6 @@ public class CaptchaController {
         // 将 JSON 数据解析为字符串（String）
         targetEmail = JsonUtils.jsonToObj(targetEmail, String.class);
 
-        // 发送邮件
         String key = RedisKeyConstant.EMAIL_CAPTCHA_KEY + targetEmail;
         // 查看redis是否有缓存验证码
         String captcha = (String) redisUtils.get(key);
@@ -68,6 +67,7 @@ public class CaptchaController {
         if (captcha == null) {
             // 随机生成六位数验证码
             captcha = String.valueOf(new Random().nextInt(900000) + 100000);
+            // 发送邮件
             result = EmailCaptchaUtils.getEmailCaptcha(targetEmail, captcha);
             // 存入redis中
             captcha = JsonUtils.objToJson(captcha);

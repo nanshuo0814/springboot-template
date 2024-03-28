@@ -1,6 +1,7 @@
 package com.nanshuo.springboot.model.dto.user;
 
 import com.nanshuo.springboot.annotation.CheckParam;
+import com.nanshuo.springboot.constant.NumberConstant;
 import com.nanshuo.springboot.model.enums.user.UserRegexEnums;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -37,15 +38,15 @@ public class UserLoginRequest implements Serializable {
     /**
      * 图片验证码
      */
-    @ApiModelProperty(value = "图片验证码", required = true)
-    @CheckParam(alias = "图片验证码", regex = UserRegexEnums.IMAGE_CAPTCHA)
+    @ApiModelProperty(value = "图片验证码")
+    @CheckParam(required = NumberConstant.FALSE_ZERO_VALUE, alias = "图片验证码", regex = UserRegexEnums.IMAGE_CAPTCHA)
     private String imageCaptcha;
 
     /**
      * 图片验证码key
      */
-    @ApiModelProperty(value = "图片验证码key", required = true)
-    @CheckParam(alias = "图片验证码key")
+    @ApiModelProperty(value = "图片验证码key")
+    @CheckParam(required = NumberConstant.FALSE_ZERO_VALUE, alias = "图片验证码key")
     private String captchaKey;
 
 }

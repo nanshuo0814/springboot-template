@@ -1,5 +1,6 @@
 package com.nanshuo.springboot.utils;
 
+import com.nanshuo.springboot.utils.redis.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

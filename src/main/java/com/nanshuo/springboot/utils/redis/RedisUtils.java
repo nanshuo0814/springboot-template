@@ -1,5 +1,6 @@
-package com.nanshuo.springboot.utils;
+package com.nanshuo.springboot.utils.redis;
 
+import com.nanshuo.springboot.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
