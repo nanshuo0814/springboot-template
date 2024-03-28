@@ -63,11 +63,12 @@ public interface UserConstant {
     /**
      * 图片验证码过期时间（秒）
      */
-    Integer IMAGE_CAPTCHA_TIME_OUT = 180;
+    Integer IMAGE_CAPTCHA_TIME_OUT = 120;
 
     /**
      * 用户Redis缓存过期时间(小时)
      */
     Integer USER_CACHE_TIME_OUT = 1;
 
+    String IMAGE_CAPTCHA_COOKIE_NAME = "image_captcha";
 }

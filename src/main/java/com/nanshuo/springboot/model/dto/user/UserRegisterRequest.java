@@ -47,4 +47,12 @@ public class UserRegisterRequest implements Serializable {
     @ApiModelProperty(value = "图片验证码", required = true)
     @CheckParam(alias = "图片验证码", regex = UserRegexEnums.IMAGE_CAPTCHA)
     private String imageCaptcha;
+
+    /**
+     * 图片验证码key
+     */
+    @ApiModelProperty(value = "图片验证码key", required = true)
+    @CheckParam(alias = "图片验证码key")
+    private String captchaKey;
+
 }

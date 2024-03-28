@@ -4,122 +4,67 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializationContext;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import java.time.Duration;
+import java.text.SimpleDateFormat;
 
 /**
  * redis配置
  *
  * @author nanshuo
- * @date 2024/01/03 20:24:33
+ * @date 2024/03/28 13:30:55
  */
 @EnableCaching
 @Configuration
 public class RedisConfig {
 
     /**
-     * 配置RedisTemplate并返回
+     * 若有相同类型的Bean时,优先使用此注解标注的Bean
      *
-     * @param factory Redis连接工厂
-     * @return 配置好的RedisTemplate
+     * @param redisConnectionFactory redis连接工厂
+     * @return {@code RedisTemplate<String, Object>}
      */
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
-        // 实例化RedisTemplate对象
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-
-        // 配置RedisTemplate
-        configureRedisTemplate(redisTemplate, factory);
-
-        // 返回配置好的RedisTemplate对象
-        return redisTemplate;
-
-    }
-
-
-    /**
-     * 配置Redis缓存管理器
-     *
-     * @param factory Redis连接工厂
-     * @return Redis缓存管理器
-     */
-    @Bean
-    public CacheManager cacheManager(RedisConnectionFactory factory) {
-        // 创建Redis字符串序列化器
-        RedisSerializer<String> redisSerializer = new StringRedisSerializer();
-
-        // 创建Jackson 2 JSON Redis对象序列化器
-        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = createJackson2JsonRedisSerializer();
-
-        // 配置Redis缓存配置
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofSeconds(600))
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer))
-                .disableCachingNullValues();
-
-        // 构建Redis缓存管理器
-        return RedisCacheManager.builder(factory)
-                .cacheDefaults(config)
-                .build();
-    }
-
-
-    /**
-     * 配置RedisTemplate
-     *
-     * @param redisTemplate RedisTemplate对象
-     * @param factory Redis连接工厂对象
-     */
-    private void configureRedisTemplate(RedisTemplate<String, Object> redisTemplate, RedisConnectionFactory factory) {
-        // 设置Redis连接工厂
-        redisTemplate.setConnectionFactory(factory);
-        // 设置Redis值的序列化方式
-        redisTemplate.setValueSerializer(createJackson2JsonRedisSerializer());
-        // 设置Redis连接工厂属性后缀
-        redisTemplate.afterPropertiesSet();
-        // 设置Redis键的序列化方式
-        redisTemplate.setKeySerializer(RedisSerializer.string());
-
-    }
-
-
-    /**
-     * 创建jackson2 json redis序列化程序
-     *
-     * @return {@code Jackson2JsonRedisSerializer<Object>}
-     */
-    private Jackson2JsonRedisSerializer<Object> createJackson2JsonRedisSerializer() {
-        // 初始化一个Jackson2JsonRedisSerializer对象，并指定序列化类型为Object.class
+    @Primary
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        // 为了开发方便,一般直接使用<String, Object>
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        // 配置具体的序列化方式
+        // JSON解析任意对象
         Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
-        // 创建一个ObjectMapper对象
         ObjectMapper om = new ObjectMapper();
-        // 设置ObjectMapper的可见性属性为ALL，JsonAutoDetect的可见性属性为ANY
+        // 指定要序列化的域field,get和set,以及修饰符范围,ANY是都有包括private和public
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        // 激活ObjectMapper的默认类型设置，使用LaissezFaireSubTypeValidator.instance作为验证器，DefaultTyping.NON_FINAL作为类型化方式
+        // 指定序列化输入的类型,类必须是非final修饰的,final修饰的类,比如String,Integer等会抛出异常
         om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
-        // 为 Long 类型配置了一个 ToStringSerializer，避免了Long精度丢失问题
-        om.registerModule(new SimpleModule()
-                .addSerializer(Long.class, ToStringSerializer.instance)
-                .addSerializer(Long.TYPE, ToStringSerializer.instance));
-        // 将创建的ObjectMapper对象设置为Jackson2JsonRedisSerializer的对象
+        // 设置日期格式
+        om.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
         jackson2JsonRedisSerializer.setObjectMapper(om);
-        // 返回Jackson2JsonRedisSerializer对象
-        return jackson2JsonRedisSerializer;
+        // String的序列化
+        StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
+        // key采用String的序列化
+        template.setKeySerializer(stringRedisSerializer);
+        // hash的key也采用String的序列化
+        template.setHashKeySerializer(stringRedisSerializer);
+        // value的序列化方式采用jackson
+        template.setValueSerializer(jackson2JsonRedisSerializer);
+        // hash的value序列化方式采用jackson
+        template.setHashValueSerializer(jackson2JsonRedisSerializer);
+        // 设置所有配置
+        template.afterPropertiesSet();
+        return template;
     }
-
 }
+
+
+
+
+

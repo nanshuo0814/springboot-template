@@ -16,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 public class RedissonUtils {
 
     private final RedissonClient redissonClient;
-
     public RedissonUtils(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
     }

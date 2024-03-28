@@ -1,26 +1,28 @@
 package com.nanshuo.springboot.controller;
 
-import com.google.gson.Gson;
 import com.nanshuo.springboot.annotation.CheckParam;
 import com.nanshuo.springboot.common.ApiResponse;
-import com.nanshuo.springboot.common.ErrorCode;
 import com.nanshuo.springboot.common.ApiResult;
+import com.nanshuo.springboot.common.ErrorCode;
 import com.nanshuo.springboot.constant.NumberConstant;
 import com.nanshuo.springboot.constant.RedisKeyConstant;
 import com.nanshuo.springboot.constant.UserConstant;
 import com.nanshuo.springboot.model.enums.user.UserRegexEnums;
+import com.nanshuo.springboot.utils.JsonUtils;
+import com.nanshuo.springboot.utils.RedisUtils;
 import com.nanshuo.springboot.utils.captcha.EmailCaptchaUtils;
 import com.nanshuo.springboot.utils.captcha.ImageCaptchaUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -36,10 +38,9 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/captcha")
 public class CaptchaController {
 
-    private final RedisTemplate<String, String> redisTemplate;
-
-    public CaptchaController(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    private final RedisUtils redisUtils;
+    public CaptchaController(RedisUtils redisUtils) {
+        this.redisUtils = redisUtils;
     }
 
     /**
@@ -56,13 +57,12 @@ public class CaptchaController {
                     regex = UserRegexEnums.EMAIL) String targetEmail) {
 
         // 将 JSON 数据解析为字符串（String）
-        Gson gson = new Gson();
-        targetEmail = gson.fromJson(targetEmail, String.class);
+        targetEmail = JsonUtils.jsonToObj(targetEmail, String.class);
 
         // 发送邮件
         String key = RedisKeyConstant.EMAIL_CAPTCHA_KEY + targetEmail;
         // 查看redis是否有缓存验证码
-        String captcha = redisTemplate.opsForValue().get(key);
+        String captcha = (String) redisUtils.get(key);
         String result = "请勿重复发送验证码";
         // 如果没有缓存验证码
         if (captcha == null) {
@@ -70,8 +70,8 @@ public class CaptchaController {
             captcha = String.valueOf(new Random().nextInt(900000) + 100000);
             result = EmailCaptchaUtils.getEmailCaptcha(targetEmail, captcha);
             // 存入redis中
-            captcha = gson.toJson(captcha);
-            redisTemplate.opsForValue().set(key, captcha, EmailCaptchaUtils.expireTime, TimeUnit.MINUTES);
+            captcha = JsonUtils.objToJson(captcha);
+            redisUtils.set(key, captcha, EmailCaptchaUtils.expireTime, TimeUnit.MINUTES);
         }
         log.info("{}的邮箱验证码为：{}", targetEmail, captcha);
         // 返回结果
@@ -85,7 +85,7 @@ public class CaptchaController {
      */
     @GetMapping("/getImageCaptcha")
     @ApiOperation(value = "获取图片验证码", notes = "获取图片验证码")
-    public ApiResponse<String> getImageCaptcha() {
+    public ApiResponse<Map<String, String>> getImageCaptcha() {
         try {
             ImageCaptchaUtils imageCaptchaUtils = new ImageCaptchaUtils();
 
@@ -105,13 +105,21 @@ public class CaptchaController {
                 return ApiResult.fail(ErrorCode.SYSTEM_ERROR, "获取验证码失败,系统故障,请联系管理员");
             }
             log.info("图片验证码为：{}", captcha);
-            // 将验证码写入 redis，过期时间为1分钟
-            Gson gson = new Gson();
-            String captchaJson = gson.toJson(captcha);
-            redisTemplate.opsForValue().set(RedisKeyConstant.IMAGE_CAPTCHA_KEY, captchaJson, UserConstant.IMAGE_CAPTCHA_TIME_OUT, TimeUnit.SECONDS);
 
-            // 返回 Base64 编码的验证码图片字符串
-            return ApiResult.success(base64Image);
+            // 将验证码写入 redis，过期时间为1分钟
+            String captchaJson = JsonUtils.objToJson(captcha);
+            String globalUniqueKey = String.valueOf(redisUtils.globalUniqueKey("imageCaptcha"));
+            String captchaKey = RedisKeyConstant.IMAGE_CAPTCHA_KEY + globalUniqueKey;
+
+            // 将验证码存入redis,过期时间为2分钟
+            redisUtils.set(captchaKey, captchaJson, UserConstant.IMAGE_CAPTCHA_TIME_OUT, TimeUnit.SECONDS);
+
+            Map<String, String> map = new HashMap<>();
+            map.put("captcha", base64Image);
+            map.put("captchaKey", globalUniqueKey);
+
+            // 返回 Base64 编码的验证码图片字符串 + 验证码Key
+            return ApiResult.success(map);
         } catch (IOException e) {
             log.error("获取验证码失败", e);
             return ApiResult.fail(ErrorCode.SYSTEM_ERROR, "获取验证码失败,系统故障,请联系管理员");
