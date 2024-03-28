@@ -72,13 +72,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 校验邮箱验证码,在邮箱不为null的情况下校验
-        Object trueEmailCaptcha = redisTemplate.opsForValue().get(RedisKeyConstant.EMAIL_CAPTCHA_KEY + email);
-        if (ObjectUtils.isEmpty(trueEmailCaptcha)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码已过期,请重新获取");
-        }
-        if (!emailCaptcha.equals(trueEmailCaptcha.toString())) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码错误");
-        }
+        validateEmailCode(email, emailCaptcha);
 
         // 邮箱校验
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
