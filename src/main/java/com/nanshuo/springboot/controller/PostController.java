@@ -1,6 +1,5 @@
 package com.nanshuo.springboot.controller;
 
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.nanshuo.springboot.annotation.Check;
 import com.nanshuo.springboot.common.ApiResponse;
@@ -236,13 +235,39 @@ public class PostController {
         BeanUtils.copyProperties(postEditRequest, post);
         List<String> tags = postEditRequest.getTags();
         if (tags != null) {
-            post.setTags(JSONUtil.toJsonStr(tags));
+            post.setTags(JsonUtils.objToJson(tags));
         }
         // 参数校验
         postService.validPost(post, false);
         validateAndCheckAuthForPostOperation(request, postEditRequest.getId());
         boolean result = postService.updateById(post);
         return ApiResult.success(result);
+    }
+
+    private void processPostUpdateRequest(PostEditRequest editRequest, PostUpdateRequest updateRequest, HttpServletRequest request) throws BusinessException {
+        if (editRequest != null && updateRequest != null && (editRequest.getId() <= 0 || updateRequest.getId() <= 0)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        Post post = new Post();
+        if (editRequest != null) {
+            BeanUtils.copyProperties(editRequest, post);
+        } else if (updateRequest != null) {
+            BeanUtils.copyProperties(updateRequest, post);
+        }
+        List<String> tags;
+        if (editRequest != null) {
+            tags = editRequest.getTags();
+        } else {
+            tags = updateRequest.getTags();
+        }
+        if (tags != null) {
+            post.setTags(JsonUtils.objToJson(tags));
+        }
+        // 参数校验
+        postService.validPost(post, false);
+        if (request != null) { // 只有编辑方法需要验证请求上下文
+            validateAndCheckAuthForPostOperation(request, editRequest.getId());
+        }
     }
 
     /**
