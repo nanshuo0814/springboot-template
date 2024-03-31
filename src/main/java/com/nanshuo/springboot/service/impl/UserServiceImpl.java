@@ -12,11 +12,16 @@ import com.nanshuo.springboot.exception.BusinessException;
 import com.nanshuo.springboot.mapper.UserMapper;
 import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.dto.user.*;
+import com.nanshuo.springboot.model.enums.sort.CommonSortFieldEnums;
+import com.nanshuo.springboot.model.enums.sort.UserSortFieldEnums;
+import com.nanshuo.springboot.model.enums.user.UserRoleEnums;
 import com.nanshuo.springboot.model.vo.user.UserLoginVO;
 import com.nanshuo.springboot.model.vo.user.UserSafetyVO;
 import com.nanshuo.springboot.service.UserService;
+import com.nanshuo.springboot.utils.SqlUtils;
 import com.nanshuo.springboot.utils.ThrowUtils;
 import com.nanshuo.springboot.utils.redis.RedisUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,8 +33,11 @@ import org.springframework.util.DigestUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.nanshuo.springboot.constant.UserConstant.USER_LOGIN_STATE;
 
 
 /**
@@ -40,17 +48,12 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     private final RedisUtils redisUtils;
     private final UserMapper userMapper;
     private final CaptchaConfig captchaConfig;
-
-    public UserServiceImpl(RedisUtils redisUtils, UserMapper userMapper, CaptchaConfig captchaConfig) {
-        this.redisUtils = redisUtils;
-        this.userMapper = userMapper;
-        this.captchaConfig = captchaConfig;
-    }
 
     /**
      * 用户注册
@@ -116,7 +119,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (!saveResult) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，系统内部错误");
             }
-            return user.getUserId();
+            return user.getId();
         }
     }
 
@@ -174,9 +177,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或密码错误");
         }
         // 记录用户的登录状态
-        request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
+        request.getSession().setAttribute(USER_LOGIN_STATE, user);
         // 缓存用户信息
-        redisUtils.set(RedisKeyConstant.USER_LOGIN_STATE_CACHE + user.getUserId(), user);
+        redisUtils.set(RedisKeyConstant.USER_LOGIN_STATE_CACHE + user.getId(), user);
         // 返回用户登录信息
         return this.getLoginUserVO(user);
     }
@@ -206,15 +209,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public User getLoginUser(HttpServletRequest request) {
         // 先判断是否已登录,获取用户信息
-        User user = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
+        User user = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
         if (user == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
         // 尝试从缓存redis中通过用户id获取用户信息
-        User cachedUser = this.getUserCacheById(user.getUserId());
+        User cachedUser = this.getUserCacheById(user.getId());
         if (cachedUser == null) {
             // 缓存中不存在，从数据库查询
-            cachedUser = this.getById(user.getUserId());
+            cachedUser = this.getById(user.getId());
             if (cachedUser != null) {
                 // 将用户信息放入缓存
                 this.saveUserToCache(cachedUser);
@@ -245,7 +248,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public void saveUserToCache(User user) {
-        String cacheKey = RedisKeyConstant.USER_LOGIN_STATE_CACHE + user.getUserId();
+        String cacheKey = RedisKeyConstant.USER_LOGIN_STATE_CACHE + user.getId();
         redisUtils.set(cacheKey, user, UserConstant.USER_CACHE_TIME_OUT, TimeUnit.HOURS);
     }
 
@@ -258,13 +261,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public String userLogout(HttpServletRequest request) {
         // 判断是否已登录
-        if (request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE) == null) {
+        if (request.getSession().getAttribute(USER_LOGIN_STATE) == null) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "未登录");
         }
         // 删除缓存
-        redisUtils.del(RedisKeyConstant.USER_LOGIN_STATE_CACHE + this.getLoginUser(request).getUserId());
+        redisUtils.del(RedisKeyConstant.USER_LOGIN_STATE_CACHE + this.getLoginUser(request).getId());
         // 移除登录态
-        request.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
         return "退出登录成功！";
     }
 
@@ -282,7 +285,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String userPassword = userPasswordUpdateRequest.getNewPassword();
         String checkPassword = userPasswordUpdateRequest.getCheckPassword();
         // 获取当前用户
-        User loginUser = this.getById(this.getLoginUser(request).getUserId());
+        User loginUser = this.getById(this.getLoginUser(request).getId());
         // 判断旧密码是否正确
         String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + oldPassword).getBytes());
         if (!encryptPassword.equals(loginUser.getUserPassword())) {
@@ -295,7 +298,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 修改密码
         String newEncryptPassword = DigestUtils.md5DigestAsHex((UserConstant.SALT + userPassword).getBytes());
         User user = new User();
-        user.setUserId(loginUser.getUserId());
+        user.setId(loginUser.getId());
         user.setUserPassword(newEncryptPassword);
         // 更新用户密码
         return this.updateById(user);
@@ -424,7 +427,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         BeanUtils.copyProperties(userAddRequest, userEntity);
         boolean result = this.save(userEntity);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "未知错误,添加用户失败");
-        return userEntity.getUserId();
+        return userEntity.getId();
     }
 
     /**
@@ -496,7 +499,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User loginUser = this.getLoginUser(request);
         // 如果是管理员，允许更新任意用户
         // 如果不是管理员，只允许更新当前（自己的）信息
-        if (!loginUser.getUserRole().equals(UserConstant.ADMIN_ROLE) && updateUserId != loginUser.getUserId()) {
+        if (!loginUser.getUserRole().equals(UserConstant.ADMIN_ROLE) && updateUserId != loginUser.getId()) {
             // 即不是管理员也不是当前登录的用户，无权限修改update用户信息，抛异常
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
@@ -509,7 +512,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // new一个空用户对象
         User updateUser = new User();
         // 判断传进来的各个参数是否为空，不为空则更新
-        updateUser.setUserId(oldUser.getUserId());
+        updateUser.setId(oldUser.getId());
         updateUser.setUserAccount(!ObjectUtils.isEmpty(userUpdateRequest.getUserAccount()) ? userUpdateRequest.getUserAccount() : oldUser.getUserAccount());
         updateUser.setUserName(!ObjectUtils.isEmpty(userUpdateRequest.getUserName()) ? userUpdateRequest.getUserName() : oldUser.getUserName());
         updateUser.setUserAvatar(!ObjectUtils.isEmpty(userUpdateRequest.getUserAvatar()) ? userUpdateRequest.getUserAvatar() : oldUser.getUserAvatar());
@@ -518,6 +521,31 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         updateUser.setUserProfile(!ObjectUtils.isEmpty(userUpdateRequest.getUserProfile()) ? userUpdateRequest.getUserProfile() : oldUser.getUserProfile());
         // 返回更新结果
         return userMapper.updateById(updateUser);
+    }
+
+    /**
+     * 是否为admin
+     *
+     * @param request 请求
+     * @return boolean
+     */
+    @Override
+    public boolean isAdmin(HttpServletRequest request) {
+        // 仅管理员可查询
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User user = (User) userObj;
+        return isAdmin(user);
+    }
+
+    /**
+     * 是否为admin
+     *
+     * @param user 用户
+     * @return boolean
+     */
+    @Override
+    public boolean isAdmin(User user) {
+        return user != null && UserRoleEnums.ADMIN.getValue().equals(user.getUserRole());
     }
 
     /**
@@ -538,43 +566,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String sortField = userQueryRequest.getSortField();
         String sortOrder = userQueryRequest.getSortOrder();
         LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(id != null, User::getUserId, id)
+        lambdaQueryWrapper.eq(id != null, User::getId, id)
                 .eq(gender != null, User::getUserGender, gender)
                 .eq(StringUtils.isNotBlank(userRole), User::getUserRole, userRole)
                 .like(StringUtils.isNotBlank(userProfile), User::getUserProfile, userProfile)
                 .like(StringUtils.isNotBlank(email), User::getUserEmail, email)
                 .like(StringUtils.isNotBlank(userName), User::getUserName, userName)
-                .orderBy(StringUtils.isNotEmpty(sortField),
-                        sortOrder.equals(PageConstant.SORT_ORDER_ASC), getSortColumn(sortField));
+                .orderBy(SqlUtils.validSortField(sortField),
+                        sortOrder.equals(PageConstant.SORT_ORDER_ASC), isSortField(sortField));
         return lambdaQueryWrapper;
     }
 
     /**
-     * 获取排序列
+     * 是否为排序字段
      *
      * @param sortField 排序字段
      * @return {@code SFunction<User, ?>}
      */
-    private SFunction<User, ?> getSortColumn(String sortField) {
-        switch (sortField) {
-            case PageConstant.USER_ACCOUNT_SORT_FIELD:
-                return User::getUserAccount;
-            case PageConstant.USER_ID_SORT_FIELD:
-                return User::getUserId;
-            case PageConstant.USER_NAME_SORT_FIELD:
-                return User::getUserName;
-            case PageConstant.USER_EMAIL_SORT_FIELD:
-                return User::getUserEmail;
-            case PageConstant.USER_GENDER_SORT_FIELD:
-                return User::getUserGender;
-            case PageConstant.USER_ROLE_SORT_FIELD:
-                return User::getUserRole;
-            case PageConstant.CREATE_TIME_SORT_FIELD:
-                return User::getCreateTime;
-            case PageConstant.UPDATE_TIME_SORT_FIELD:
-                return User::getUpdateTime;
+    private SFunction<User, ?> isSortField(String sortField) {
+        if (SqlUtils.validSortField(sortField)) {
+            Optional<? extends SFunction<User, ?>> commonSortField = (Optional<? extends SFunction<User, ?>>) CommonSortFieldEnums.fromString(sortField)
+                    .map(CommonSortFieldEnums::getFieldGetter);
+            if (commonSortField.isPresent()) {
+                return commonSortField.get();
+            }
+            return UserSortFieldEnums.fromString(sortField)
+                    .map(UserSortFieldEnums::getFieldGetter)
+                    .orElseThrow(() -> new BusinessException(ErrorCode.PARAMS_ERROR, "错误的排序字段"));
+        } else {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "排序字段无效");
         }
-        throw new BusinessException(ErrorCode.PARAMS_ERROR, "未知排序字段");
     }
 
 }

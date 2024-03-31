@@ -10,6 +10,7 @@ import com.nanshuo.springboot.model.enums.user.UserRegexEnums;
 import com.nanshuo.springboot.model.enums.user.UserRoleEnums;
 import com.nanshuo.springboot.service.UserService;
 import com.nanshuo.springboot.utils.RegexUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -37,13 +38,10 @@ import java.util.Arrays;
  */
 @Slf4j
 @Component("CustomCheckAopMethod")
+@RequiredArgsConstructor
 public class CustomCheckAopMethod {
 
     private final UserService userService;
-
-    public CustomCheckAopMethod(UserService userService) {
-        this.userService = userService;
-    }
 
     /**
      * 拦截器方法，用于执行参数和身份验证检查。

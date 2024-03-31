@@ -12,7 +12,7 @@ public class ApiResult {
      * 成功
      *
      * @param data 数据
-     * @return {@code BaseResponse<T>}
+     * @return {@code ApiResponse<T>}
      */
     public static <T> ApiResponse<T> success(T data) {
         return new ApiResponse<>(ErrorCode.SUCCESS.getCode(), data, "操作成功");
@@ -22,7 +22,7 @@ public class ApiResult {
      * 失败
      *
      * @param errorCode 错误代码
-     * @return {@code BaseResponse<T>}
+     * @return {@code ApiResponse<T>}
      */
     public static <T> ApiResponse<T> fail(ErrorCode errorCode) {
         return new ApiResponse<>(errorCode);
@@ -33,7 +33,7 @@ public class ApiResult {
      *
      * @param code    法典
      * @param message 消息
-     * @return {@code BaseResponse<T>}
+     * @return {@code ApiResponse<T>}
      */
     public static <T> ApiResponse<T> fail(int code, String message) {
         return new ApiResponse<>(code, null, message);
@@ -44,7 +44,7 @@ public class ApiResult {
      *
      * @param errorCode 错误代码
      * @param message   消息
-     * @return {@code BaseResponse<T>}
+     * @return {@code ApiResponse<T>}
      */
     public static <T> ApiResponse<T> fail(ErrorCode errorCode, String message) {
         return new ApiResponse<>(errorCode.getCode(), null, message);

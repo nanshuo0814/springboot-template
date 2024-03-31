@@ -15,6 +15,7 @@ import com.nanshuo.springboot.utils.captcha.ImageCaptchaUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,18 +37,16 @@ import java.util.concurrent.TimeUnit;
 @Api(tags = "验证码模块")
 @RestController
 @RequestMapping("/captcha")
+@RequiredArgsConstructor
 public class CaptchaController {
 
     private final RedisUtils redisUtils;
-    public CaptchaController(RedisUtils redisUtils) {
-        this.redisUtils = redisUtils;
-    }
 
     /**
      * 发送电子邮件验证码
      *
      * @param targetEmail 目标电子邮件
-     * @return {@code BaseResponse<String>}
+     * @return {@code ApiResponse<String>}
      */
     @PostMapping("/sendEmailCaptcha")
     @ApiOperation(value = "发送电子邮件验证码", notes = "发送电子邮件验证码")
@@ -81,7 +80,7 @@ public class CaptchaController {
     /**
      * 获取图像验证码
      *
-     * @return {@code BaseResponse<String>}
+     * @return {@code ApiResponse<String>}
      */
     @GetMapping("/getImageCaptcha")
     @ApiOperation(value = "获取图片验证码", notes = "获取图片验证码")

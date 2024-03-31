@@ -23,9 +23,9 @@ public class PageBaseRequest {
     private long pageSize = PageConstant.PAGE_SIZE;
 
     /**
-     * 排序字段(默认为用户ID)
+     * 排序字段(默认ID)
      */
-    private String sortField = PageConstant.USER_ID_SORT_FIELD;
+    private String sortField = PageConstant.SORT_BY_ID;
 
     /**
      * 排序顺序（默认升序ASC）

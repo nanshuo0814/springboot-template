@@ -142,4 +142,19 @@ public interface UserService extends IService<User> {
      */
     Integer updateUserInfo(UserUpdateRequest userUpdateRequest, HttpServletRequest request);
 
+    /**
+     * 是否为admin
+     *
+     * @param request 请求
+     * @return boolean
+     */
+    boolean isAdmin(HttpServletRequest request);
+
+    /**
+     * 是否为管理员
+     *
+     * @param user 用户
+     * @return boolean
+     */
+    boolean isAdmin(User user);
 }

@@ -2,13 +2,12 @@ package com.nanshuo.springboot.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.nanshuo.springboot.annotation.Check;
-import com.nanshuo.springboot.annotation.CheckParam;
 import com.nanshuo.springboot.common.ApiResponse;
 import com.nanshuo.springboot.common.ApiResult;
 import com.nanshuo.springboot.common.ErrorCode;
-import com.nanshuo.springboot.constant.NumberConstant;
 import com.nanshuo.springboot.constant.UserConstant;
 import com.nanshuo.springboot.model.domain.User;
+import com.nanshuo.springboot.model.dto.IdRequest;
 import com.nanshuo.springboot.model.dto.user.*;
 import com.nanshuo.springboot.model.vo.user.UserLoginVO;
 import com.nanshuo.springboot.model.vo.user.UserSafetyVO;
@@ -16,7 +15,7 @@ import com.nanshuo.springboot.service.UserService;
 import com.nanshuo.springboot.utils.ThrowUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,19 +33,16 @@ import java.util.List;
 @Api(tags = "普通用户模块")
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     /**
      * 用户注册
      *
      * @param userRegisterRequest 用户注册 Request
-     * @return {@code BaseResponse<Long>}
+     * @return {@code ApiResponse<Long>}
      */
     @PostMapping("/register")
     @ApiOperation(value = "用户注册", notes = "用户注册")
@@ -59,7 +55,7 @@ public class UserController {
      * 用户登录
      *
      * @param userLoginRequest 用户登录Request
-     * @return {@code BaseResponse<UserLoginVO>}
+     * @return {@code ApiResponse<UserLoginVO>}
      */
     @PostMapping("/login")
     @ApiOperation(value = "用户登录", notes = "用户登录")
@@ -72,7 +68,7 @@ public class UserController {
      * 获取当前登录用户
      *
      * @param request 请求
-     * @return {@code BaseResponse<UserLoginVO>}
+     * @return {@code ApiResponse<UserLoginVO>}
      */
     @GetMapping("/get/login")
     @ApiOperation(value = "获取当前登录用户", notes = "获取当前登录用户")
@@ -85,7 +81,7 @@ public class UserController {
      * 用户注销
      *
      * @param request 请求
-     * @return {@code BaseResponse<Boolean>}
+     * @return {@code ApiResponse<Boolean>}
      */
     @PostMapping("/logout")
     @ApiOperation(value = "用户注销", notes = "用户注销")
@@ -98,7 +94,7 @@ public class UserController {
      * 用户密码重置(邮箱验证码)
      *
      * @param userPasswordResetRequest 用户密码重置Request
-     * @return {@code BaseResponse<Boolean>}
+     * @return {@code ApiResponse<Boolean>}
      */
     @PostMapping("/pwd/reset/email")
     @ApiOperation(value = "用户密码重置(邮箱验证码)", notes = "用户密码重置(邮箱验证码)")
@@ -124,21 +120,21 @@ public class UserController {
     /**
      * 用户密码重置(admin)
      *
-     * @param userId 用户id
-     * @return {@code BaseResponse<Boolean>}
+     * @param idRequest id请求
+     * @return {@code ApiResponse<Boolean>}
      */
     @PostMapping("/pwd/reset")
     @Check(checkAuth = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "重置用户密码", notes = "重置用户密码")
-    public ApiResponse<Boolean> userPasswordResetByAdmin(@RequestBody @ApiParam(value = "用户id", required = true) @CheckParam(required = NumberConstant.TRUE_ONE_VALUE, alias = "用户id") Long userId) {
-        return ApiResult.success(userService.userPasswordResetByAdmin(userId));
+    public ApiResponse<Boolean> userPasswordResetByAdmin(@RequestBody IdRequest idRequest) {
+        return ApiResult.success(userService.userPasswordResetByAdmin(idRequest.getId()));
     }
 
     /**
      * 添加用户(admin)
      *
      * @param userAddRequest 用户添加Request
-     * @return {@code BaseResponse<Long>}
+     * @return {@code ApiResponse<Long>}
      */
     @PostMapping("/add")
     @ApiOperation(value = "添加用户", notes = "添加用户")
@@ -150,13 +146,14 @@ public class UserController {
     /**
      * 删除用户(admin)
      *
-     * @param userId 用户id
-     * @return {@code BaseResponse<Boolean>}
+     * @param idRequest 删除请求
+     * @return {@code ApiResponse<Long>}
      */
     @PostMapping("/delete")
     @ApiOperation(value = "删除用户", notes = "删除用户")
     @Check(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
-    public ApiResponse<Long> deleteUser(@RequestBody @ApiParam(value = "用户id", required = true) Long userId) {
+    public ApiResponse<Long> deleteUser(@RequestBody IdRequest idRequest) {
+        Long userId = idRequest.getId();
         ThrowUtils.throwIf(!userService.removeById(userId), ErrorCode.OPERATION_ERROR, "删除用户失败,无该用户");
         return ApiResult.success(userId);
     }
@@ -165,7 +162,7 @@ public class UserController {
      * 修改用户信息(user)
      *
      * @param userUpdateRequest 用户更新Request
-     * @return {@code BaseResponse<Long>}
+     * @return {@code ApiResponse<Long>}
      */
     @PostMapping("/update")
     @ApiOperation(value = "修改用户信息", notes = "修改用户信息")
@@ -179,13 +176,13 @@ public class UserController {
     /**
      * 按id获取用户(admin)
      *
-     * @param userId 用户id
-     * @return {@code BaseResponse<User>}
+     * @param idRequest id请求
+     * @return {@code ApiResponse<User>}
      */
     @GetMapping("/get")
     @ApiOperation(value = "按id获取用户", notes = "按id获取用户")
-    public ApiResponse<User> getUserById(@ApiParam(value = "用户id", required = true) @CheckParam(required = NumberConstant.TRUE_ONE_VALUE, alias = "用户id") Long userId) {
-        User user = userService.getById(userId);
+    public ApiResponse<User> getUserById(@RequestBody IdRequest idRequest) {
+        User user = userService.getById(idRequest.getId());
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");
         return ApiResult.success(user);
     }
@@ -207,7 +204,7 @@ public class UserController {
      * 页面获取用户脱敏vo列表
      *
      * @param userQueryRequest 用户查询Request
-     * @return {@code BaseResponse<Page<UserVO>>}
+     * @return {@code ApiResponse<Page<UserVO>>}
      */
     @PostMapping("/list/page/vo")
     @ApiOperation(value = "按页面获取用户vo列表(脱敏)", notes = "按页面获取用户vo列表(脱敏)")

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -18,17 +19,18 @@ import java.util.Date;
  * @TableName user
  * @date 2024/01/04 14:43:30
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName(value ="user")
 @ApiModel(value = "User", description = "用户实体类")
-public class User implements Serializable {
+public class User extends BaseEntity implements Serializable {
 
     /**
      * 用户id
      */
     @ApiModelProperty(value = "用户ID")
-    @TableId(value = "user_id", type = IdType.ASSIGN_ID)
-    private Long userId;
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    private Long id;
 
     /**
      * 用户账号

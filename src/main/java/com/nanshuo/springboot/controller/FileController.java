@@ -13,6 +13,7 @@ import com.nanshuo.springboot.model.enums.file.FileUploadTypeEnums;
 import com.nanshuo.springboot.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,16 +35,12 @@ import java.util.Arrays;
 @RestController
 @RequestMapping("/file")
 @Slf4j
+@RequiredArgsConstructor
 public class FileController {
 
     private final UserService userService;
     private final OssUtils ossUtils;
-
-    public FileController(OssUtils ossUtils, UserService userService) {
-        this.ossUtils = ossUtils;
-        this.userService = userService;
-    }
-
+    
     /**
      * 上传文件
      * 文件上传
@@ -51,7 +48,7 @@ public class FileController {
      * @param multipartFile 多部分文件
      * @param request       请求
      * @param uploadFileRequest 上传文件Request
-     * @return {@code BaseResponse<String>}
+     * @return {@code ApiResponse<String>}
      */
     @PostMapping("/upload")
     @ApiOperation(value = "文件上传", notes = "文件上传")

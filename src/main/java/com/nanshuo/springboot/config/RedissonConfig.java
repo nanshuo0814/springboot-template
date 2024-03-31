@@ -1,5 +1,6 @@
 package com.nanshuo.springboot.config;
 
+import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -14,12 +15,10 @@ import org.springframework.context.annotation.Configuration;
  * @date 2024/03/28 10:14:56
  */
 @Configuration
+@RequiredArgsConstructor
 public class RedissonConfig {
 
     private final RedisProperties redisProperties;
-    public RedissonConfig(RedisProperties redisProperties) {
-        this.redisProperties = redisProperties;
-    }
 
     @Bean
     public RedissonClient redissonClient() {

@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
      * 业务异常处理程序
      *
      * @param e e
-     * @return {@code BaseResponse<?>}
+     * @return {@code ApiResponse<?>}
      */
     @ExceptionHandler(BusinessException.class)
     public ApiResponse<?> businessExceptionHandler(BusinessException e) {
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
      * 运行时异常处理程序
      *
      * @param e e
-     * @return {@code BaseResponse<?>}
+     * @return {@code ApiResponse<?>}
      */
     @ExceptionHandler(RuntimeException.class)
     public ApiResponse<?> runtimeExceptionHandler(RuntimeException e) {
