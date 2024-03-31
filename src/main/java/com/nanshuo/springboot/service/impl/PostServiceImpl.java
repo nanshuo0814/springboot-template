@@ -47,15 +47,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
-* @author nanshuo
-* @description 针对表【post(帖子)】的数据库操作Service实现
-* @createDate 2024-03-31 11:48:14
-*/
+ * @author nanshuo
+ * @description 针对表【post(帖子)】的数据库操作Service实现
+ * @createDate 2024-03-31 11:48:14
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
-    implements PostService {
+        implements PostService {
 
     private final UserService userService;
     private final PostThumbMapper postThumbMapper;
@@ -333,7 +333,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
      */
     private SFunction<Post, ?> isSortField(String sortField) {
         if (SqlUtils.validSortField(sortField)) {
-            Optional<? extends SFunction<Post, ?>> commonSortField = (Optional<? extends SFunction<Post, ?>>) CommonSortFieldEnums.fromString(sortField)
+            Optional<? extends SFunction> commonSortField = CommonSortFieldEnums.fromString(sortField)
                     .map(CommonSortFieldEnums::getFieldGetter);
             if (commonSortField.isPresent()) {
                 return commonSortField.get();

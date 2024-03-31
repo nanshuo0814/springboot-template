@@ -585,7 +585,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     private SFunction<User, ?> isSortField(String sortField) {
         if (SqlUtils.validSortField(sortField)) {
-            Optional<? extends SFunction<User, ?>> commonSortField = (Optional<? extends SFunction<User, ?>>) CommonSortFieldEnums.fromString(sortField)
+            Optional<? extends SFunction> commonSortField = CommonSortFieldEnums.fromString(sortField)
                     .map(CommonSortFieldEnums::getFieldGetter);
             if (commonSortField.isPresent()) {
                 return commonSortField.get();
