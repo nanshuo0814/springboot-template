@@ -18,6 +18,7 @@ import java.util.Date;
 @TableName(value ="post_favour")
 @Data
 public class PostFavour extends BaseEntity implements Serializable {
+
     /**
      * id
      */

@@ -64,7 +64,7 @@ public class FileController {
         // 文件目录：根据业务、用户来划分
         String uuid = String.valueOf(System.currentTimeMillis());
         String filename = uuid + "-" + multipartFile.getOriginalFilename();
-        String filepath = String.format("%s/%s/%s", fileUploadTypeEnums.getValue(), loginUser.getUserId(), filename);
+        String filepath = String.format("%s/%s/%s", fileUploadTypeEnums.getValue(), loginUser.getId(), filename);
         File file = null;
         try {
             // 上传文件

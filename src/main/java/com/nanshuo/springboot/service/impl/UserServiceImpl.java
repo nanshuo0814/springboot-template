@@ -62,7 +62,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return long
      */
     @Override
-    public Long userRegister(UserRegisterRequest userRegisterRequest) {
+    public long userRegister(UserRegisterRequest userRegisterRequest) {
         // 获取参数
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();

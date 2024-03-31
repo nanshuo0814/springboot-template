@@ -257,7 +257,7 @@ public class PostController {
         Post oldPost = postService.getById(id);
         ThrowUtils.throwIf(oldPost == null, ErrorCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可操作（这里假设"编辑"和"删除"操作的权限是一样的）
-        if (!oldPost.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+        if (!oldPost.getUserId().equals(loginUser.getId()) && !userService.isAdmin(request)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
     }

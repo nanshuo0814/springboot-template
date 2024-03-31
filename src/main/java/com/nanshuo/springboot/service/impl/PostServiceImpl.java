@@ -33,6 +33,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
@@ -290,7 +291,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         SortBuilder<?> sortBuilder = SortBuilders.scoreSort();
         if (StringUtils.isNotBlank(sortField)) {
             sortBuilder = SortBuilders.fieldSort(sortField);
-            sortBuilder.order();
+            sortBuilder.order(PageConstant.SORT_ORDER_ASC.equals(sortOrder) ? SortOrder.ASC : SortOrder.DESC);
         }
         // 分页
         PageRequest pageRequest = PageRequest.of((int) current, (int) pageSize);

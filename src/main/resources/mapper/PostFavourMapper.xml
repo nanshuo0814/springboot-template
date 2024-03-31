@@ -5,15 +5,23 @@
 <mapper namespace="com.nanshuo.springboot.mapper.PostFavourMapper">
 
     <resultMap id="BaseResultMap" type="com.nanshuo.springboot.model.domain.PostFavour">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="postId" column="post_id" jdbcType="BIGINT"/>
-            <result property="userId" column="user_id" jdbcType="BIGINT"/>
-            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="postId" column="post_id" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,post_id,user_id,
         create_time,update_time
     </sql>
+
+    <select id="listFavourPostByPage" resultType="com.nanshuo.springboot.model.domain.Post">
+        select p.*
+        from post p
+                 join (select post_id from post_favour where user_id = #{favourUserId}) pf
+                      on p.id = pf.post_id ${ew.customSqlSegment};
+    </select>
+
 </mapper>
