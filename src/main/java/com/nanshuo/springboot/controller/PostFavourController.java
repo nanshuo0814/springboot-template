@@ -15,6 +15,8 @@ import com.nanshuo.springboot.service.PostFavourService;
 import com.nanshuo.springboot.service.PostService;
 import com.nanshuo.springboot.service.UserService;
 import com.nanshuo.springboot.utils.ThrowUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/post_favour")
 @Slf4j
 @RequiredArgsConstructor
+@Api(tags = "帖子收藏模块")
 public class PostFavourController {
 
     private final PostFavourService postFavourService;
@@ -48,6 +51,7 @@ public class PostFavourController {
      * @return resultNum 收藏变化数
      */
     @PostMapping("/")
+    @ApiOperation(value = "收藏/取消收藏", notes = "收藏/取消收藏")
     public ApiResponse<Integer> doPostFavour(@RequestBody IdRequest idRequest,
                                              HttpServletRequest request) {
         if (idRequest == null || idRequest.getId() <= 0) {
@@ -68,6 +72,7 @@ public class PostFavourController {
      * @return {@code ApiResponse<Page<PostVO>>}
      */
     @PostMapping("/my/list/page")
+    @ApiOperation(value = "获取自己收藏的帖子", notes = "获取自己收藏的帖子")
     public ApiResponse<Page<PostVO>> listMyFavourPostByPage(@RequestBody PostQueryRequest postQueryRequest,
                                                             HttpServletRequest request) {
         if (postQueryRequest == null) {
@@ -90,6 +95,7 @@ public class PostFavourController {
      * @param request                请求
      * @return {@code ApiResponse<Page<PostVO>>}
      */
+    @ApiOperation(value = "获取用户收藏的帖子", notes = "获取用户收藏的帖子")
     @PostMapping("/list/page")
     public ApiResponse<Page<PostVO>> listFavourPostByPage(@RequestBody PostFavourQueryRequest postFavourQueryRequest,
             HttpServletRequest request) {

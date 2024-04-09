@@ -18,9 +18,12 @@ import java.util.stream.Collectors;
 @Getter
 public enum PostSortFieldEnums {
 
-    USER_ACCOUNT(Post::getFavourNum),
-    USER_NAME(Post::getThumbNum),
-    USER_EMAIL(Post::getUserId);
+    ID(Post::getId),
+    CREATE_TIME(Post::getCreateTime),
+    UPDATE_TIME(Post::getUpdateTime),
+    FAVOUR_NUM(Post::getFavourNum),
+    THUMB_NUM(Post::getThumbNum),
+    USER_ID(Post::getUserId);
 
     private final SFunction<Post, ?> fieldGetter;
 
@@ -38,6 +41,8 @@ public enum PostSortFieldEnums {
      * @return {@code Optional<UserSortField>}
      */
     public static Optional<PostSortFieldEnums> fromString(String sortField) {
-        return Optional.ofNullable(FIELD_MAPPING.get(sortField));
+        // 转换驼峰式命名到下划线分隔，忽略大小写
+        String formattedSortField = sortField.replaceAll("([a-z0-9])([A-Z])", "$1_$2");
+        return Optional.ofNullable(FIELD_MAPPING.get(formattedSortField.toUpperCase()));
     }
 }

@@ -12,7 +12,6 @@ import com.nanshuo.springboot.exception.BusinessException;
 import com.nanshuo.springboot.mapper.UserMapper;
 import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.dto.user.*;
-import com.nanshuo.springboot.model.enums.sort.CommonSortFieldEnums;
 import com.nanshuo.springboot.model.enums.sort.UserSortFieldEnums;
 import com.nanshuo.springboot.model.enums.user.UserRoleEnums;
 import com.nanshuo.springboot.model.vo.user.UserLoginVO;
@@ -33,7 +32,6 @@ import org.springframework.util.DigestUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -585,11 +583,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     private SFunction<User, ?> isSortField(String sortField) {
         if (SqlUtils.validSortField(sortField)) {
-            Optional<? extends SFunction> commonSortField = CommonSortFieldEnums.fromString(sortField)
-                    .map(CommonSortFieldEnums::getFieldGetter);
-            if (commonSortField.isPresent()) {
-                return commonSortField.get();
-            }
             return UserSortFieldEnums.fromString(sortField)
                     .map(UserSortFieldEnums::getFieldGetter)
                     .orElseThrow(() -> new BusinessException(ErrorCode.PARAMS_ERROR, "错误的排序字段"));

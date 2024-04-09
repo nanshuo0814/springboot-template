@@ -10,8 +10,8 @@ import com.nanshuo.springboot.model.domain.PostThumb;
 import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.service.PostService;
 import com.nanshuo.springboot.service.PostThumbService;
+import com.nanshuo.springboot.utils.SpringBeanContextUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.aop.framework.AopContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +45,7 @@ public class PostThumbServiceImpl extends ServiceImpl<PostThumbMapper, PostThumb
         long userId = loginUser.getId();
         // 每个用户串行点赞
         // 锁必须要包裹住事务方法
-        PostThumbService postThumbService = (PostThumbService) AopContext.currentProxy();
+        PostThumbService postThumbService = SpringBeanContextUtils.getBeanByClass(PostThumbService.class);
         synchronized (String.valueOf(userId).intern()) {
             return postThumbService.doPostThumbInner(userId, postId);
         }

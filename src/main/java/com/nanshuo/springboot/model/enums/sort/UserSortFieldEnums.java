@@ -18,6 +18,9 @@ import java.util.stream.Collectors;
 @Getter
 public enum UserSortFieldEnums {
 
+    ID(User::getId),
+    CREATE_TIME(User::getCreateTime),
+    UPDATE_TIME(User::getUpdateTime),
     USER_ACCOUNT(User::getUserAccount),
     USER_NAME(User::getUserName),
     USER_EMAIL(User::getUserEmail),
@@ -40,6 +43,9 @@ public enum UserSortFieldEnums {
      * @return {@code Optional<UserSortField>}
      */
     public static Optional<UserSortFieldEnums> fromString(String sortField) {
-        return Optional.ofNullable(FIELD_MAPPING.get(sortField));
+        // 转换驼峰式命名到下划线分隔，忽略大小写
+        String formattedSortField = sortField.replaceAll("([a-z0-9])([A-Z])", "$1_$2");
+        return Optional.ofNullable(FIELD_MAPPING.get(formattedSortField.toUpperCase()));
     }
+
 }

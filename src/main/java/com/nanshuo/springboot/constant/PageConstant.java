@@ -29,7 +29,7 @@ public interface PageConstant {
     String SORT_ORDER_DESC = "desc";
 
     /**
-     * 按id排序
+     * 默认按id排序
      */
     String SORT_BY_ID = "id";
 }

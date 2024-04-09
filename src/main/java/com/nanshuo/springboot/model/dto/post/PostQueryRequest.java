@@ -20,7 +20,7 @@ public class PostQueryRequest extends PageBaseRequest implements Serializable {
     private Long id;
 
     /**
-     * id
+     * 不包含该id
      */
     private Long notId;
 
@@ -53,11 +53,6 @@ public class PostQueryRequest extends PageBaseRequest implements Serializable {
      * 创建用户 id
      */
     private Long userId;
-
-    /**
-     * 收藏用户 id
-     */
-    private Long favourUserId;
 
     private static final long serialVersionUID = 1L;
 }

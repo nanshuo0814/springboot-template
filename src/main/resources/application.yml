@@ -32,8 +32,19 @@ spring:
     host: localhost
     port: 6379
     timeout: 5000
-    # 若你的 Redis 需要密码，请打开注释，并填写密码
-    #    password: root
+  # 若你的 Redis 需要密码，请打开注释，并填写密码
+  #    password: root
+  # Elasticsearch 配置
+  # todo 需替换配置，然后取消注释
+  elasticsearch:
+    uris: http://localhost:9200
+    username: root
+#    password: 123456
+  # 文件上传
+  servlet:
+    multipart:
+      # 大小限制
+      max-file-size: 10MB
   # session 配置
   session:
     # todo 开启分布式 session（须先配置 Redis）
@@ -58,12 +69,11 @@ mybatis-plus:
       logic-delete-value: 1 # 逻辑已删除值（默认为 1）
       logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
 
-
 # todo 邮箱配置,根据自己的邮箱需求配置
 email:
   hostName: smtp.qq.com # 邮箱域名
-  emailAddress: test0814@qq.com # 邮箱地址
-  password: mphrixxtyjdxdeah # 邮箱密码
+  emailAddress: xxxx@qq.com # 邮箱地址
+  password: xxxxx # 邮箱密码
   senderName: springboot-template # 发件人昵称
   sslSmtpPort: 465 # 邮箱端口
   mailTitle: 邮箱验证码 # 邮件标题
@@ -85,7 +95,7 @@ oss:
     # secret
     secretKey: xxxxx
     # 桶的名字
-    bucket: ydg-demo
+    bucket: xxxx
     # 地域
     region: xxxxx
 
@@ -95,7 +105,7 @@ knife4j:
   openapi:
     title: 接口文档  # 标题
     description: springboot模板项目的接口文档  # 简介/描述
-    email: nanshuo.icu@qq.com # 邮箱
+    email: xxx@qq.com # 邮箱
     concat: 南烁  # 作者
     url: https://www.github.com/nanshuo0814 # 作者链接
     version: v4.0

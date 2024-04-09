@@ -13,8 +13,9 @@ import com.nanshuo.springboot.model.domain.PostFavour;
 import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.service.PostFavourService;
 import com.nanshuo.springboot.service.PostService;
+import com.nanshuo.springboot.utils.SpringBeanContextUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.aop.framework.AopContext;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
     implements PostFavourService {
 
     private final PostService postService;
+    private final RedissonClient redissonClient;
 
     /**
      * 帖子收藏
@@ -48,7 +50,7 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
         long userId = loginUser.getId();
         // 每个用户串行帖子收藏
         // 锁必须要包裹住事务方法
-        PostFavourService postFavourService = (PostFavourService) AopContext.currentProxy();
+        PostFavourService postFavourService = SpringBeanContextUtils.getBeanByClass(PostFavourService.class);
         synchronized (String.valueOf(userId).intern()) {
             return postFavourService.doPostFavourInner(userId, postId);
         }
@@ -70,7 +72,7 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
         QueryWrapper<PostFavour> postFavourQueryWrapper = new QueryWrapper<>(postFavour);
         PostFavour oldPostFavour = this.getOne(postFavourQueryWrapper);
         boolean result;
-        int favourNumChange = 0; // 用于记录收藏数的变化，1表示增加，-1表示减少
+        int favourNumChange; // 用于记录收藏数的变化，1表示增加，-1表示减少
         // 已收藏，执行取消收藏操作
         if (oldPostFavour != null) {
             result = this.remove(postFavourQueryWrapper);
@@ -83,16 +85,23 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
         if (result) {
             // 更新帖子收藏数
             Post post = postService.getById(postId);
-            if (post != null && post.getFavourNum() > Math.abs(favourNumChange)) {
-                // 使用Lambda表达式更新帖子收藏数
-                boolean updateResult = postService.lambdaUpdate()
-                        .eq(Post::getId, postId)
-                        .set(Post::getFavourNum, post.getFavourNum() + favourNumChange) // 根据favourNumChange的值增加或减少收藏数
-                        .update();
-                return updateResult ? favourNumChange : 0; // 返回变化的值，1或-1
+            if (post != null) {
+                int newFavourNum = post.getFavourNum() + favourNumChange;
+                // 判断收藏数是否为负数
+                if (newFavourNum >= 0) {
+                    // 使用Lambda表达式更新帖子收藏数
+                    boolean updateResult = postService.lambdaUpdate()
+                            .eq(Post::getId, postId)
+                            .set(Post::getFavourNum, newFavourNum) // 直接设置为新的收藏数
+                            .update();
+                    return updateResult ? favourNumChange : 0; // 返回变化的值，1或-1
+                } else {
+                    // 如果收藏数为负数，则抛出异常或进行其他处理
+                    throw new BusinessException(ErrorCode.OPERATION_ERROR);
+                }
             } else {
-                // 如果当前收藏数不足以执行减少操作，则抛出异常或进行其他处理
-                throw new BusinessException(ErrorCode.OPERATION_ERROR);
+                // 如果未找到帖子，则抛出异常或进行其他处理
+                throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
             }
         } else {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR);

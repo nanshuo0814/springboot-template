@@ -17,7 +17,7 @@ public class IdRequest implements Serializable {
     /**
      * id
      */
-    @CheckParam(alias = "id", minValue = 0)
+    @CheckParam(alias = "id", minValue = 1)
     private Long id;
 
     private static final long serialVersionUID = 1L;

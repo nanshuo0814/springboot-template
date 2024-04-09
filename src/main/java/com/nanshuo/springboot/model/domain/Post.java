@@ -2,7 +2,6 @@ package com.nanshuo.springboot.model.domain;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -11,10 +10,9 @@ import java.util.Date;
  * 帖子
  * @TableName post
  */
-@EqualsAndHashCode(callSuper = true)
 @TableName(value ="post")
 @Data
-public class Post extends BaseEntity implements Serializable {
+public class Post implements Serializable {
 
     /**
      * id

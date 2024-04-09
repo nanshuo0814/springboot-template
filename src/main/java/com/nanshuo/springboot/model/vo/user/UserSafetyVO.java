@@ -17,7 +17,7 @@ public class UserSafetyVO implements Serializable {
     /**
      * 用户id
      */
-    private Long userId;
+    private Long id;
 
     /**
      * 用户昵称

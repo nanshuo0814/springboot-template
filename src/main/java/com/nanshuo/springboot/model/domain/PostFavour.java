@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -14,10 +13,9 @@ import java.util.Date;
  * 帖子收藏
  * @TableName post_favour
  */
-@EqualsAndHashCode(callSuper = true)
 @TableName(value ="post_favour")
 @Data
-public class PostFavour extends BaseEntity implements Serializable {
+public class PostFavour implements Serializable {
 
     /**
      * id

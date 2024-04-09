@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -14,10 +13,9 @@ import java.util.Date;
  * 帖子点赞
  * @TableName post_thumb
  */
-@EqualsAndHashCode(callSuper = true)
 @TableName(value ="post_thumb")
 @Data
-public class PostThumb extends BaseEntity implements Serializable {
+public class PostThumb implements Serializable {
     /**
      * id
      */

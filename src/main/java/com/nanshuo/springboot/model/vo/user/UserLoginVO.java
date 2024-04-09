@@ -22,7 +22,7 @@ public class UserLoginVO implements Serializable {
      * 用户 id
      */
     @ApiModelProperty(value = "用户 id", required = true)
-    private Long userId;
+    private Long id;
 
     /**
      * 用户昵称

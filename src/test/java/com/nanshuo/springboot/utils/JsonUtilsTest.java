@@ -18,7 +18,7 @@ class JsonUtilsTest {
         Integer i = 1;
         Long l = 2L;
         User user = new User();
-        user.setUserId(1L);
+        user.setId(1L);
         user.setUserAccount("nanshuo");
         user.setUserName("nanshuo");
         log.info(JsonUtils.objToJson(user));

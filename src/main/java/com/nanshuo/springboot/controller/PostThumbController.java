@@ -8,6 +8,8 @@ import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.dto.postthumb.PostThumbAddRequest;
 import com.nanshuo.springboot.service.PostThumbService;
 import com.nanshuo.springboot.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/post_thumb")
 @Slf4j
 @RequiredArgsConstructor
+@Api(tags = "帖子点赞模块")
 public class PostThumbController {
 
     private final PostThumbService postThumbService;
@@ -40,6 +43,7 @@ public class PostThumbController {
      * @return resultNum 本次点赞变化数
      */
     @PostMapping("/")
+    @ApiOperation(value = "点赞/取消点赞", notes = "点赞/取消点赞")
     public ApiResponse<Integer> doThumb(@RequestBody PostThumbAddRequest postThumbAddRequest,
                                         HttpServletRequest request) {
         if (postThumbAddRequest == null || postThumbAddRequest.getPostId() <= 0) {

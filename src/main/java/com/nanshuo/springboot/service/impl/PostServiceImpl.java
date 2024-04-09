@@ -17,7 +17,6 @@ import com.nanshuo.springboot.model.domain.PostThumb;
 import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.dto.post.PostEsRequest;
 import com.nanshuo.springboot.model.dto.post.PostQueryRequest;
-import com.nanshuo.springboot.model.enums.sort.CommonSortFieldEnums;
 import com.nanshuo.springboot.model.enums.sort.PostSortFieldEnums;
 import com.nanshuo.springboot.model.vo.post.PostVO;
 import com.nanshuo.springboot.model.vo.user.UserSafetyVO;
@@ -332,12 +331,10 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
      * @return {@code SFunction<Post, ?>}
      */
     private SFunction<Post, ?> isSortField(String sortField) {
+        if (Objects.equals(sortField, "")) {
+            sortField = PageConstant.SORT_BY_ID;
+        }
         if (SqlUtils.validSortField(sortField)) {
-            Optional<? extends SFunction> commonSortField = CommonSortFieldEnums.fromString(sortField)
-                    .map(CommonSortFieldEnums::getFieldGetter);
-            if (commonSortField.isPresent()) {
-                return commonSortField.get();
-            }
             return PostSortFieldEnums.fromString(sortField)
                     .map(PostSortFieldEnums::getFieldGetter)
                     .orElseThrow(() -> new BusinessException(ErrorCode.PARAMS_ERROR, "错误的排序字段"));

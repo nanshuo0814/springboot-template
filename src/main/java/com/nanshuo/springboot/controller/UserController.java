@@ -181,7 +181,7 @@ public class UserController {
      */
     @GetMapping("/get")
     @ApiOperation(value = "按id获取用户", notes = "按id获取用户")
-    public ApiResponse<User> getUserById(@RequestBody IdRequest idRequest) {
+    public ApiResponse<User> getUserById(IdRequest idRequest) {
         User user = userService.getById(idRequest.getId());
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");
         return ApiResult.success(user);
