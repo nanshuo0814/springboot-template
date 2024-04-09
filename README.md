@@ -25,6 +25,8 @@
 - devtools: 热部署
 - redission: 3.26.0
 - Lombok: 1.18.24
+- Elasticsearch：2.7.6
+- ...
 
 # 快速开始
 
