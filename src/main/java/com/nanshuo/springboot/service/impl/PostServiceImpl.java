@@ -15,7 +15,7 @@ import com.nanshuo.springboot.model.domain.Post;
 import com.nanshuo.springboot.model.domain.PostFavour;
 import com.nanshuo.springboot.model.domain.PostThumb;
 import com.nanshuo.springboot.model.domain.User;
-import com.nanshuo.springboot.model.dto.post.PostEsRequest;
+import com.nanshuo.springboot.model.dto.post.PostEsDTO;
 import com.nanshuo.springboot.model.dto.post.PostQueryRequest;
 import com.nanshuo.springboot.model.enums.sort.PostSortFieldEnums;
 import com.nanshuo.springboot.model.vo.post.PostVO;
@@ -297,13 +297,13 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         // 构造查询
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(boolQueryBuilder)
                 .withPageable(pageRequest).withSorts(sortBuilder).build();
-        SearchHits<PostEsRequest> searchHits = elasticsearchRestTemplate.search(searchQuery, PostEsRequest.class);
+        SearchHits<PostEsDTO> searchHits = elasticsearchRestTemplate.search(searchQuery, PostEsDTO.class);
         Page<Post> page = new Page<>();
         page.setTotal(searchHits.getTotalHits());
         List<Post> resourceList = new ArrayList<>();
         // 查出结果后，从 db 获取最新动态数据（比如点赞数）
         if (searchHits.hasSearchHits()) {
-            List<SearchHit<PostEsRequest>> searchHitList = searchHits.getSearchHits();
+            List<SearchHit<PostEsDTO>> searchHitList = searchHits.getSearchHits();
             List<Long> postIdList = searchHitList.stream().map(searchHit -> searchHit.getContent().getId())
                     .collect(Collectors.toList());
             List<Post> postList = baseMapper.selectBatchIds(postIdList);
@@ -314,7 +314,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
                         resourceList.add(idPostMap.get(postId).get(0));
                     } else {
                         // 从 es 清空 db 已物理删除的数据
-                        String delete = elasticsearchRestTemplate.delete(String.valueOf(postId), PostEsRequest.class);
+                        String delete = elasticsearchRestTemplate.delete(String.valueOf(postId), PostEsDTO.class);
                         log.info("delete post {}", delete);
                     }
                 });

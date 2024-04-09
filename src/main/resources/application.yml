@@ -1,7 +1,7 @@
 # 服务器配置
 server:
   address: 0.0.0.0 # IP访问地址
-  port: 8080 # todo 端口
+  port: 2018 # todo 端口
   servlet:
     context-path: /api # 访问路径开头
     # cookie 30 天过期
@@ -36,9 +36,9 @@ spring:
   #    password: root
   # Elasticsearch 配置
   # todo 需替换配置，然后取消注释
-  elasticsearch:
-    uris: http://localhost:9200
-    username: root
+#  elasticsearch:
+#    uris: http://localhost:9200
+#    username: root
 #    password: 123456
   # 文件上传
   servlet:

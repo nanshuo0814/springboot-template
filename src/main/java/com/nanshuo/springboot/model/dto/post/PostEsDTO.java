@@ -23,7 +23,7 @@ import java.util.List;
 // todo 取消注释开启 ES（须先配置 ES）
 //@Document(indexName = "post")
 @Data
-public class PostEsRequest implements Serializable {
+public class PostEsDTO implements Serializable {
 
     private static final String DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
@@ -86,34 +86,34 @@ public class PostEsRequest implements Serializable {
      * 对象转包装类
      *
      * @param post post
-     * @return {@code PostEsRequest}
+     * @return {@code PostESRequest}
      */
-    public static PostEsRequest objToDto(Post post) {
+    public static PostEsDTO objToDto(Post post) {
         if (post == null) {
             return null;
         }
-        PostEsRequest postEsRequest = new PostEsRequest();
-        BeanUtils.copyProperties(post, postEsRequest);
+        PostEsDTO postEsDTO = new PostEsDTO();
+        BeanUtils.copyProperties(post, postEsDTO);
         String tagsStr = post.getTags();
         if (StringUtils.isNotBlank(tagsStr)) {
-            postEsRequest.setTags(JsonUtils.jsonToList(tagsStr, String.class));
+            postEsDTO.setTags(JsonUtils.jsonToList(tagsStr, String.class));
         }
-        return postEsRequest;
+        return postEsDTO;
     }
 
     /**
      * 包装类转对象
      *
-     * @param postEsRequest post es请求
+     * @param postEsDTO post es请求
      * @return {@code Post}
      */
-    public static Post dtoToObj(PostEsRequest postEsRequest) {
-        if (postEsRequest == null) {
+    public static Post dtoToObj(PostEsDTO postEsDTO) {
+        if (postEsDTO == null) {
             return null;
         }
         Post post = new Post();
-        BeanUtils.copyProperties(postEsRequest, post);
-        List<String> tagList = postEsRequest.getTags();
+        BeanUtils.copyProperties(postEsDTO, post);
+        List<String> tagList = postEsDTO.getTags();
         if (CollUtil.isNotEmpty(tagList)) {
             post.setTags(JsonUtils.objToJson(tagList));
         }

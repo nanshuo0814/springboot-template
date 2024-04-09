@@ -12,5 +12,5 @@ public interface FileConstant {
      * todo 需替换配置
      * oss主机访问地址
      */
-    String OSS_HOST_ADDRESS = "https://ydg-image.oss-cn-guangzhou.aliyuncs.com/";
+    String OSS_HOST_ADDRESS = "https://xxx.aliyuncs.com/";
 }
