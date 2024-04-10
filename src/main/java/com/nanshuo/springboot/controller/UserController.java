@@ -130,6 +130,8 @@ public class UserController {
         return ApiResult.success(userService.userPasswordResetByAdmin(idRequest.getId()));
     }
 
+    // region 增删改查
+
     /**
      * 添加用户(admin)
      *
@@ -219,5 +221,7 @@ public class UserController {
         userSafetyVOPage.setRecords(userSafetyVOList);
         return ApiResult.success(userSafetyVOPage);
     }
+
+    // endregion
 
 }

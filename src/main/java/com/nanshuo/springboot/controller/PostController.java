@@ -45,6 +45,8 @@ public class PostController {
     private final PostService postService;
     private final UserService userService;
 
+    // region 增删改查
+
     /**
      * 添加帖子
      *
@@ -124,6 +126,34 @@ public class PostController {
     }
 
     /**
+     * 编辑（用户）
+     *
+     * @param postEditRequest post编辑请求
+     * @param request         请求
+     * @return {@code ApiResponse<Boolean>}
+     */
+    @PostMapping("/edit")
+    @Check(checkAuth = UserConstant.USER_ROLE, checkParam = true)
+    @ApiOperation(value = "编辑帖子", notes = "编辑帖子")
+    public ApiResponse<Boolean> editPost(@RequestBody PostEditRequest postEditRequest, HttpServletRequest request) {
+
+        if (postEditRequest == null || postEditRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        Post post = new Post();
+        BeanUtils.copyProperties(postEditRequest, post);
+        List<String> tags = postEditRequest.getTags();
+        if (tags != null) {
+            post.setTags(JsonUtils.objToJson(tags));
+        }
+        // 参数校验
+        postService.validPost(post, false);
+        validateAndCheckAuthForPostOperation(request, postEditRequest.getId());
+        boolean result = postService.updateById(post);
+        return ApiResult.success(result);
+    }
+
+    /**
      * 根据 id 获取
      *
      * @param request   请求
@@ -144,6 +174,10 @@ public class PostController {
         }
         return ApiResult.success(postService.getPostVO(post, request));
     }
+
+    // endregion
+
+    // region 分页查询
 
     /**
      * 分页获取列表（仅管理员）
@@ -229,59 +263,9 @@ public class PostController {
         return ApiResult.success(postService.getPostVOPage(postPage, request));
     }
 
-    /**
-     * 编辑（用户）
-     *
-     * @param postEditRequest post编辑请求
-     * @param request         请求
-     * @return {@code ApiResponse<Boolean>}
-     */
-    @PostMapping("/edit")
-    @Check(checkAuth = UserConstant.USER_ROLE, checkParam = true)
-    @ApiOperation(value = "编辑帖子", notes = "编辑帖子")
-    public ApiResponse<Boolean> editPost(@RequestBody PostEditRequest postEditRequest, HttpServletRequest request) {
+    // endregion
 
-        if (postEditRequest == null || postEditRequest.getId() <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        Post post = new Post();
-        BeanUtils.copyProperties(postEditRequest, post);
-        List<String> tags = postEditRequest.getTags();
-        if (tags != null) {
-            post.setTags(JsonUtils.objToJson(tags));
-        }
-        // 参数校验
-        postService.validPost(post, false);
-        validateAndCheckAuthForPostOperation(request, postEditRequest.getId());
-        boolean result = postService.updateById(post);
-        return ApiResult.success(result);
-    }
-
-    private void processPostUpdateRequest(PostEditRequest editRequest, PostUpdateRequest updateRequest, HttpServletRequest request) throws BusinessException {
-        if (editRequest != null && updateRequest != null && (editRequest.getId() <= 0 || updateRequest.getId() <= 0)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        Post post = new Post();
-        if (editRequest != null) {
-            BeanUtils.copyProperties(editRequest, post);
-        } else if (updateRequest != null) {
-            BeanUtils.copyProperties(updateRequest, post);
-        }
-        List<String> tags;
-        if (editRequest != null) {
-            tags = editRequest.getTags();
-        } else {
-            tags = updateRequest.getTags();
-        }
-        if (tags != null) {
-            post.setTags(JsonUtils.objToJson(tags));
-        }
-        // 参数校验
-        postService.validPost(post, false);
-        if (request != null) { // 只有编辑方法需要验证请求上下文
-            validateAndCheckAuthForPostOperation(request, editRequest.getId());
-        }
-    }
+    // region 公用方法
 
     /**
      * 验证并检查帖子操作权限
@@ -299,5 +283,7 @@ public class PostController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
     }
+
+    // endregion
 
 }
