@@ -15,10 +15,10 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @EnableAspectJAutoProxy
 @MapperScan("com.nanshuo.springboot.mapper")
 @SpringBootApplication
-public class SpringBootTemplateApplication {
+public class MainApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringBootTemplateApplication.class, args);
+        SpringApplication.run(MainApplication.class, args);
         log.info("Project started successfully！");
     }
 

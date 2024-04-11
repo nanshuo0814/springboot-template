@@ -15,7 +15,6 @@ import com.nanshuo.springboot.service.PostFavourService;
 import com.nanshuo.springboot.service.PostService;
 import com.nanshuo.springboot.utils.SpringBeanContextUtils;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +29,6 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
     implements PostFavourService {
 
     private final PostService postService;
-    private final RedissonClient redissonClient;
 
     /**
      * 帖子收藏

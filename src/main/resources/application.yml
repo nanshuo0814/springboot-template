@@ -7,7 +7,7 @@ server:
     # cookie 30 天过期
     session:
       cookie: # 自定义 cookie 属性
-        max-age: 2592000 # 单位秒
+        max-age: 86400 # 单位秒
 
 # todo 公共配置文件
 spring:
@@ -23,7 +23,7 @@ spring:
   # todo 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/springboot_template?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
+    url: jdbc:mysql://localhost:3306/springboot_template?useSSL=false&useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
     username: root
     password: root
   # todo Redis 配置
@@ -50,7 +50,7 @@ spring:
     # todo 开启分布式 session（须先配置 Redis）
     store-type: redis
     # 30 天过期
-    timeout: 2592000
+    timeout: 86400
   # 统一配置返回时间格式
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
