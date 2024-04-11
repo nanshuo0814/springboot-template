@@ -5,7 +5,7 @@
 <mapper namespace="com.nanshuo.springboot.mapper.UserMapper">
 
     <resultMap id="BaseResultMap" type="com.nanshuo.springboot.model.domain.User">
-        <id property="userId" column="user_id" jdbcType="BIGINT"/>
+        <id property="id" column="user_id" jdbcType="BIGINT"/>
         <result property="userAccount" column="user_account" jdbcType="VARCHAR"/>
         <result property="userPassword" column="user_password" jdbcType="VARCHAR"/>
         <result property="userName" column="user_name" jdbcType="VARCHAR"/>

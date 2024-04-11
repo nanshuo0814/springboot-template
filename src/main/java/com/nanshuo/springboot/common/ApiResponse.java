@@ -13,6 +13,8 @@ import java.io.Serializable;
 @Data
 public class ApiResponse<T> implements Serializable {
 
+    private static final long serialVersionUID = -5456284309934779361L;
+
     private int code;
 
     private T data;
