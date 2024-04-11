@@ -332,7 +332,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
      */
     private SFunction<Post, ?> isSortField(String sortField) {
         if (Objects.equals(sortField, "")) {
-            sortField = PageConstant.SORT_BY_ID;
+            sortField = PostSortFieldEnums.UPDATE_TIME.name();
         }
         if (SqlUtils.validSortField(sortField)) {
             return PostSortFieldEnums.fromString(sortField)

@@ -582,6 +582,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return {@code SFunction<User, ?>}
      */
     private SFunction<User, ?> isSortField(String sortField) {
+        // 如果排序字段为空，则默认为更新时间
+        if (StringUtils.isBlank(sortField)) {
+            sortField = UserSortFieldEnums.UPDATE_TIME.name();
+        }
         if (SqlUtils.validSortField(sortField)) {
             return UserSortFieldEnums.fromString(sortField)
                     .map(UserSortFieldEnums::getFieldGetter)
