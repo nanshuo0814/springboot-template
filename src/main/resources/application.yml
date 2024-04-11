@@ -58,7 +58,8 @@ spring:
 # mybatis-plus 配置
 mybatis-plus:
   configuration:
-    map-underscore-to-camel-case: false
+    # todo 下划线驼峰命名映射，默认是开启的，若数据库字段采用驼峰式，设置为false
+    map-underscore-to-camel-case: true
     # 开启 SQL 语句的打印
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
@@ -68,17 +69,6 @@ mybatis-plus:
       logic-delete-field: isDelete # 全局逻辑删除的实体字段名
       logic-delete-value: 1 # 逻辑已删除值（默认为 1）
       logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
-
-# todo 邮箱配置,根据自己的邮箱需求配置
-email:
-  hostName: smtp.qq.com # 邮箱域名
-  emailAddress: xxxx@qq.com # 邮箱地址
-  password: xxxxx # 邮箱密码
-  senderName: springboot-template # 发件人昵称
-  sslSmtpPort: 465 # 邮箱端口
-  mailTitle: 邮箱验证码 # 邮件标题
-  content: 快速开发模板 # 邮件正文里的项目名称
-  expireTime: 5 # 验证码过期时间，单位分钟
 
 logging:
   file:
@@ -118,7 +108,18 @@ knife4j:
         api-rule-resources: # 接口规则资源扫描(controller包路径)
           - com.nanshuo.springboot.controller
 
-# todo 全局验证码开关，包括有登录、注册的验证码，默认关闭
+# todo 全局验证码开关，只包括有登录图片验证码、注册的图片、邮箱验证码，默认关闭
 captcha:
   email-enabled: false # 邮箱验证码
   image-enabled: false # 图片验证码
+
+# todo 邮箱配置,根据自己的邮箱需求配置
+email:
+  hostName: smtp.qq.com # 邮箱域名
+  emailAddress: xxxx@qq.com # 邮箱地址
+  password: xxxxx # 邮箱密码
+  senderName: springboot-template # 发件人昵称
+  sslSmtpPort: 465 # 邮箱端口
+  mailTitle: 邮箱验证码 # 邮件标题
+  content: 快速开发模板 # 邮件正文里的项目名称
+  expireTime: 5 # 验证码过期时间，单位分钟

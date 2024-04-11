@@ -37,22 +37,22 @@ public class UserRegisterRequest implements Serializable {
     @CheckParam(alias = "第二遍密码", minLength = 6, maxLength = 18, regex = UserRegexEnums.PASSWORD)
     private String checkPassword;
 
-    @ApiModelProperty(value = "邮箱", required = true)
+    @ApiModelProperty(value = "邮箱", required = false)
     @CheckParam(required = NumberConstant.FALSE_ZERO_VALUE, alias = "邮箱", regex = UserRegexEnums.EMAIL)
     private String email;
 
-    @ApiModelProperty(value = "邮箱验证码", required = true)
+    @ApiModelProperty(value = "邮箱验证码", required = false)
     @CheckParam(required = NumberConstant.FALSE_ZERO_VALUE, alias = "邮箱验证码", regex = UserRegexEnums.EMAIL_CAPTCHA)
     private String emailCaptcha;
 
-    @ApiModelProperty(value = "图片验证码", required = true)
+    @ApiModelProperty(value = "图片验证码", required = false)
     @CheckParam(required = NumberConstant.FALSE_ZERO_VALUE, alias = "图片验证码", regex = UserRegexEnums.IMAGE_CAPTCHA)
     private String imageCaptcha;
 
     /**
      * 图片验证码key
      */
-    @ApiModelProperty(value = "图片验证码key", required = true)
+    @ApiModelProperty(value = "图片验证码key", required = false)
     @CheckParam(required = NumberConstant.FALSE_ZERO_VALUE, alias = "图片验证码key")
     private String captchaKey;
 
