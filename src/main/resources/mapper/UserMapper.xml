@@ -8,6 +8,8 @@
         <id property="id" column="user_id" jdbcType="BIGINT"/>
         <result property="userAccount" column="user_account" jdbcType="VARCHAR"/>
         <result property="userPassword" column="user_password" jdbcType="VARCHAR"/>
+        <result property="unionId" column="union_id" jdbcType="VARCHAR"/>
+        <result property="mpOpenId" column="mp_open_id" jdbcType="VARCHAR"/>
         <result property="userName" column="user_name" jdbcType="VARCHAR"/>
         <result property="userGender" column="user_gender" jdbcType="TINYINT"/>
         <result property="userEmail" column="user_email" jdbcType="VARCHAR"/>
@@ -20,9 +22,10 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        user_id,user_account,user_password,user_name,
+        user_id,user_account,user_password,union_id,mp_open_id,user_name,
         user_gender,user_email,user_avatar,
         user_profile,user_role,create_time,
         update_time,is_delete
     </sql>
+
 </mapper>

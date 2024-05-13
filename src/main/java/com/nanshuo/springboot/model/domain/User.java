@@ -19,7 +19,7 @@ import java.util.Date;
  * @date 2024/01/04 14:43:30
  */
 @Data
-@TableName(value ="user")
+@TableName(value = "user")
 @ApiModel(value = "User", description = "用户实体类")
 public class User implements Serializable {
 
@@ -43,6 +43,20 @@ public class User implements Serializable {
     @ApiModelProperty(value = "用户密码")
     @TableField(value = "user_password")
     private String userPassword;
+
+    /**
+     * 开放平台id
+     */
+    @ApiModelProperty(value = "开放平台id")
+    @TableField(value = "union_id")
+    private String unionId;
+
+    /**
+     * 公众号openId
+     */
+    @ApiModelProperty(value = "公众号openId")
+    @TableField(value = "mp_open_id")
+    private String mpOpenId;
 
     /**
      * 用户昵称

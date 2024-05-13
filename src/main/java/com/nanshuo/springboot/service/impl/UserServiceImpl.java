@@ -1,6 +1,7 @@
 package com.nanshuo.springboot.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nanshuo.springboot.common.ErrorCode;
@@ -20,8 +21,8 @@ import com.nanshuo.springboot.service.UserService;
 import com.nanshuo.springboot.utils.SqlUtils;
 import com.nanshuo.springboot.utils.ThrowUtils;
 import com.nanshuo.springboot.utils.redis.RedisUtils;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,12 +48,14 @@ import static com.nanshuo.springboot.constant.UserConstant.USER_LOGIN_STATE;
  */
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
-    private final RedisUtils redisUtils;
-    private final UserMapper userMapper;
-    private final CaptchaConfig captchaConfig;
+    @Resource
+    private RedisUtils redisUtils;
+    @Resource
+    private UserMapper userMapper;
+    @Resource
+    private CaptchaConfig captchaConfig;
 
     /**
      * 用户注册
@@ -544,6 +548,45 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public boolean isAdmin(User user) {
         return user != null && UserRoleEnums.ADMIN.getValue().equals(user.getUserRole());
+    }
+
+    /**
+     * 用户通过mp open登录
+     *
+     * @param wxOAuth2UserInfo wx oauth2用户信息
+     * @param request          请求
+     * @return {@code UserLoginVO}
+     */
+    @Override
+    public UserLoginVO userLoginByMpOpen(WxOAuth2UserInfo wxOAuth2UserInfo, HttpServletRequest request) {
+        String unionId = wxOAuth2UserInfo.getUnionId();
+        String mpOpenId = wxOAuth2UserInfo.getOpenid();
+        // 单机锁
+        synchronized (unionId.intern()) {
+            // 查询用户是否已存在
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("unionId", unionId);
+            User user = this.getOne(queryWrapper);
+            // 被封号，禁止登录
+            if (user != null && UserRoleEnums.BAN.getValue().equals(user.getUserRole())) {
+                throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "该用户已被封，禁止登录");
+            }
+            // 用户不存在则创建
+            if (user == null) {
+                user = new User();
+                user.setUnionId(unionId);
+                user.setMpOpenId(mpOpenId);
+                user.setUserAvatar(wxOAuth2UserInfo.getHeadImgUrl());
+                user.setUserName(wxOAuth2UserInfo.getNickname());
+                boolean result = this.save(user);
+                if (!result) {
+                    throw new BusinessException(ErrorCode.SYSTEM_ERROR, "登录失败");
+                }
+            }
+            // 记录用户的登录态
+            request.getSession().setAttribute(USER_LOGIN_STATE, user);
+            return getLoginUserVO(user);
+        }
     }
 
     /**

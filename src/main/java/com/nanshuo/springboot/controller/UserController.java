@@ -5,7 +5,9 @@ import com.nanshuo.springboot.annotation.Check;
 import com.nanshuo.springboot.common.ApiResponse;
 import com.nanshuo.springboot.common.ApiResult;
 import com.nanshuo.springboot.common.ErrorCode;
+import com.nanshuo.springboot.config.WxOpenConfig;
 import com.nanshuo.springboot.constant.UserConstant;
+import com.nanshuo.springboot.exception.BusinessException;
 import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.dto.IdRequest;
 import com.nanshuo.springboot.model.dto.user.*;
@@ -15,11 +17,16 @@ import com.nanshuo.springboot.service.UserService;
 import com.nanshuo.springboot.utils.ThrowUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
+import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
+import me.chanjar.weixin.mp.api.WxMpService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 
@@ -33,10 +40,12 @@ import java.util.List;
 @Api(tags = "普通用户模块")
 @RestController
 @RequestMapping("/user")
-@RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    @Resource
+    private UserService userService;
+    @Resource
+    private WxOpenConfig wxOpenConfig;
 
     /**
      * 用户注册
@@ -62,6 +71,29 @@ public class UserController {
     @Check(checkParam = true)
     public ApiResponse<UserLoginVO> userLogin(HttpServletRequest request, @RequestBody UserLoginRequest userLoginRequest) {
         return ApiResult.success(userService.userLogin(request, userLoginRequest));
+    }
+
+    /**
+     * 用户登录（微信开放平台）
+     */
+    @GetMapping("/login/wx_open")
+    public ApiResponse<UserLoginVO> userLoginByWxOpen(HttpServletRequest request, HttpServletResponse response,
+                                                       @RequestParam("code") String code) {
+        WxOAuth2AccessToken accessToken;
+        try {
+            WxMpService wxService = wxOpenConfig.getWxMpService();
+            accessToken = wxService.getOAuth2Service().getAccessToken(code);
+            WxOAuth2UserInfo userInfo = wxService.getOAuth2Service().getUserInfo(accessToken, code);
+            String unionId = userInfo.getUnionId();
+            String mpOpenId = userInfo.getOpenid();
+            if (StringUtils.isAnyBlank(unionId, mpOpenId)) {
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "登录失败，系统错误");
+            }
+            return ApiResult.success(userService.userLoginByMpOpen(userInfo, request));
+        } catch (Exception e) {
+            log.error("userLoginByWxOpen error", e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "登录失败，系统错误");
+        }
     }
 
     /**
