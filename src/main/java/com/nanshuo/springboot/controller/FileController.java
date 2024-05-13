@@ -6,6 +6,7 @@ import com.nanshuo.springboot.common.ApiResult;
 import com.nanshuo.springboot.common.ErrorCode;
 import com.nanshuo.springboot.constant.FileConstant;
 import com.nanshuo.springboot.exception.BusinessException;
+import com.nanshuo.springboot.manager.CosManager;
 import com.nanshuo.springboot.manager.OssManager;
 import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.dto.file.UploadFileRequest;
@@ -39,8 +40,11 @@ public class FileController {
 
     @Resource
     private UserService userService;
+    // todo 阿里云OSS和腾讯云cos对象储存，二选一
     @Resource
     private OssManager ossManager;
+    @Resource
+    private CosManager cosManager;
     
     /**
      * 上传文件
@@ -71,7 +75,9 @@ public class FileController {
             // 上传文件
             file = File.createTempFile(filepath, null);
             multipartFile.transferTo(file);
+            // 阿里云OSS和腾讯云cos对象储存，二选一
             ossManager.putObject(filepath, file);
+            cosManager.putObject(filepath, file);
             // 返回可访问地址
             return ApiResult.success(FileConstant.OSS_HOST_ADDRESS + filepath);
         } catch (Exception e) {

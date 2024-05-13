@@ -19,7 +19,7 @@ import java.io.File;
 public class OssManager {
 
     @Resource
-    private OssClientConfig cosClientConfig;
+    private OssClientConfig ossClientConfig;
     @Resource
     private OSS ossClient;
 
@@ -31,7 +31,7 @@ public class OssManager {
      * @return {@code PutObjectResult}
      */
     public PutObjectResult putObject(String key, String localFilePath) {
-        PutObjectRequest putObjectRequest = new PutObjectRequest(cosClientConfig.getBucket(), key,
+        PutObjectRequest putObjectRequest = new PutObjectRequest(ossClientConfig.getBucket(), key,
                 new File(localFilePath));
         return ossClient.putObject(putObjectRequest);
     }
@@ -44,7 +44,7 @@ public class OssManager {
      * @return {@code PutObjectResult}
      */
     public PutObjectResult putObject(String key, File file) {
-        PutObjectRequest putObjectRequest = new PutObjectRequest(cosClientConfig.getBucket(), key,
+        PutObjectRequest putObjectRequest = new PutObjectRequest(ossClientConfig.getBucket(), key,
                 file);
         return ossClient.putObject(putObjectRequest);
     }
