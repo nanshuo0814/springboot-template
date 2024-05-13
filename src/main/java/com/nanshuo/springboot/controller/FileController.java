@@ -6,7 +6,7 @@ import com.nanshuo.springboot.common.ErrorCode;
 import com.nanshuo.springboot.common.ApiResult;
 import com.nanshuo.springboot.constant.FileConstant;
 import com.nanshuo.springboot.exception.BusinessException;
-import com.nanshuo.springboot.utils.OssUtils;
+import com.nanshuo.springboot.manager.OssManager;
 import com.nanshuo.springboot.model.dto.file.UploadFileRequest;
 import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.enums.file.FileUploadTypeEnums;
@@ -39,7 +39,7 @@ import java.util.Arrays;
 public class FileController {
 
     private final UserService userService;
-    private final OssUtils ossUtils;
+    private final OssManager ossManager;
     
     /**
      * 上传文件
@@ -70,7 +70,7 @@ public class FileController {
             // 上传文件
             file = File.createTempFile(filepath, null);
             multipartFile.transferTo(file);
-            ossUtils.putObject(filepath, file);
+            ossManager.putObject(filepath, file);
             // 返回可访问地址
             return ApiResult.success(FileConstant.OSS_HOST_ADDRESS + filepath);
         } catch (Exception e) {

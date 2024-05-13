@@ -1,4 +1,4 @@
-package com.nanshuo.springboot.utils;
+package com.nanshuo.springboot.manager;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.PutObjectRequest;
@@ -10,14 +10,14 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 
 /**
- * oss 对象存储操作
+ * oss 阿里云对象存储操作
  *
  * @author nanshuo
  * @date 2024/01/26 13:26:04
  */
 @Component
 @RequiredArgsConstructor
-public class OssUtils {
+public class OssManager {
 
     private final OssClientConfig cosClientConfig;
     private final OSS ossClient;
