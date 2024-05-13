@@ -4,9 +4,9 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.aliyun.oss.model.PutObjectResult;
 import com.nanshuo.springboot.config.OssClientConfig;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.io.File;
 
 /**
@@ -16,11 +16,12 @@ import java.io.File;
  * @date 2024/01/26 13:26:04
  */
 @Component
-@RequiredArgsConstructor
 public class OssManager {
 
-    private final OssClientConfig cosClientConfig;
-    private final OSS ossClient;
+    @Resource
+    private OssClientConfig cosClientConfig;
+    @Resource
+    private OSS ossClient;
 
     /**
      * 上传对象

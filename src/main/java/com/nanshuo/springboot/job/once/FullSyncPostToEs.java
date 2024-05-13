@@ -5,10 +5,10 @@ import com.nanshuo.springboot.esdao.PostEsDao;
 import com.nanshuo.springboot.model.domain.Post;
 import com.nanshuo.springboot.model.dto.post.PostEsDTO;
 import com.nanshuo.springboot.service.PostService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,11 +21,12 @@ import java.util.stream.Collectors;
 // todo 取消注释开启任务
 //@Component
 @Slf4j
-@RequiredArgsConstructor
 public class FullSyncPostToEs implements CommandLineRunner {
 
-    private final PostService postService;
-    private final PostEsDao postEsDao;
+    @Resource
+    private PostService postService;
+    @Resource
+    private PostEsDao postEsDao;
 
     /**
      * 运行

@@ -11,9 +11,10 @@ import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.service.PostService;
 import com.nanshuo.springboot.service.PostThumbService;
 import com.nanshuo.springboot.utils.SpringBeanContextUtils;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
 
 /**
  * @author nanshuo
@@ -21,11 +22,11 @@ import org.springframework.transaction.annotation.Transactional;
  * @createDate 2024-03-31 11:50:35
  */
 @Service
-@RequiredArgsConstructor
 public class PostThumbServiceImpl extends ServiceImpl<PostThumbMapper, PostThumb>
         implements PostThumbService {
 
-    private final PostService postService;
+    @Resource
+    private PostService postService;
 
     /**
      * 点赞 / 取消点赞

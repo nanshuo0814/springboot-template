@@ -1,13 +1,14 @@
 package com.nanshuo.springboot.aop;
 
 import com.nanshuo.springboot.exception.BusinessException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.Resource;
 
 /**
  * 自定义 AOP 检查参数配置类
@@ -18,10 +19,10 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 @Aspect
 @Configuration("CustomInterceptorAop")
-@RequiredArgsConstructor
 public class CustomInterceptorAop {
 
-    private final CustomCheckAopMethod customCheckAopMethod;
+    @Resource
+    private CustomCheckAopMethod customCheckAopMethod;
 
     /**
      * 切入带有 @Check 注解的方法。

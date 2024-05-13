@@ -24,7 +24,6 @@ import com.nanshuo.springboot.service.PostService;
 import com.nanshuo.springboot.service.UserService;
 import com.nanshuo.springboot.utils.SqlUtils;
 import com.nanshuo.springboot.utils.ThrowUtils;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +40,7 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,14 +52,17 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         implements PostService {
 
-    private final UserService userService;
-    private final PostThumbMapper postThumbMapper;
-    private final PostFavourMapper postFavourMapper;
-    private final ElasticsearchRestTemplate elasticsearchRestTemplate;
+    @Resource
+    private UserService userService;
+    @Resource
+    private PostThumbMapper postThumbMapper;
+    @Resource
+    private PostFavourMapper postFavourMapper;
+    @Resource
+    private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
     /**
      * 有效帖子

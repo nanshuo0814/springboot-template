@@ -14,9 +14,10 @@ import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.service.PostFavourService;
 import com.nanshuo.springboot.service.PostService;
 import com.nanshuo.springboot.utils.SpringBeanContextUtils;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
 
 /**
 * @author nanshuo
@@ -24,11 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 * @createDate 2024-03-31 11:50:32
 */
 @Service
-@RequiredArgsConstructor
 public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFavour>
     implements PostFavourService {
 
-    private final PostService postService;
+    @Resource
+    private PostService postService;
 
     /**
      * 帖子收藏

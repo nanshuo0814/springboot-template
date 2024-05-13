@@ -9,16 +9,16 @@ import com.nanshuo.springboot.constant.RedisKeyConstant;
 import com.nanshuo.springboot.constant.UserConstant;
 import com.nanshuo.springboot.model.enums.user.UserRegexEnums;
 import com.nanshuo.springboot.utils.JsonUtils;
-import com.nanshuo.springboot.utils.redis.RedisUtils;
 import com.nanshuo.springboot.utils.captcha.EmailCaptchaUtils;
 import com.nanshuo.springboot.utils.captcha.ImageCaptchaUtils;
+import com.nanshuo.springboot.utils.redis.RedisUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
@@ -37,10 +37,10 @@ import java.util.concurrent.TimeUnit;
 @Api(tags = "验证码模块")
 @RestController
 @RequestMapping("/captcha")
-@RequiredArgsConstructor
 public class CaptchaController {
 
-    private final RedisUtils redisUtils;
+    @Resource
+    private RedisUtils redisUtils;
 
     /**
      * 发送电子邮件验证码

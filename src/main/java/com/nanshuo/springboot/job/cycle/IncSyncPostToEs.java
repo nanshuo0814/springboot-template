@@ -5,10 +5,10 @@ import com.nanshuo.springboot.esdao.PostEsDao;
 import com.nanshuo.springboot.mapper.PostMapper;
 import com.nanshuo.springboot.model.domain.Post;
 import com.nanshuo.springboot.model.dto.post.PostEsDTO;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,11 +22,12 @@ import java.util.stream.Collectors;
 // todo 取消注释开启任务
 //@Component
 @Slf4j
-@RequiredArgsConstructor
 public class IncSyncPostToEs {
 
-    private final PostMapper postMapper;
-    private final PostEsDao postEsDao;
+    @Resource
+    private PostMapper postMapper;
+    @Resource
+    private PostEsDao postEsDao;
 
     /**
      * 每分钟执行一次

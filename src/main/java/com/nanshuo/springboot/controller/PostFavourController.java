@@ -17,13 +17,13 @@ import com.nanshuo.springboot.service.UserService;
 import com.nanshuo.springboot.utils.ThrowUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -35,13 +35,15 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/post_favour")
 @Slf4j
-@RequiredArgsConstructor
 @Api(tags = "帖子收藏模块")
 public class PostFavourController {
 
-    private final PostFavourService postFavourService;
-    private final PostService postService;
-    private final UserService userService;
+    @Resource
+    private PostFavourService postFavourService;
+    @Resource
+    private PostService postService;
+    @Resource
+    private UserService userService;
 
     /**
      * 收藏 / 取消收藏

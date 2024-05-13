@@ -21,11 +21,11 @@ import com.nanshuo.springboot.utils.JsonUtils;
 import com.nanshuo.springboot.utils.ThrowUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -38,12 +38,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/post")
 @Slf4j
-@RequiredArgsConstructor
 @Api(tags = "帖子模块")
 public class PostController {
 
-    private final PostService postService;
-    private final UserService userService;
+    @Resource
+    private PostService postService;
+    @Resource
+    private UserService userService;
 
     // region 增删改查
 

@@ -10,7 +10,6 @@ import com.nanshuo.springboot.model.enums.user.UserRegexEnums;
 import com.nanshuo.springboot.model.enums.user.UserRoleEnums;
 import com.nanshuo.springboot.service.UserService;
 import com.nanshuo.springboot.utils.RegexUtils;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -22,6 +21,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -38,10 +38,10 @@ import java.util.Arrays;
  */
 @Slf4j
 @Component("CustomCheckAopMethod")
-@RequiredArgsConstructor
 public class CustomCheckAopMethod {
 
-    private final UserService userService;
+    @Resource
+    private UserService userService;
 
     /**
      * 拦截器方法，用于执行参数和身份验证检查。

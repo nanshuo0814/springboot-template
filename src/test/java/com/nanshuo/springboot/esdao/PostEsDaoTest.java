@@ -4,13 +4,13 @@ import com.nanshuo.springboot.model.domain.Post;
 import com.nanshuo.springboot.model.dto.post.PostEsDTO;
 import com.nanshuo.springboot.model.dto.post.PostQueryRequest;
 import com.nanshuo.springboot.service.PostService;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -23,11 +23,12 @@ import java.util.Optional;
  * @date 2024/04/09 22:35:58
  */
 @SpringBootTest
-@RequiredArgsConstructor
 public class PostEsDaoTest {
 
-    private final PostEsDao postEsDao;
-    private final PostService postService;
+    @Resource
+    private PostEsDao postEsDao;
+    @Resource
+    private PostService postService;
 
     @Test
     void test() {

@@ -10,13 +10,13 @@ import com.nanshuo.springboot.service.PostThumbService;
 import com.nanshuo.springboot.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -28,12 +28,13 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/post_thumb")
 @Slf4j
-@RequiredArgsConstructor
 @Api(tags = "帖子点赞模块")
 public class PostThumbController {
 
-    private final PostThumbService postThumbService;
-    private final UserService userService;
+    @Resource
+    private PostThumbService postThumbService;
+    @Resource
+    private UserService userService;
 
     /**
      * 点赞 / 取消点赞
