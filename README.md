@@ -6,37 +6,13 @@
 
 项目地址：https://github.com/nanshuo0814/springboot-template
 
-# 技术选型
-
-- Spring Boot: 2.7.6
-- Spring AOP: 2.7.6
-- Java: 1.8
-- MySQL 驱动: 8.0.33
-- MyBatis: 2.2.2
-- MyBatis-Plus: 3.5.2
-- Knife4j: 3.0.3
-- 阿里云 OSS SDK: 3.15.1
-- Activation: 1.1.1
-- Mail: 1.4.7
-- Email: 1.5
-- Jackson: 2.16.1
-- EasyExcel: 3.1.1
-- hutool-All: 5.8.8
-- devtools: 热部署
-- redission: 3.26.0
-- Lombok: 1.18.24
-- Elasticsearch：2.7.6
-- ...
-
 # 快速开始
 
 - 该模板基于 **Spring Boot 2.7.6**，使用 Maven 管理依赖。项目运行前请先浏览配置文件**application.yml**，改好所需的相关配置，检查 **todo** 注释。
-
-- 项目里使用了Spring AOP切面，通过自定义@Check和@CheckParam注解来就行权限校验、登录校验、参数校验、打印日志等。
-
+- 项目里使用了Spring AOP切面，通过自定义@Check和@CheckParam注解来就行权限校验、登录校验、参数校验等等。
 - 使用MyBatis-Plus，配置了MyBatis-Plus的分页插件，进行简单的crud操作。
-
 - 集成了阿里云OSS，方便上传文件到OSS。
+- 集成了腾讯云COS，方便上传文件到COS。
 - 邮箱验证码库+自定义邮箱验证码工具类，方便发送验证码。
 - 图片验证码库+自定义图片验证码工具类，方便生成图片验证码。
 - 自定义全局异常拦截器和工具类，方便统一处理异常。
@@ -51,4 +27,65 @@
 - sql脚本，提供测试创建数据库和表结构的脚本。
 - ...
 
+## 模板特点
 
+### 主流框架 & 特性
+
+- Spring Boot 2.7.6（贼新）
+- Spring MVC
+- MyBatis + MyBatis Plus 数据访问（开启分页）
+- Spring Boot 调试工具和项目处理器
+- Spring AOP 切面编程
+- Spring Scheduler 定时任务
+- Spring 事务注解
+
+### 数据存储
+
+- MySQL 数据库
+- Redis 内存数据库
+- Elasticsearch 搜索引擎
+- 腾讯云 COS 对象存储
+- 阿里云 OSS 对象存储
+
+### 工具类
+
+- Easy Excel 表格处理
+- Hutool 工具库
+- Apache Commons Lang3 工具类
+- Lombok 注解
+- Jackson JSON 序列化
+
+### 业务特性
+
+- Spring Session Redis 分布式登录
+- 全局请求响应拦截器（记录日志）
+- 全局异常处理器
+- 自定义错误码
+- 封装通用响应类
+- Swagger + Knife4j 接口文档
+- 自定义权限注解 + 全局校验
+- 全局跨域处理
+- 长整数丢失精度解决
+- 多环境配置
+
+
+## 业务功能
+
+- 提供示例 SQL（用户、帖子、帖子点赞、帖子收藏表）
+- 用户登录、注册、注销、更新、检索、权限管理
+- 帖子创建、删除、编辑、更新、数据库检索、ES 灵活检索
+- 帖子点赞、取消点赞
+- 帖子收藏、取消收藏、检索已收藏帖子
+- 帖子全量同步 ES、增量同步 ES 定时任务
+- 支持微信开放平台登录
+- 支持微信公众号订阅、收发消息、设置菜单
+- 支持分业务的文件上传
+
+### 单元测试
+
+- JUnit5 单元测试
+- 示例单元测试类
+
+### 架构设计
+
+- 合理分层
