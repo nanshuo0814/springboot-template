@@ -1,6 +1,8 @@
 package com.nanshuo.springboot.controller;
 
 import com.nanshuo.springboot.wxmp.WxMpConstant;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.api.WxConsts.MenuButtonType;
 import me.chanjar.weixin.common.bean.menu.WxMenu;
@@ -32,6 +34,7 @@ import java.util.Collections;
 @RestController
 @RequestMapping("/")
 @Slf4j
+@Api(tags = "微信公众号模块")
 public class WxMpController {
 
     @Resource
@@ -40,7 +43,15 @@ public class WxMpController {
     @Resource
     private WxMpMessageRouter router;
 
+    /**
+     * 接收消息
+     *
+     * @param request  请求
+     * @param response 响应
+     * @throws IOException ioexception
+     */
     @PostMapping("/")
+    @ApiOperation(value = "接收消息", notes = "接收消息")
     public void receiveMessage(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         response.setContentType("text/html;charset=utf-8");
@@ -80,7 +91,17 @@ public class WxMpController {
         response.getWriter().println("不可识别的加密类型");
     }
 
+    /**
+     * 检查
+     *
+     * @param timestamp 时间戳
+     * @param nonce     随机数
+     * @param signature 签名
+     * @param echostr   echostr
+     * @return {@code String}
+     */
     @GetMapping("/")
+    @ApiOperation(value = "检查", notes = "检查")
     public String check(String timestamp, String nonce, String signature, String echostr) {
         log.info("check");
         if (wxMpService.checkSignature(timestamp, nonce, signature)) {
@@ -97,6 +118,7 @@ public class WxMpController {
      * @throws WxErrorException wx错误异常
      */
     @GetMapping("/setMenu")
+    @ApiOperation(value = "设置公众号菜单", notes = "设置公众号菜单")
     public String setMenu() throws WxErrorException {
         log.info("setMenu");
         WxMenu wxMenu = new WxMenu();

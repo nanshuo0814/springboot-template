@@ -5,7 +5,6 @@ import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Resource;
 
@@ -15,7 +14,8 @@ import javax.annotation.Resource;
  * @author nanshuo
  * @date 2024/03/28 10:14:56
  */
-@Configuration
+// todo 取消注释开启redisson
+//@Configuration
 public class RedissonConfig {
 
     @Resource
