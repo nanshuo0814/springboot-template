@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * 帖子视图
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/03/31 14:32:44
  */
 @Data

@@ -12,7 +12,7 @@ import java.io.Serializable;
 /**
  * 用户注册 Request
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2023/12/23 19:00:34
  */
 @Data

@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 更新请求
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/03/31 14:27:37
  */
 @Data

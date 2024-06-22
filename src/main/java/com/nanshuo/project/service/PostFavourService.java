@@ -9,7 +9,7 @@ import com.nanshuo.project.model.domain.PostFavour;
 import com.nanshuo.project.model.domain.User;
 
 /**
-* @author nanshuo
+* @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
 * @description 针对表【post_favour(帖子收藏)】的数据库操作Service
 * @createDate 2024-03-31 11:50:32
 */

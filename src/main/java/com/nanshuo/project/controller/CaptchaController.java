@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 验证码控制器
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/01/05 15:29:46
  */
 @Slf4j

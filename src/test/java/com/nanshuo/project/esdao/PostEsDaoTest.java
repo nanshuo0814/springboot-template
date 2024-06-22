@@ -19,7 +19,7 @@ import java.util.Optional;
 /**
  * 帖子 ES 操作测试
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/04/09 22:35:58
  */
 @SpringBootTest

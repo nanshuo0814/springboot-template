@@ -43,7 +43,7 @@ import static com.nanshuo.project.constant.UserConstant.USER_LOGIN_STATE;
 /**
  * 用户服务实现
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2023/12/23 16:30:17
  */
 @Service

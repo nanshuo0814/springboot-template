@@ -7,7 +7,7 @@ import com.nanshuo.project.exception.BusinessException;
 /**
  * 抛异常工具类
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2023/12/23 18:36:01
  */
 public class ThrowUtils {

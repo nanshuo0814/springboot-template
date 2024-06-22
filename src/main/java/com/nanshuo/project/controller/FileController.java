@@ -28,7 +28,7 @@ import java.util.Arrays;
 /**
  * 文件控制器
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/01/26 13:27:14
  */
 //@Api(tags = "文件模块")

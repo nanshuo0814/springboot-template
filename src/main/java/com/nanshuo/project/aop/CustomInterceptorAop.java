@@ -13,7 +13,7 @@ import javax.annotation.Resource;
 /**
  * 自定义 AOP 检查参数配置类
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/03/22 21:52:06
  */
 @Slf4j

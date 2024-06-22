@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
-* @author nanshuo
+* @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
 * @description 针对表【post_favour(帖子收藏)】的数据库操作Mapper
 * @createDate 2024-03-31 11:50:32
 * @Entity com.nanshuo.springboot.model.domain.PostFavour

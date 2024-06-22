@@ -27,7 +27,7 @@ import java.util.Collections;
 /**
  * 微信公众号相关接口
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/05/13 20:34:59
  */
 @RestController

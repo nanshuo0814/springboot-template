@@ -11,7 +11,7 @@ import javax.annotation.Resource;
 /**
  * redisson配置
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/03/28 10:14:56
  */
 // todo 取消注释开启redisson

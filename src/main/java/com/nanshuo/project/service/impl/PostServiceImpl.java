@@ -46,7 +46,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @description 针对表【post(帖子)】的数据库操作Service实现
  * @createDate 2024-03-31 11:48:14
  */

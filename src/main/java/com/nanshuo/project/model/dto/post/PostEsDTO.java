@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * 帖子 ES 包装类
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/03/31 22:32:24
  */
 // todo 取消注释开启 ES（须先配置 ES）

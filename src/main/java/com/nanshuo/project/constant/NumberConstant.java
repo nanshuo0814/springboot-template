@@ -3,7 +3,7 @@ package com.nanshuo.project.constant;
 /**
  * 数字常量
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2023/12/25 19:31:30
  */
 public interface NumberConstant {

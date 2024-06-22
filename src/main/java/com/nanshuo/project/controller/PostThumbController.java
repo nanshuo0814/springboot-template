@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * 帖子点赞接口
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/03/31 22:31:17
  */
 @RestController

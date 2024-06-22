@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * 用户控制器
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2023/12/23 16:33:46
  */
 @Slf4j

@@ -17,7 +17,7 @@ import java.util.UUID;
 /**
  * 日志拦截器 AOP
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/01/07 13:27:40
  */
 @Aspect

@@ -12,7 +12,7 @@ import java.io.File;
 /**
  * oss 阿里云对象存储操作
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/01/26 13:26:04
  */
 @Component

@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 
 /**
-* @author nanshuo
+* @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
 * @description 针对表【post_favour(帖子收藏)】的数据库操作Service实现
 * @createDate 2024-03-31 11:50:32
 */

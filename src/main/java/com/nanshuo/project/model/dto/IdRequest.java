@@ -8,7 +8,7 @@ import java.io.Serializable;
 /**
  * id请求
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/03/31 12:12:29
  */
 @Data

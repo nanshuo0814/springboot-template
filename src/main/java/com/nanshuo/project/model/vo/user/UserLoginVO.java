@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * 用户登录vo
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/01/04 19:08:31
  */
 @Data

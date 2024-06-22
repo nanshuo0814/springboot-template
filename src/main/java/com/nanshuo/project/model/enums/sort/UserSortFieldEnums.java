@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 /**
  * 用户排序字段
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/03/31 15:31:56
  */
 @Getter

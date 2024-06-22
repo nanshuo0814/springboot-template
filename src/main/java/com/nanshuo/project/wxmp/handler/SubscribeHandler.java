@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * 关注处理器
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/05/13 20:14:01
  */
 @Component

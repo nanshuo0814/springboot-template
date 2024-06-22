@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * 增量同步帖子到 es
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/04/09 22:31:57
  */
 // todo 取消注释开启任务

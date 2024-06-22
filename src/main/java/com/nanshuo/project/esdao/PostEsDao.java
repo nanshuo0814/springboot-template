@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * 帖子 ES 操作
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/04/09 22:31:38
  */
 public interface PostEsDao extends ElasticsearchRepository<PostEsDTO, Long> {

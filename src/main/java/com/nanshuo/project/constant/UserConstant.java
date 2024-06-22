@@ -3,7 +3,7 @@ package com.nanshuo.project.constant;
 /**
  * 用户常量
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/01/03 19:33:58
  */
 public interface UserConstant {

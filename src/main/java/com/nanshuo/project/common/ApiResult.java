@@ -3,7 +3,7 @@ package com.nanshuo.project.common;
 /**
  * 返回Api结果类
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2023/12/23 18:25:00
  */
 public class ApiResult {

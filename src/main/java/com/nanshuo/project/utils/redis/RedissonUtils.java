@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * redisson utils
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/03/28 11:12:22
  */
 // todo 取消注解开启redission工具类

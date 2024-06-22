@@ -10,7 +10,7 @@ import com.nanshuo.project.model.vo.post.PostVO;
 import javax.servlet.http.HttpServletRequest;
 
 /**
-* @author nanshuo
+* @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
 * @description 针对表【post(帖子)】的数据库操作Service
 * @createDate 2024-03-31 11:48:14
 */

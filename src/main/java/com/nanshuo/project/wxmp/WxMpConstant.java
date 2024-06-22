@@ -3,7 +3,7 @@ package com.nanshuo.project.wxmp;
 /**
  * 微信公众号相关常量
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/05/13 20:13:32
  */
 public class WxMpConstant {

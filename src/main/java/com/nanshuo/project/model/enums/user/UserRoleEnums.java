@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 /**
  * 用户角色枚举
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2023/12/30 20:18:27
  */
 @Getter

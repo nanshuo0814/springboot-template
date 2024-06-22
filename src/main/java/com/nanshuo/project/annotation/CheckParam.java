@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 /**
  * 检查参数
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2023/12/23 20:25:31
  */
 @Documented

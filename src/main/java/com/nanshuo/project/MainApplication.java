@@ -9,7 +9,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 /**
  * 主要应用程序（项目启动入口）
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  */
 @Slf4j
 @EnableAspectJAutoProxy

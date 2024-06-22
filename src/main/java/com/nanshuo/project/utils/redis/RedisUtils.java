@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * redis utils 最全工具类
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/03/28 10:43:01
  */
 @Slf4j

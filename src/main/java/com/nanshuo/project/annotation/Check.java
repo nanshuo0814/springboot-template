@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 /**
  * 检查
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2023/12/31 00:10:34
  */
 @Target({ElementType.METHOD, ElementType.TYPE})

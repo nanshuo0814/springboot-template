@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * 帖子接口
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/03/31 11:40:08
  */
 @RestController

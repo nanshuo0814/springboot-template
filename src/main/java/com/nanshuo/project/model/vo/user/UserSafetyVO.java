@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * 用户视图（脱敏）
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/01/13 20:09:31
  */
 @Data

@@ -12,7 +12,7 @@ import java.io.File;
 /**
  * Cos 腾讯云对象存储操作
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/05/13 20:05:09
  */
 @Component

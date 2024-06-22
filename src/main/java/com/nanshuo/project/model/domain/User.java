@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * 用户实体类
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @TableName user
  * @date 2024/01/04 14:43:30
  */

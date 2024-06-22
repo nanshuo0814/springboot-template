@@ -6,7 +6,7 @@ import lombok.Data;
 /**
  * 页面请求
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/01/11 21:07:14
  */
 @Data

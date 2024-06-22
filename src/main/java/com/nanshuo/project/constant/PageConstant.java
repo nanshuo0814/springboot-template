@@ -3,7 +3,7 @@ package com.nanshuo.project.constant;
 /**
  * 页面常量
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/01/11 21:08:48
  */
 public interface PageConstant {

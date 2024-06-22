@@ -11,7 +11,7 @@ import java.io.Serializable;
 /**
  * 用户密码重置Request
  *
- * @author nanshuo
+ * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/01/04 21:24:00
  */
 @Data
