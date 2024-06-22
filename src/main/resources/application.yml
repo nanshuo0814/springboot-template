@@ -131,7 +131,7 @@ knife4j:
       nanshuo: # 分组名称
         api-rule: package # 接口规则包扫描
         api-rule-resources: # 接口规则资源扫描(controller包路径)
-          - com.nanshuo.springboot.controller
+          - com.nanshuo.project.controller
 
 # todo 全局验证码开关，只包括有登录图片验证码、注册的图片、邮箱验证码，默认关闭
 captcha:
