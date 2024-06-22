@@ -12,7 +12,6 @@ import com.nanshuo.springboot.model.domain.User;
 import com.nanshuo.springboot.model.dto.file.UploadFileRequest;
 import com.nanshuo.springboot.model.enums.file.FileUploadTypeEnums;
 import com.nanshuo.springboot.service.UserService;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,7 +31,7 @@ import java.util.Arrays;
  * @author nanshuo
  * @date 2024/01/26 13:27:14
  */
-@Api(tags = "文件模块")
+//@Api(tags = "文件模块")
 @RestController
 @RequestMapping("/file")
 @Slf4j
@@ -56,7 +55,7 @@ public class FileController {
      * @return {@code ApiResponse<String>}
      */
     @PostMapping("/upload")
-    @ApiOperation(value = "文件上传", notes = "文件上传")
+    @ApiOperation(value = "文件上传")
     public ApiResponse<String> uploadFile(@RequestPart("file") MultipartFile multipartFile,
                                           UploadFileRequest uploadFileRequest, HttpServletRequest request) {
         String type = uploadFileRequest.getType();

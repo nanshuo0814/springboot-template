@@ -19,7 +19,6 @@ import com.nanshuo.springboot.service.PostService;
 import com.nanshuo.springboot.service.UserService;
 import com.nanshuo.springboot.utils.JsonUtils;
 import com.nanshuo.springboot.utils.ThrowUtils;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -38,7 +37,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/post")
 @Slf4j
-@Api(tags = "帖子模块")
+//@Api(tags = "帖子模块")
 public class PostController {
 
     @Resource
@@ -57,7 +56,7 @@ public class PostController {
      */
     @PostMapping("/add")
     @Check(checkParam = true, checkAuth = UserConstant.USER_ROLE)
-    @ApiOperation(value = "添加帖子", notes = "添加帖子")
+    @ApiOperation(value = "添加帖子")
     public ApiResponse<Long> addPost(@RequestBody PostAddRequest postAddRequest, HttpServletRequest request) {
         if (postAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -88,7 +87,7 @@ public class PostController {
      */
     @PostMapping("/delete")
     @Check(checkAuth = UserConstant.USER_ROLE)
-    @ApiOperation(value = "删除帖子", notes = "删除帖子")
+    @ApiOperation(value = "删除帖子")
     public ApiResponse<Boolean> deletePost(@RequestBody IdRequest idRequest, HttpServletRequest request) {
         if (idRequest == null || idRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -106,7 +105,7 @@ public class PostController {
      */
     @PostMapping("/update")
     @Check(checkAuth = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "更新帖子（仅管理员）", notes = "更新帖子（仅管理员）")
+    @ApiOperation(value = "更新帖子（仅管理员）")
     public ApiResponse<Boolean> updatePost(@RequestBody PostUpdateRequest postUpdateRequest) {
         if (postUpdateRequest == null || postUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -135,7 +134,7 @@ public class PostController {
      */
     @PostMapping("/edit")
     @Check(checkAuth = UserConstant.USER_ROLE, checkParam = true)
-    @ApiOperation(value = "编辑帖子", notes = "编辑帖子")
+    @ApiOperation(value = "编辑帖子")
     public ApiResponse<Boolean> editPost(@RequestBody PostEditRequest postEditRequest, HttpServletRequest request) {
 
         if (postEditRequest == null || postEditRequest.getId() <= 0) {
@@ -163,7 +162,7 @@ public class PostController {
      */
     @GetMapping("/get/vo")
     @Check(checkParam = true)
-    @ApiOperation(value = "根据 id 获取", notes = "根据 id 获取")
+    @ApiOperation(value = "根据 id 获取")
     public ApiResponse<PostVO> getPostVOById(IdRequest idRequest, HttpServletRequest request) {
         if (idRequest == null || idRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -188,7 +187,7 @@ public class PostController {
      */
     @PostMapping("/list/page")
     @Check(checkAuth = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "分页获取列表（仅管理员）", notes = "分页获取列表（仅管理员）")
+    @ApiOperation(value = "分页获取列表（仅管理员）")
     public ApiResponse<Page<Post>> listPostByPage(@RequestBody PostQueryRequest postQueryRequest) {
         long current = postQueryRequest.getCurrent();
         long size = postQueryRequest.getPageSize();
@@ -205,7 +204,7 @@ public class PostController {
      * @return {@code ApiResponse<Page<PostVO>>}
      */
     @PostMapping("/list/page/vo")
-    @ApiOperation(value = "分页获取列表（封装类）", notes = "分页获取列表（封装类）")
+    @ApiOperation(value = "分页获取列表（封装类）")
     public ApiResponse<Page<PostVO>> listPostVOByPage(@RequestBody PostQueryRequest postQueryRequest,
                                                       HttpServletRequest request) {
         return ApiResult.success(handlePaginationAndValidation(postQueryRequest, request));
@@ -219,7 +218,7 @@ public class PostController {
      * @return {@code ApiResponse<Page<PostVO>>}
      */
     @PostMapping("/my/list/page/vo")
-    @ApiOperation(value = "分页获取用户创建的帖子", notes = "分页获取用户创建的帖子")
+    @ApiOperation(value = "分页获取用户创建的帖子")
     public ApiResponse<Page<PostVO>> listMyPostVOByPage(@RequestBody PostQueryRequest postQueryRequest,
                                                         HttpServletRequest request) {
         if (postQueryRequest == null) {
@@ -254,7 +253,7 @@ public class PostController {
      * @return {@code ApiResponse<Page<PostVO>>}
      */
     @PostMapping("/search/page/vo")
-    @ApiOperation(value = "分页搜索帖子", notes = "分页搜索帖子")
+    @ApiOperation(value = "分页搜索帖子")
     public ApiResponse<Page<PostVO>> searchPostVOByPage(@RequestBody PostQueryRequest postQueryRequest,
                                                         HttpServletRequest request) {
         long size = postQueryRequest.getPageSize();

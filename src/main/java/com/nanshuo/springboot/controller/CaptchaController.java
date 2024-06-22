@@ -12,7 +12,6 @@ import com.nanshuo.springboot.utils.JsonUtils;
 import com.nanshuo.springboot.utils.captcha.EmailCaptchaUtils;
 import com.nanshuo.springboot.utils.captcha.ImageCaptchaUtils;
 import com.nanshuo.springboot.utils.redis.RedisUtils;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2024/01/05 15:29:46
  */
 @Slf4j
-@Api(tags = "验证码模块")
+//@Api(tags = "验证码模块")
 @RestController
 @RequestMapping("/captcha")
 public class CaptchaController {
@@ -49,7 +48,7 @@ public class CaptchaController {
      * @return {@code ApiResponse<String>}
      */
     @PostMapping("/sendEmailCaptcha")
-    @ApiOperation(value = "发送电子邮件验证码", notes = "发送电子邮件验证码")
+    @ApiOperation(value = "发送电子邮件验证码")
     public ApiResponse<String> sendEmailCaptcha(
             @ApiParam(value = "目标电子邮件", required = true)
             @RequestBody @CheckParam(required = NumberConstant.TRUE_ONE_VALUE, alias = "邮箱",
@@ -83,7 +82,7 @@ public class CaptchaController {
      * @return {@code ApiResponse<String>}
      */
     @GetMapping("/getImageCaptcha")
-    @ApiOperation(value = "获取图片验证码", notes = "获取图片验证码")
+    @ApiOperation(value = "获取图片验证码")
     public ApiResponse<Map<String, String>> getImageCaptcha() {
         try {
             ImageCaptchaUtils imageCaptchaUtils = new ImageCaptchaUtils();
