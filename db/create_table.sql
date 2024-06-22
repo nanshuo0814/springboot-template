@@ -1,12 +1,12 @@
 # 数据库初始化
 
 -- 创建库
-CREATE DATABASE IF NOT EXISTS `springboot_template`
+CREATE DATABASE IF NOT EXISTS `project_db`
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 
--- 切换库
-USE `springboot_template`;
+-- 使用换库
+USE `project_db`;
 
 -- 用户表
 CREATE TABLE IF NOT EXISTS `user`
