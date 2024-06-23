@@ -95,7 +95,8 @@ public class CaptchaController {
             byte[] imageBytes = byteArrayOutputStream.toByteArray();
 
             // 使用 Base64 类将字节数组编码为 Base64 字符串
-            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+            String image = Base64.getEncoder().encodeToString(imageBytes);
+            String base64Image = "data:image/png;base64," + image;
 
             // 获取验证码
             String captcha = imageCaptchaUtils.getCaptcha();
