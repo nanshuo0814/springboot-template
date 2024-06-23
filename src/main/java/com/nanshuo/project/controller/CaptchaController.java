@@ -54,9 +54,6 @@ public class CaptchaController {
             @RequestBody @CheckParam(required = NumberConstant.TRUE_ONE_VALUE, alias = "邮箱",
                     regex = UserRegexEnums.EMAIL) String targetEmail) {
 
-        // 将 JSON 数据解析为字符串（String）
-        targetEmail = JsonUtils.jsonToObj(targetEmail, String.class);
-
         String key = RedisKeyConstant.EMAIL_CAPTCHA_KEY + targetEmail;
         // 查看redis是否有缓存验证码
         String captcha = (String) redisUtils.get(key);
