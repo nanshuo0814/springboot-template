@@ -32,7 +32,7 @@ public class UserLoginRequest implements Serializable {
      * 用户密码
      */
     @ApiModelProperty(value = "密码", required = true)
-    @CheckParam(alias = "密码", minLength = 6, maxLength = 18,regex = UserRegexEnums.PASSWORD)
+    @CheckParam(alias = "密码", minLength = 6, maxLength = 16,regex = UserRegexEnums.PASSWORD)
     private String userPassword;
 
     /**

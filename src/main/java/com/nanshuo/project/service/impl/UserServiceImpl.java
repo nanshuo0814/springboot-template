@@ -94,7 +94,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 只有图片验证码和它的key不为空且开启了图片验证码功能
-        if (imageCaptcha != null && captchaKey != null && captchaConfig.isImageEnabled()) {
+        if (captchaConfig.isRegisterImageEnabled()) {
             // 校验图片验证码
             validateImageCaptcha(imageCaptcha, captchaKey);
         }
@@ -158,7 +158,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String captchaKey = userLoginRequest.getCaptchaKey();
 
         // 只有图片验证码和它的key不为空且开启了图片验证码功能
-        if (imageCaptcha != null && captchaKey != null && captchaConfig.isImageEnabled()) {
+        if (captchaConfig.isLoginImageEnabled()) {
             // 校验图片验证码
             validateImageCaptcha(imageCaptcha, captchaKey);
         }

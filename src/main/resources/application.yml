@@ -136,7 +136,8 @@ knife4j:
 # todo 全局验证码开关，只包括有登录图片验证码、注册的图片、邮箱验证码，默认关闭
 captcha:
   email-enabled: false # 邮箱验证码
-  image-enabled: false # 图片验证码
+  login-image-enabled: true # 登录图片验证码
+  register-image-enabled: true # 注册图片验证码
 
 # todo 邮箱配置,根据自己的邮箱需求配置
 email:

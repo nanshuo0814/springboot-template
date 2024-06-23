@@ -23,8 +23,14 @@ public class CaptchaConfig {
     private boolean emailEnabled;
 
     /**
-     * 图片验证码是否开启
+     * 登录图片验证码是否开启
      */
-    private boolean imageEnabled;
+    private boolean loginImageEnabled;
+
+
+    /**
+     * 注册图片验证码是否开启
+     */
+    private boolean registerImageEnabled;
 
 }
