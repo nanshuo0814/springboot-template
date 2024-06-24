@@ -101,11 +101,11 @@ public class EmailCaptchaUtils {
     /**
      * 获取电子邮件验证码
      *
-     * @param targetEmail 目标用户邮箱
+     * @param email 目标用户邮箱
      * @param captcha     发送的验证码
      * @return {@code String}
      */
-    public static String getEmailCaptcha(String targetEmail, String captcha) {
+    public static String getEmailCaptcha(String email, String captcha) {
         try {
             // 创建邮箱对象
             SimpleEmail mail = new SimpleEmail();
@@ -122,7 +122,7 @@ public class EmailCaptchaUtils {
             System.setProperty("mail.smtp.ssl.enable", "true");
             System.setProperty("mail.smtp.ssl.protocols", "TLSv1.2");
             // 接收用户的邮箱
-            mail.addTo(targetEmail);
+            mail.addTo(email);
             // 邮件的主题(标题)
             mail.setSubject(mailTitle);
             // 邮件的内容

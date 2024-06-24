@@ -14,6 +14,7 @@ import com.nanshuo.project.mapper.UserMapper;
 import com.nanshuo.project.model.domain.User;
 import com.nanshuo.project.model.dto.user.*;
 import com.nanshuo.project.model.enums.sort.UserSortFieldEnums;
+import com.nanshuo.project.model.enums.user.UserEmailCaptchaTypeEnums;
 import com.nanshuo.project.model.enums.user.UserRoleEnums;
 import com.nanshuo.project.model.vo.user.UserLoginVO;
 import com.nanshuo.project.model.vo.user.UserSafetyVO;
@@ -72,7 +73,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String email = userRegisterRequest.getEmail();
         String emailCaptcha = userRegisterRequest.getEmailCaptcha();
         String imageCaptcha = userRegisterRequest.getImageCaptcha();
-        String captchaKey = userRegisterRequest.getCaptchaKey();
+        String imageCaptchaKey = userRegisterRequest.getImageCaptchaKey();
 
         // 确认密码校验
         if (checkPassword != null && !checkPassword.equals(userPassword)) {
@@ -82,7 +83,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 只有邮箱验证码和它的key不为空且开启了邮箱验证码功能
         if (email != null && emailCaptcha != null && captchaConfig.isEmailEnabled()) {
             // 校验邮箱验证码,在邮箱不为null的情况下校验
-            validateEmailCode(email, emailCaptcha);
+            validateEmailCode(email, emailCaptcha, UserEmailCaptchaTypeEnums.register.getValue());
         }
 
         // 邮箱校验
@@ -96,7 +97,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 只有图片验证码和它的key不为空且开启了图片验证码功能
         if (captchaConfig.isRegisterImageEnabled()) {
             // 校验图片验证码
-            validateImageCaptcha(imageCaptcha, captchaKey);
+            validateImageCaptcha(imageCaptcha, imageCaptchaKey);
         }
 
         synchronized (userAccount.intern()) {
@@ -312,10 +313,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @param email        电子邮件
      * @param emailCaptcha 电子邮件验证码
      */
-    private void validateEmailCode(String email, String emailCaptcha) {
-        Object trueEmailCaptcha = redisUtils.get(RedisKeyConstant.EMAIL_CAPTCHA_KEY + email);
+    private void validateEmailCode(String email, String emailCaptcha, String emailCaptchaType) {
+        // 默认是注册邮箱验证码
+        String emailCaptchaKey = UserEmailCaptchaTypeEnums.register.getValue();
+        if (emailCaptchaType.equals(UserEmailCaptchaTypeEnums.reset.getValue())) {
+            // 重置密码的邮箱验证码
+            emailCaptchaKey = UserEmailCaptchaTypeEnums.reset.getValue();
+        }
+        Object trueEmailCaptcha = redisUtils.get(RedisKeyConstant.EMAIL_CAPTCHA_KEY + emailCaptchaKey + ":" + email);
         if (ObjectUtils.isEmpty(trueEmailCaptcha)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码已过期,请重新获取");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码已过期或邮箱填写有误");
         }
         if (!emailCaptcha.equals(trueEmailCaptcha.toString())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码错误");
@@ -357,7 +364,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱不匹配当前用户,请输入当前用户的邮箱");
         }
         // 验证邮箱验证码，这里就一定要验证邮箱了
-        validateEmailCode(email, emailCaptcha);
+        validateEmailCode(email, emailCaptcha, UserEmailCaptchaTypeEnums.reset.getValue());
         // 修改密码
         synchronized (userAccount.intern()) {
             // 加密密码

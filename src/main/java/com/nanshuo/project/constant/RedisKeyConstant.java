@@ -11,7 +11,7 @@ public interface RedisKeyConstant {
     /**
      * 邮箱验证码key
      */
-    String EMAIL_CAPTCHA_KEY = "email_captcha:";
+    String EMAIL_CAPTCHA_KEY = "email_captcha_";
 
     /**
      * 图片验证码key

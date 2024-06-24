@@ -136,14 +136,14 @@ knife4j:
 # todo 全局验证码开关，只包括有登录图片验证码、注册的图片、邮箱验证码，默认关闭
 captcha:
   email-enabled: false # 邮箱验证码
-  login-image-enabled: true # 登录图片验证码
-  register-image-enabled: true # 注册图片验证码
+  login-image-enabled: false # 登录图片验证码
+  register-image-enabled: false # 注册图片验证码
 
 # todo 邮箱配置,根据自己的邮箱需求配置
 email:
   hostName: smtp.qq.com # 邮箱域名
-  emailAddress: xxxx@qq.com # 邮箱地址
-  password: xxxxx # 邮箱密码
+  emailAddress: xxx@qq.com # 邮箱地址
+  password: xxx # 邮箱密码
   senderName: springboot-template # 发件人昵称
   sslSmtpPort: 465 # 邮箱端口
   mailTitle: 邮箱验证码 # 邮件标题

@@ -1,5 +1,6 @@
 package com.nanshuo.project.controller;
 
+import com.nanshuo.project.annotation.Check;
 import com.nanshuo.project.annotation.CheckParam;
 import com.nanshuo.project.common.ApiResponse;
 import com.nanshuo.project.common.ApiResult;
@@ -7,6 +8,8 @@ import com.nanshuo.project.common.ErrorCode;
 import com.nanshuo.project.constant.NumberConstant;
 import com.nanshuo.project.constant.RedisKeyConstant;
 import com.nanshuo.project.constant.UserConstant;
+import com.nanshuo.project.exception.BusinessException;
+import com.nanshuo.project.model.enums.user.UserEmailCaptchaTypeEnums;
 import com.nanshuo.project.model.enums.user.UserRegexEnums;
 import com.nanshuo.project.utils.JsonUtils;
 import com.nanshuo.project.utils.captcha.EmailCaptchaUtils;
@@ -44,17 +47,27 @@ public class CaptchaController {
     /**
      * 发送电子邮件验证码
      *
-     * @param targetEmail 目标电子邮件
+     * @param email 目标电子邮件
      * @return {@code ApiResponse<String>}
      */
     @PostMapping("/sendEmailCaptcha")
     @ApiOperation(value = "发送电子邮件验证码")
+    @Check(checkParam = true)
     public ApiResponse<String> sendEmailCaptcha(
+            @RequestParam
             @ApiParam(value = "目标电子邮件", required = true)
-            @RequestBody @CheckParam(required = NumberConstant.TRUE_ONE_VALUE, alias = "邮箱",
-                    regex = UserRegexEnums.EMAIL) String targetEmail) {
-
-        String key = RedisKeyConstant.EMAIL_CAPTCHA_KEY + targetEmail;
+            @CheckParam(required = NumberConstant.TRUE_ONE_VALUE, alias = "邮箱",
+                    regex = UserRegexEnums.EMAIL) String email,
+            @RequestParam
+            @ApiParam(value = "邮箱类型", required = true)
+            @CheckParam(required = NumberConstant.TRUE_ONE_VALUE, alias = "邮箱类型") String emailCaptchaType) {
+        // 获取邮箱类型枚举
+        UserEmailCaptchaTypeEnums emailCaptchaTypeEnum = UserEmailCaptchaTypeEnums.getEnumByValue(emailCaptchaType);
+        if (emailCaptchaTypeEnum == null) {
+            log.error("邮箱类型错误:{}", emailCaptchaType);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱类型错误");
+        }
+        String key = RedisKeyConstant.EMAIL_CAPTCHA_KEY + emailCaptchaTypeEnum + ":" + email;
         // 查看redis是否有缓存验证码
         String captcha = (String) redisUtils.get(key);
         String result = "请勿重复发送验证码";
@@ -63,12 +76,12 @@ public class CaptchaController {
             // 随机生成六位数验证码
             captcha = String.valueOf(new Random().nextInt(900000) + 100000);
             // 发送邮件
-            result = EmailCaptchaUtils.getEmailCaptcha(targetEmail, captcha);
+            result = EmailCaptchaUtils.getEmailCaptcha(email, captcha);
             // 存入redis中
             captcha = JsonUtils.objToJson(captcha);
             redisUtils.set(key, captcha, EmailCaptchaUtils.expireTime, TimeUnit.MINUTES);
         }
-        log.info("{}的邮箱验证码为：{}", targetEmail, captcha);
+        log.info("{}的邮箱验证码为：{}", email, captcha);
         // 返回结果
         return ApiResult.success(result);
     }
