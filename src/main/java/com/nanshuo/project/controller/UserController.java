@@ -135,6 +135,13 @@ public class UserController {
         return ApiResult.success(userService.userPasswordResetByEmail(request, userPasswordResetRequest));
     }
 
+    @PostMapping("/by-email/reset-pwd")
+    @ApiOperation(value = "用户通过邮箱验证码重置密码")
+    @Check(checkParam = true)
+    public ApiResponse<String> userResetPwdByEmail(@RequestBody UserResetPwdRequest userResetPwdRequest) {
+        return ApiResult.success(userService.userResetPwdByEmail(userResetPwdRequest));
+    }
+
     /**
      * 用户自己修改密码(user)
      *
@@ -156,8 +163,8 @@ public class UserController {
      * @return {@code ApiResponse<Boolean>}
      */
     @PostMapping("/pwd/reset")
-    @Check(checkAuth = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "重置用户密码")
+    @Check(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
+    @ApiOperation(value = "重置用户密码(管理员)")
     public ApiResponse<Boolean> userPasswordResetByAdmin(@RequestBody IdRequest idRequest) {
         return ApiResult.success(userService.userPasswordResetByAdmin(idRequest.getId()));
     }
@@ -215,6 +222,7 @@ public class UserController {
      */
     @GetMapping("/get")
     @ApiOperation(value = "按id获取用户")
+    @Check(checkAuth = UserConstant.ADMIN_ROLE)
     public ApiResponse<User> getUserById(IdRequest idRequest) {
         User user = userService.getById(idRequest.getId());
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");

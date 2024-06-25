@@ -19,6 +19,53 @@ public class ApiResult {
     }
 
     /**
+     * 成功
+     *
+     * @param data    数据
+     * @param message 信息
+     * @return {@link ApiResponse }<{@link T }>
+     */
+    public static <T> ApiResponse<T> success(T data, String message) {
+        return new ApiResponse<>(ErrorCode.SUCCESS.getCode(), data, message);
+    }
+
+    /**
+     * 成功
+     *
+     * @param code    代码
+     * @param message 信息
+     * @return {@link ApiResponse }<{@link T }>
+     */
+    public static <T> ApiResponse<T> success(int code, String message) {
+        return new ApiResponse<>(code, null, message);
+    }
+
+
+    /**
+     * 成功
+     *
+     * @param code 代码
+     * @param data 数据
+     * @return {@link ApiResponse }<{@link T }>
+     */
+    public static <T> ApiResponse<T> success(int code, T data) {
+        return new ApiResponse<>(code, data, "操作成功");
+    }
+
+    /**
+     * 成功
+     *
+     * @param code    代码
+     * @param data
+     * @param message 信息
+     * @return {@link ApiResponse }<{@link T }>
+     */
+    public static <T> ApiResponse<T> success(int code, T data, String message) {
+        return new ApiResponse<>(code, data, message);
+    }
+
+
+    /**
      * 失败
      *
      * @param errorCode 错误代码

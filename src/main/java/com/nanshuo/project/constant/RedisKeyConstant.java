@@ -14,6 +14,11 @@ public interface RedisKeyConstant {
     String EMAIL_CAPTCHA_KEY = "email_captcha_";
 
     /**
+     * 用于邮箱重置密码的验证码凭证
+     */
+    String VOUCHER = "voucher:";
+
+    /**
      * 图片验证码key
      */
     String IMAGE_CAPTCHA_KEY = "image_captcha:";

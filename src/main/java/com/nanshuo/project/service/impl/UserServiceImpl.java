@@ -80,17 +80,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
         }
 
-        // 只有邮箱验证码和它的key不为空且开启了邮箱验证码功能
-        if (email != null && emailCaptcha != null && captchaConfig.isEmailEnabled()) {
+        // 开启了邮箱验证码功能
+        if (captchaConfig.isEmailEnabled()) {
             // 校验邮箱验证码,在邮箱不为null的情况下校验
-            validateEmailCode(email, emailCaptcha, UserEmailCaptchaTypeEnums.register.getValue());
+            boolean flag = validateEmailCode(email, emailCaptcha, UserEmailCaptchaTypeEnums.register.getValue());
+            if (!flag) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码错误");
+            }
         }
 
         // 邮箱校验
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUserEmail, email);
-        long count = this.baseMapper.selectCount(queryWrapper);
-        if (count > 0) {
+        boolean flag = validateEmail(email);
+        if (flag) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "该邮箱已被注册,请重新输入一个");
         }
 
@@ -124,6 +125,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
             return user.getId();
         }
+    }
+
+    /**
+     * 验证邮箱是否存在
+     */
+    @Override
+    public boolean validateEmail(String email) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUserEmail, email);
+        long count = this.baseMapper.selectCount(queryWrapper);
+        return count > 0;
     }
 
     /**
@@ -310,10 +322,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 验证电子邮件代码
      *
-     * @param email        电子邮件
-     * @param emailCaptcha 电子邮件验证码
+     * @param email            电子邮件
+     * @param emailCaptcha     电子邮件验证码
+     * @param emailCaptchaType 电子邮件验证码类型
+     * @return boolean
      */
-    private void validateEmailCode(String email, String emailCaptcha, String emailCaptchaType) {
+    @Override
+    public boolean validateEmailCode(String email, String emailCaptcha, String emailCaptchaType) {
         // 默认是注册邮箱验证码
         String emailCaptchaKey = UserEmailCaptchaTypeEnums.register.getValue();
         if (emailCaptchaType.equals(UserEmailCaptchaTypeEnums.reset.getValue())) {
@@ -322,11 +337,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         Object trueEmailCaptcha = redisUtils.get(RedisKeyConstant.EMAIL_CAPTCHA_KEY + emailCaptchaKey + ":" + email);
         if (ObjectUtils.isEmpty(trueEmailCaptcha)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码已过期或邮箱填写有误");
+            log.info("邮箱验证码已过期或邮箱填写有误");
+            return false;
         }
         if (!emailCaptcha.equals(trueEmailCaptcha.toString())) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码错误");
+            log.info("邮箱验证码错误");
+            return false;
         }
+        return true;
     }
 
     /**
@@ -364,7 +382,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱不匹配当前用户,请输入当前用户的邮箱");
         }
         // 验证邮箱验证码，这里就一定要验证邮箱了
-        validateEmailCode(email, emailCaptcha, UserEmailCaptchaTypeEnums.reset.getValue());
+        boolean flag = validateEmailCode(email, emailCaptcha, UserEmailCaptchaTypeEnums.reset.getValue());
+        if (!flag) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱验证码错误");
+        }
         // 修改密码
         synchronized (userAccount.intern()) {
             // 加密密码
@@ -376,6 +397,51 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
+     * 用户通过电子邮件重置pwd
+     *
+     * @param userResetPwdRequest 用户重置pwd请求
+     * @return {@link String }
+     */
+    @Override
+    public String userResetPwdByEmail(UserResetPwdRequest userResetPwdRequest) {
+        String newPassword = userResetPwdRequest.getNewPassword();
+        String confirmPassword = userResetPwdRequest.getConfirmPassword();
+        String voucher = userResetPwdRequest.getVoucher();
+        String email = userResetPwdRequest.getEmail();
+        // 校验两次密码是否一致
+        if (!newPassword.equals(confirmPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
+        }
+        // 校验邮箱是否存在
+        boolean flag = validateEmail(email);
+        if (!flag) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "该邮箱未注册，请先注册账号");
+        }
+        //校验凭证
+        String captchaKey = RedisKeyConstant.EMAIL_CAPTCHA_KEY + UserEmailCaptchaTypeEnums.reset.getValue();
+        String resetKey = captchaKey + "_" + RedisKeyConstant.VOUCHER;
+        String tureVoucher = (String) redisUtils.get(resetKey);
+        if (ObjectUtils.isEmpty(tureVoucher)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "凭证已过期,请重新获取邮箱验证码");
+        }
+        if (!voucher.equals(tureVoucher)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "凭证错误,尝试重新获取邮箱验证码");
+        }
+        // 更新数据库By Email
+        LambdaQueryWrapper<User> qw = new LambdaQueryWrapper<>();
+        qw.eq(User::getUserEmail, email);
+        User user = this.baseMapper.selectOne(qw);
+        user.setUserPassword(DigestUtils.md5DigestAsHex((UserConstant.SALT + newPassword).getBytes()));
+        int result = this.baseMapper.update(user, qw);
+        if (result < 1) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "重置密码失败");
+        }
+        // 删除凭证
+        redisUtils.del(resetKey);
+        return "重置密码成功";
+    }
+
+    /**
      * 添加用户
      *
      * @param userAddRequest 用户添加Request
@@ -383,35 +449,44 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public Long addUser(UserAddRequest userAddRequest) {
+        String userName = userAddRequest.getUserName();
+        String userAccount = userAddRequest.getUserAccount();
+        String userPassword = userAddRequest.getUserPassword();
+        String userEmail = userAddRequest.getUserEmail();
+        String userProfile = userAddRequest.getUserProfile();
+        Integer userGender = userAddRequest.getUserGender();
+        String userAvatar = userAddRequest.getUserAvatar();
+        String userRole = userAddRequest.getUserRole();
+
         // 判断参数（不是必须的）,设置默认值
-        if (StringUtils.isEmpty(userAddRequest.getUserName())) {
+        if (StringUtils.isEmpty(userName)) {
             // 设置默认的用户名（UserConstant.DEFAULT_USER_NAME+当时的时间戳）
             userAddRequest.setUserName(UserConstant.DEFAULT_USER_NAME + System.currentTimeMillis());
         }
-        if (StringUtils.isEmpty(userAddRequest.getUserPassword())) {
+        if (StringUtils.isEmpty(userPassword)) {
             // 设置默认的密码（UserConstant.DEFAULT_USER_PASSWORD）
             userAddRequest.setUserPassword(UserConstant.DEFAULT_USER_PASSWORD);
         }
-        if (StringUtils.isEmpty(userAddRequest.getUserProfile())) {
+        if (StringUtils.isEmpty(userProfile)) {
             // 设置默认的简介（UserConstant.DEFAULT_USER_PROFILE）
             userAddRequest.setUserProfile(UserConstant.DEFAULT_USER_PROFILE);
         }
-        if (StringUtils.isEmpty(userAddRequest.getUserAvatar())) {
+        if (StringUtils.isEmpty(userAvatar)) {
             // 设置默认的头像（UserConstant.DEFAULT_USER_AVATAR）
             userAddRequest.setUserAvatar(UserConstant.DEFAULT_USER_AVATAR);
         }
-        if (StringUtils.isEmpty(userAddRequest.getUserRole())) {
+        if (StringUtils.isEmpty(userRole)) {
             // 设置默认的角色（UserConstant.DEFAULT_ROLE）
             userAddRequest.setUserRole(UserConstant.USER_ROLE);
         }
-        if (userAddRequest.getUserGender() == null || userAddRequest.getUserGender() < 0 || userAddRequest.getUserGender() > 2) {
+        if (userGender == null || userGender < 0 || userGender > 2) {
             // 设置默认的性别（UserConstant.DEFAULT_USER_GENDER）
             userAddRequest.setUserGender(UserConstant.DEFAULT_USER_GENDER);
         }
 
         // 校验用户账号是否存在
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUserAccount, userAddRequest.getUserAccount());
+        queryWrapper.eq(User::getUserAccount, userAccount);
         User user = this.baseMapper.selectOne(queryWrapper);
         if (user != null) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "用户账号已存在,请换一个");
@@ -419,10 +494,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 校验用户邮箱是否存在
         if (!StringUtils.isEmpty(userAddRequest.getUserEmail())) {
-            queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(User::getUserEmail, userAddRequest.getUserEmail());
-            user = this.baseMapper.selectOne(queryWrapper);
-            if (user != null) {
+            boolean flag = validateEmail(userEmail);
+            if (flag) {
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "用户邮箱已存在,请换一个");
             }
         }

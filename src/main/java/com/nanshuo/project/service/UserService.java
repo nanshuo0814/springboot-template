@@ -38,6 +38,24 @@ public interface UserService extends IService<User> {
     UserLoginVO userLogin(HttpServletRequest request, UserLoginRequest userLoginRequest);
 
     /**
+     * 验证电子邮件
+     *
+     * @param email 电子邮件
+     * @return boolean
+     */
+    boolean validateEmail(String email);
+
+    /**
+     * 验证电子邮件代码
+     *
+     * @param email            电子邮件
+     * @param emailCaptcha     电子邮件验证码
+     * @param emailCaptchaType 电子邮件验证码类型
+     * @return boolean
+     */
+    boolean validateEmailCode(String email, String emailCaptcha, String emailCaptchaType);
+
+    /**
      * 获取登录用户
      *
      * @param request 请求
@@ -79,6 +97,7 @@ public interface UserService extends IService<User> {
     /**
      * 用户密码重置(通过邮箱重置)
      *
+     * @param request                  请求
      * @param userPasswordResetRequest 用户密码重置Request
      * @return {@code Boolean}
      */
@@ -168,4 +187,11 @@ public interface UserService extends IService<User> {
      */
     UserLoginVO userLoginByMpOpen(WxOAuth2UserInfo wxOAuth2UserInfo, HttpServletRequest request);
 
+    /**
+     * 用户通过电子邮件重置pwd
+     *
+     * @param userResetPwdRequest 用户重置pwd请求
+     * @return {@link Boolean }
+     */
+    String userResetPwdByEmail(UserResetPwdRequest userResetPwdRequest);
 }

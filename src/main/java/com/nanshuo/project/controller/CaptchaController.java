@@ -5,12 +5,12 @@ import com.nanshuo.project.annotation.CheckParam;
 import com.nanshuo.project.common.ApiResponse;
 import com.nanshuo.project.common.ApiResult;
 import com.nanshuo.project.common.ErrorCode;
-import com.nanshuo.project.constant.NumberConstant;
 import com.nanshuo.project.constant.RedisKeyConstant;
 import com.nanshuo.project.constant.UserConstant;
 import com.nanshuo.project.exception.BusinessException;
 import com.nanshuo.project.model.enums.user.UserEmailCaptchaTypeEnums;
 import com.nanshuo.project.model.enums.user.UserRegexEnums;
+import com.nanshuo.project.service.UserService;
 import com.nanshuo.project.utils.JsonUtils;
 import com.nanshuo.project.utils.captcha.EmailCaptchaUtils;
 import com.nanshuo.project.utils.captcha.ImageCaptchaUtils;
@@ -43,6 +43,8 @@ public class CaptchaController {
 
     @Resource
     private RedisUtils redisUtils;
+    @Resource
+    private UserService userService;
 
     /**
      * 发送电子邮件验证码
@@ -53,24 +55,25 @@ public class CaptchaController {
     @PostMapping("/sendEmailCaptcha")
     @ApiOperation(value = "发送电子邮件验证码")
     @Check(checkParam = true)
-    public ApiResponse<String> sendEmailCaptcha(
-            @RequestParam
-            @ApiParam(value = "目标电子邮件", required = true)
-            @CheckParam(required = NumberConstant.TRUE_ONE_VALUE, alias = "邮箱",
-                    regex = UserRegexEnums.EMAIL) String email,
-            @RequestParam
-            @ApiParam(value = "邮箱类型", required = true)
-            @CheckParam(required = NumberConstant.TRUE_ONE_VALUE, alias = "邮箱类型") String emailCaptchaType) {
+    public ApiResponse<String> sendEmailCaptcha(@RequestParam @ApiParam(value = "目标电子邮件", required = true) @CheckParam(alias = "邮箱", regex = UserRegexEnums.EMAIL) String email, @RequestParam @ApiParam(value = "邮箱类型", required = true) @CheckParam(alias = "邮箱类型") String emailCaptchaType) {
         // 获取邮箱类型枚举
         UserEmailCaptchaTypeEnums emailCaptchaTypeEnum = UserEmailCaptchaTypeEnums.getEnumByValue(emailCaptchaType);
         if (emailCaptchaTypeEnum == null) {
             log.error("邮箱类型错误:{}", emailCaptchaType);
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱类型错误");
         }
-        String key = RedisKeyConstant.EMAIL_CAPTCHA_KEY + emailCaptchaTypeEnum + ":" + email;
+        // 判断一下如果是重置密码的邮箱，则判断是否是注册邮箱
+        if (emailCaptchaTypeEnum.getValue().equals(UserEmailCaptchaTypeEnums.reset.getValue())) {
+            boolean flag = userService.validateEmail(email);
+            if (!flag) {
+                log.error("该邮箱未注册:{}", email);
+                throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "该邮箱未注册");
+            }
+        }
+        String key = RedisKeyConstant.EMAIL_CAPTCHA_KEY + emailCaptchaTypeEnum.getValue() + ":" + email;
         // 查看redis是否有缓存验证码
         String captcha = (String) redisUtils.get(key);
-        String result = "请勿重复发送验证码";
+        String result = "请勿重复发送验证码，请使用之前发送的验证码";
         // 如果没有缓存验证码
         if (captcha == null) {
             // 随机生成六位数验证码
@@ -85,6 +88,33 @@ public class CaptchaController {
         // 返回结果
         return ApiResult.success(result);
     }
+
+    /**
+     * 验证邮箱验证码
+     *
+     * @param email            电子邮件
+     * @param emailCaptchaType 电子邮件验证码类型
+     * @param captcha          验证码
+     * @return {@link ApiResponse }<{@link Boolean }>
+     */
+    @PostMapping("/checkEmailCaptcha")
+    @ApiOperation(value = "验证邮箱验证码")
+    @Check(checkParam = true)
+    public ApiResponse<String> checkEmailCaptcha(@RequestParam @ApiParam(value = "目标电子邮件", required = true) @CheckParam(alias = "邮箱", regex = UserRegexEnums.EMAIL) String email, @RequestParam @ApiParam(value = "邮箱类型", required = true) @CheckParam(alias = "邮箱类型") String emailCaptchaType, @RequestParam @ApiParam(value = "验证码", required = true) @CheckParam(alias = "验证码") String captcha) {
+        boolean flag = userService.validateEmailCode(email, captcha, emailCaptchaType);
+        if (!flag) {
+            log.error("验证码错误:{}", captcha);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码错误");
+        }
+        // 生成唯一值（凭证）
+        String captchaKey = RedisKeyConstant.EMAIL_CAPTCHA_KEY + emailCaptchaType;
+        String resetKey = captchaKey + "_" + RedisKeyConstant.VOUCHER;
+        String value = String.valueOf(redisUtils.globalUniqueKey(captchaKey));
+        // 缓存5分钟
+        redisUtils.set(resetKey, value, 3, TimeUnit.MINUTES);
+        return ApiResult.success(value);
+    }
+
 
     /**
      * 获取图像验证码
