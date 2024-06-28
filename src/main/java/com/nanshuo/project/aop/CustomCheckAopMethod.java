@@ -44,91 +44,6 @@ public class CustomCheckAopMethod {
     private UserService userService;
 
     /**
-     * 拦截器方法，用于执行参数和身份验证检查。
-     *
-     * @param joinPoint 被拦截方法的信息。
-     * @throws BusinessException 如果验证失败，抛出 BusinessException 异常。
-     */
-    public void interceptor(JoinPoint joinPoint) throws BusinessException {
-        try {
-            // 方法的目标对象
-            Object[] arguments = joinPoint.getArgs();
-            // 被拦截方法的名称
-            // 获取方法签名
-            MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
-            // 获取目标类的方法
-            Method method = methodSignature.getMethod();
-            // 检查是否存在 @Check 注解并且需要进行参数验证
-            Check checkAnnotation = method.getAnnotation(Check.class);
-            // 获取身份验证角色
-            String authRole = checkAnnotation != null ? checkAnnotation.checkAuth() : "";
-            // 如果指定了身份验证角色
-            if (StringUtils.isNotBlank(authRole)) {
-                // 执行身份验证
-                checkAuth(authRole);
-            }
-            // 如果存在 @Check 注解并且需要进行参数验证，则执行参数验证
-            if (checkAnnotation != null && checkAnnotation.checkParam()) {
-                validateParams(method, arguments);
-            }
-        } catch (BusinessException e) {
-            // 处理 BusinessException，记录日志并重新抛出异常
-            handleException(joinPoint, e);
-        } catch (Exception e) {
-            // 处理一般异常，创建 SYSTEM_ERROR BusinessException 并重新抛出异常
-            handleException(joinPoint, new BusinessException(ErrorCode.SYSTEM_ERROR));
-        } catch (Throwable e) {
-            // 捕获其他 Throwable 并作为 RuntimeException 重新抛出
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * 检查权限身份
-     *
-     * @param checkAuth 身份(user/admin)
-     * @throws BusinessException 业务异常
-     */
-    private void checkAuth(String checkAuth) throws BusinessException {
-        // 获取当前请求的 HttpServletRequest
-        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-        HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
-        // 获取当前登录用户
-        User loginUser = userService.getLoginUser(request);
-        // 检查用户是否具有必要的权限
-        if (StringUtils.isNotBlank(checkAuth)) {
-            UserRoleEnums mustUserRoleEnums = UserRoleEnums.getEnumByValue(checkAuth);
-            if (mustUserRoleEnums == null) {
-                throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-            }
-            String userRole = loginUser.getUserRole();
-            // 如果用户被封号，直接拒绝
-            if (UserRoleEnums.BAN.equals(mustUserRoleEnums)) {
-                throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-            }
-            // 如果需要管理员权限，但用户不是管理员，拒绝
-            if (UserRoleEnums.ADMIN.equals(mustUserRoleEnums)) {
-                if (!checkAuth.equals(userRole)) {
-                    throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-                }
-            }
-        }
-    }
-
-    /**
-     * 处理异常的私有方法，记录异常信息并重新抛出 BusinessException。
-     *
-     * @param joinPoint 切面信息，用于获取方法签名和参数。
-     * @param e         异常对象，捕获的 BusinessException。
-     * @throws BusinessException 重新抛出异常。
-     */
-    private void handleException(JoinPoint joinPoint, BusinessException e) throws BusinessException {
-        // 记录异常信息，包括方法签名、参数和异常堆栈
-        log.error("拦截到异常 - 方法: {}, 参数: {}", joinPoint.getSignature().toShortString(), Arrays.toString(joinPoint.getArgs()), e);
-        throw e;  // 重新抛出 BusinessException
-    }
-
-    /**
      * 验证参数
      *
      * @param method    被验证的方法。
@@ -254,7 +169,7 @@ public class CustomCheckAopMethod {
                     throw new BusinessException(ErrorCode.PARAMS_LENGTH_ERROR, checkParam.alias() + "长度必须小于等于" + checkParam.maxLength());
                 }
                 // 如果设置了正则表达式，并且值不符合要求
-                if (!StringUtils.isEmpty(checkParam.regex().getRegex()) && !RegexUtils.matches(checkParam.regex(), valueString)) {
+                if (checkParam.required() != NumberConstant.FALSE_ZERO_VALUE && !StringUtils.isEmpty(checkParam.regex().getRegex()) && !RegexUtils.matches(checkParam.regex(), valueString)) {
                     throw new BusinessException(ErrorCode.PARAMS_FORMAT_ERROR, checkParam.alias() + "非法/错误");
                 }
             }
@@ -310,6 +225,91 @@ public class CustomCheckAopMethod {
             // 处理异常，记录错误日志并抛出 PARAMS_ERROR 异常
             throw new BusinessException(ErrorCode.PARAMS_ERROR, e.getMessage());
         }
+    }
+
+    /**
+     * 拦截器方法，用于执行参数和身份验证检查。
+     *
+     * @param joinPoint 被拦截方法的信息。
+     * @throws BusinessException 如果验证失败，抛出 BusinessException 异常。
+     */
+    public void interceptor(JoinPoint joinPoint) throws BusinessException {
+        try {
+            // 方法的目标对象
+            Object[] arguments = joinPoint.getArgs();
+            // 被拦截方法的名称
+            // 获取方法签名
+            MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+            // 获取目标类的方法
+            Method method = methodSignature.getMethod();
+            // 检查是否存在 @Check 注解并且需要进行参数验证
+            Check checkAnnotation = method.getAnnotation(Check.class);
+            // 获取身份验证角色
+            String authRole = checkAnnotation != null ? checkAnnotation.checkAuth() : "";
+            // 如果指定了身份验证角色
+            if (StringUtils.isNotBlank(authRole)) {
+                // 执行身份验证
+                checkAuth(authRole);
+            }
+            // 如果存在 @Check 注解并且需要进行参数验证，则执行参数验证
+            if (checkAnnotation != null && checkAnnotation.checkParam()) {
+                validateParams(method, arguments);
+            }
+        } catch (BusinessException e) {
+            // 处理 BusinessException，记录日志并重新抛出异常
+            handleException(joinPoint, e);
+        } catch (Exception e) {
+            // 处理一般异常，创建 SYSTEM_ERROR BusinessException 并重新抛出异常
+            handleException(joinPoint, new BusinessException(ErrorCode.SYSTEM_ERROR));
+        } catch (Throwable e) {
+            // 捕获其他 Throwable 并作为 RuntimeException 重新抛出
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 检查权限身份
+     *
+     * @param checkAuth 身份(user/admin)
+     * @throws BusinessException 业务异常
+     */
+    private void checkAuth(String checkAuth) throws BusinessException {
+        // 获取当前请求的 HttpServletRequest
+        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+        HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        // 检查用户是否具有必要的权限
+        if (StringUtils.isNotBlank(checkAuth)) {
+            UserRoleEnums mustUserRoleEnums = UserRoleEnums.getEnumByValue(checkAuth);
+            if (mustUserRoleEnums == null) {
+                throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+            }
+            String userRole = loginUser.getUserRole();
+            // 如果用户被封号，直接拒绝
+            if (UserRoleEnums.BAN.equals(mustUserRoleEnums)) {
+                throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+            }
+            // 如果需要管理员权限，但用户不是管理员，拒绝
+            if (UserRoleEnums.ADMIN.equals(mustUserRoleEnums)) {
+                if (!checkAuth.equals(userRole)) {
+                    throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+                }
+            }
+        }
+    }
+
+    /**
+     * 处理异常的私有方法，记录异常信息并重新抛出 BusinessException。
+     *
+     * @param joinPoint 切面信息，用于获取方法签名和参数。
+     * @param e         异常对象，捕获的 BusinessException。
+     * @throws BusinessException 重新抛出异常。
+     */
+    private void handleException(JoinPoint joinPoint, BusinessException e) throws BusinessException {
+        // 记录异常信息，包括方法签名、参数和异常堆栈
+        log.error("拦截到异常 - 方法: {}, 参数: {}", joinPoint.getSignature().toShortString(), Arrays.toString(joinPoint.getArgs()), e);
+        throw e;  // 重新抛出 BusinessException
     }
 
 }
