@@ -55,7 +55,7 @@ public class PostController {
      * @return {@code ApiResponse<Long>}
      */
     @PostMapping("/add")
-    @Check(checkParam = true, checkAuth = UserConstant.USER_ROLE)
+    @Check(checkAuth = UserConstant.USER_ROLE)
     @ApiOperation(value = "添加帖子")
     public ApiResponse<Long> addPost(@RequestBody PostAddRequest postAddRequest, HttpServletRequest request) {
         if (postAddRequest == null) {
@@ -133,7 +133,7 @@ public class PostController {
      * @return {@code ApiResponse<Boolean>}
      */
     @PostMapping("/edit")
-    @Check(checkAuth = UserConstant.USER_ROLE, checkParam = true)
+    @Check(checkAuth = UserConstant.USER_ROLE)
     @ApiOperation(value = "编辑帖子")
     public ApiResponse<Boolean> editPost(@RequestBody PostEditRequest postEditRequest, HttpServletRequest request) {
 
@@ -161,7 +161,6 @@ public class PostController {
      * @return {@code ApiResponse<PostVO>}
      */
     @GetMapping("/get/vo")
-    @Check(checkParam = true)
     @ApiOperation(value = "根据 id 获取")
     public ApiResponse<PostVO> getPostVOById(IdRequest idRequest, HttpServletRequest request) {
         if (idRequest == null || idRequest.getId() <= 0) {
