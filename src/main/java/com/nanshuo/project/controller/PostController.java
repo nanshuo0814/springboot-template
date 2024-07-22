@@ -75,7 +75,7 @@ public class PostController {
         boolean result = postService.save(post);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         long newPostId = post.getId();
-        return ApiResult.success(newPostId);
+        return ApiResult.success(newPostId,"添加成功！");
     }
 
     /**
@@ -94,7 +94,7 @@ public class PostController {
         }
         Long id = idRequest.getId();
         validateAndCheckAuthForPostOperation(request, id);
-        return ApiResult.success(postService.removeById(id));
+        return ApiResult.success(postService.removeById(id), "删除成功！");
     }
 
     /**
@@ -122,7 +122,7 @@ public class PostController {
         // 判断是否存在
         Post oldPost = postService.getById(id);
         ThrowUtils.throwIf(oldPost == null, ErrorCode.NOT_FOUND_ERROR);
-        return ApiResult.success(postService.updateById(post));
+        return ApiResult.success(postService.updateById(post),"更新成功！");
     }
 
     /**
@@ -150,7 +150,7 @@ public class PostController {
         postService.validPost(post, false);
         validateAndCheckAuthForPostOperation(request, postEditRequest.getId());
         boolean result = postService.updateById(post);
-        return ApiResult.success(result);
+        return ApiResult.success(result,"修改成功！");
     }
 
     /**

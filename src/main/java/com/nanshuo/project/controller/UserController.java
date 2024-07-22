@@ -56,7 +56,7 @@ public class UserController {
     @ApiOperation(value = "用户注册")
     @Check(checkParam = true)
     public ApiResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
-        return ApiResult.success(userService.userRegister(userRegisterRequest));
+        return ApiResult.success(userService.userRegister(userRegisterRequest),"注册成功！");
     }
 
     /**
@@ -69,7 +69,7 @@ public class UserController {
     @ApiOperation(value = "用户登录")
     @Check(checkParam = true)
     public ApiResponse<UserLoginVO> userLogin(HttpServletRequest request, @RequestBody UserLoginRequest userLoginRequest) {
-        return ApiResult.success(userService.userLogin(request, userLoginRequest));
+        return ApiResult.success(userService.userLogin(request, userLoginRequest),"登录成功！");
     }
 
     /**
@@ -89,7 +89,7 @@ public class UserController {
             if (StringUtils.isAnyBlank(unionId, mpOpenId)) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "登录失败，系统错误");
             }
-            return ApiResult.success(userService.userLoginByMpOpen(userInfo, request));
+            return ApiResult.success(userService.userLoginByMpOpen(userInfo, request),"登录成功！");
         } catch (Exception e) {
             log.error("userLoginByWxOpen error", e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "登录失败，系统错误");
@@ -119,7 +119,7 @@ public class UserController {
     @ApiOperation(value = "用户注销")
     public ApiResponse<String> userLogout(HttpServletRequest request) {
         ThrowUtils.throwIfNull(request);
-        return ApiResult.success(userService.userLogout(request));
+        return ApiResult.success(userService.userLogout(request),"退出成功！");
     }
 
     /**
@@ -132,14 +132,20 @@ public class UserController {
     @ApiOperation(value = "用户密码重置(邮箱验证码)")
     @Check(checkParam = true)
     public ApiResponse<Boolean> userPasswordResetByEmail(HttpServletRequest request, @RequestBody UserPasswordResetRequest userPasswordResetRequest) {
-        return ApiResult.success(userService.userPasswordResetByEmail(request, userPasswordResetRequest));
+        return ApiResult.success(userService.userPasswordResetByEmail(request, userPasswordResetRequest), "密码重置成功！");
     }
 
+    /**
+     * 用户通过电子邮件重置pwd（分步骤重置密码）
+     * 先验证邮箱是否存在，再进行下一步验证邮箱验证码是否正确，最后再跳到输入新密码的页面
+     * @param userResetPwdRequest 用户重置pwd请求
+     * @return {@link ApiResponse }<{@link String }>
+     */
     @PostMapping("/by-email/reset-pwd")
     @ApiOperation(value = "用户通过邮箱验证码重置密码")
     @Check(checkParam = true)
-    public ApiResponse<String> userResetPwdByEmail(@RequestBody UserResetPwdRequest userResetPwdRequest) {
-        return ApiResult.success(userService.userResetPwdByEmail(userResetPwdRequest));
+    public ApiResponse<Integer> userResetPwdByEmail(@RequestBody UserResetPwdRequest userResetPwdRequest) {
+        return ApiResult.success(userService.userResetPwdByEmail(userResetPwdRequest), "密码重置成功！");
     }
 
     /**
@@ -153,7 +159,7 @@ public class UserController {
     @ApiOperation(value = "修改用户密码")
     @Check(checkParam = true, checkAuth = UserConstant.USER_ROLE)
     public ApiResponse<Boolean> userPasswordUpdateByMyself(HttpServletRequest request, @RequestBody UserPasswordUpdateRequest userPasswordUpdateRequest) {
-        return ApiResult.success(userService.userPasswordUpdateByMyself(request, userPasswordUpdateRequest));
+        return ApiResult.success(userService.userPasswordUpdateByMyself(request, userPasswordUpdateRequest),"密码修改成功！");
     }
 
     /**
@@ -166,7 +172,7 @@ public class UserController {
     @Check(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "重置用户密码(管理员)")
     public ApiResponse<Boolean> userPasswordResetByAdmin(@RequestBody IdRequest idRequest) {
-        return ApiResult.success(userService.userPasswordResetByAdmin(idRequest.getId()));
+        return ApiResult.success(userService.userPasswordResetByAdmin(idRequest.getId()),"用户密码重置成功！");
     }
 
     // region 增删改查
@@ -181,7 +187,7 @@ public class UserController {
     @ApiOperation(value = "添加用户")
     @Check(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
     public ApiResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest) {
-        return ApiResult.success(userService.addUser(userAddRequest));
+        return ApiResult.success(userService.addUser(userAddRequest),"添加用户成功！");
     }
 
     /**
@@ -196,7 +202,7 @@ public class UserController {
     public ApiResponse<Long> deleteUser(@RequestBody IdRequest idRequest) {
         Long userId = idRequest.getId();
         ThrowUtils.throwIf(!userService.removeById(userId), ErrorCode.OPERATION_ERROR, "删除用户失败,无该用户");
-        return ApiResult.success(userId);
+        return ApiResult.success(userId,"删除用户成功！");
     }
 
     /**
@@ -211,7 +217,7 @@ public class UserController {
     public ApiResponse<Integer> updateUser(@RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
         Integer result = userService.updateUserInfo(userUpdateRequest, request);
         ThrowUtils.throwIf(result < 1, ErrorCode.OPERATION_ERROR, "修改用户信息失败");
-        return ApiResult.success(result);
+        return ApiResult.success(result,"修改用户信息成功！");
     }
 
     /**

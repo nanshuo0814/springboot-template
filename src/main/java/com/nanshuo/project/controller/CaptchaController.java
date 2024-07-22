@@ -86,7 +86,7 @@ public class CaptchaController {
         }
         log.info("{}的邮箱验证码为：{}", email, captcha);
         // 返回结果
-        return ApiResult.success(result);
+        return ApiResult.success(null, result);
     }
 
     /**

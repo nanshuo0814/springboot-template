@@ -112,8 +112,6 @@
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
         </dependency>
-
-
         <!--        邮箱验证码-->
         <dependency>
             <groupId>javax.activation</groupId>

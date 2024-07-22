@@ -193,5 +193,5 @@ public interface UserService extends IService<User> {
      * @param userResetPwdRequest 用户重置pwd请求
      * @return {@link Boolean }
      */
-    String userResetPwdByEmail(UserResetPwdRequest userResetPwdRequest);
+    int userResetPwdByEmail(UserResetPwdRequest userResetPwdRequest);
 }

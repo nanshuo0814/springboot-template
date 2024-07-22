@@ -78,7 +78,7 @@ public class FileController {
             ossManager.putObject(filepath, file);
             cosManager.putObject(filepath, file);
             // 返回可访问地址
-            return ApiResult.success(FileConstant.OSS_HOST_ADDRESS + filepath);
+            return ApiResult.success(FileConstant.OSS_HOST_ADDRESS + filepath,"文件上传成功！");
         } catch (Exception e) {
             log.error("file upload error, filepath = " + filepath, e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败,请联系管理员");

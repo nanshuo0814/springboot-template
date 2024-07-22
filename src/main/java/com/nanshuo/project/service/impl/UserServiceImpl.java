@@ -403,7 +403,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return {@link String }
      */
     @Override
-    public String userResetPwdByEmail(UserResetPwdRequest userResetPwdRequest) {
+    public int userResetPwdByEmail(UserResetPwdRequest userResetPwdRequest) {
         String newPassword = userResetPwdRequest.getNewPassword();
         String confirmPassword = userResetPwdRequest.getConfirmPassword();
         String voucher = userResetPwdRequest.getVoucher();
@@ -438,7 +438,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         // 删除凭证
         redisUtils.del(resetKey);
-        return "重置密码成功";
+        return result;
     }
 
     /**
