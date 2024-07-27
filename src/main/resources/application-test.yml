@@ -1,5 +1,5 @@
 server:
-  port: 2019 # todo 端口
+  port: 5202 # todo 端口
 spring:
   # 数据库配置
   # todo 需替换配置
