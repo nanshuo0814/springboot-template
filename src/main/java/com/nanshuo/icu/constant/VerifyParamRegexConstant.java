@@ -14,6 +14,11 @@ public interface VerifyParamRegexConstant {
     String NONE = "";
 
     /**
+     * id
+     */
+    String ID = "^[1-9]\\d+$";
+
+    /**
      * 用户id
      */
     String USER_ID = "^[0-9]{1,19}$";
@@ -56,7 +61,13 @@ public interface VerifyParamRegexConstant {
     /**
      * 用户角色
      */
-    String USER_ROLE = "^(user|admin)$";
+    String USER_ROLE = "^(user|admin|ban)$";
+
+
+    /**
+     * 登录类型（账号登录、邮箱登录、手机号登录等等）
+     */
+    String LOGIN_TYPE = "^(account|email|phone)$";
 
     /**
      * ip

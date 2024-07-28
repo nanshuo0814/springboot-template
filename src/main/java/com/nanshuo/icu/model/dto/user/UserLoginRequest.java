@@ -32,8 +32,15 @@ public class UserLoginRequest implements Serializable {
      * 用户密码
      */
     @ApiModelProperty(value = "密码", required = true)
-    @CheckParam(alias = "密码", minLength = 6, maxLength = 16,regex = VerifyParamRegexConstant.PASSWORD)
+    @CheckParam(alias = "密码", minLength = 6, maxLength = 16, regex = VerifyParamRegexConstant.PASSWORD)
     private String userPassword;
+
+    /**
+     * 登录类型
+     */
+    @ApiModelProperty(value = "登录类型", required = true)
+    @CheckParam(alias = "登录类型", regex = VerifyParamRegexConstant.LOGIN_TYPE)
+    private String type;
 
     /**
      * 图片验证码

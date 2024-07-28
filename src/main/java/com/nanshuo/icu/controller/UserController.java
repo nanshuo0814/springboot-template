@@ -70,6 +70,7 @@ public class UserController {
     @ApiOperation(value = "用户登录")
     @Verify(checkParam = true)
     public ApiResponse<UserLoginVO> userLogin(HttpServletRequest request, @RequestBody UserLoginRequest userLoginRequest) {
+        // Todo 登录类型实现
         return ApiResult.success(userService.userLogin(request, userLoginRequest), "登录成功！");
     }
 
