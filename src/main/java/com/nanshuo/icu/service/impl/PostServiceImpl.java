@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nanshuo.icu.common.ErrorCode;
 import com.nanshuo.icu.constant.PageConstant;
+import com.nanshuo.icu.model.enums.sort.PostSortFieldEnums;
+import com.nanshuo.icu.model.vo.post.PostVO;
 import com.nanshuo.icu.exception.BusinessException;
 import com.nanshuo.icu.mapper.PostFavourMapper;
 import com.nanshuo.icu.mapper.PostMapper;
@@ -17,9 +19,7 @@ import com.nanshuo.icu.model.domain.PostThumb;
 import com.nanshuo.icu.model.domain.User;
 import com.nanshuo.icu.model.dto.post.PostEsRequest;
 import com.nanshuo.icu.model.dto.post.PostQueryRequest;
-import com.nanshuo.icu.model.enums.sort.PostSortFieldEnums;
-import com.nanshuo.icu.model.vo.post.PostVO;
-import com.nanshuo.icu.model.vo.user.UserSafetyVO;
+import com.nanshuo.icu.model.vo.user.UserVO;
 import com.nanshuo.icu.service.PostService;
 import com.nanshuo.icu.service.UserService;
 import com.nanshuo.icu.utils.SqlUtils;
@@ -118,10 +118,10 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         if (userId != null && userId > 0) {
             user = userService.getById(userId);
         }
-        UserSafetyVO userVO = userService.getUserSafeVO(user);
+        UserVO userVO = userService.getUserVO(user);
         postVO.setUser(userVO);
         // 2. 已登录，获取用户点赞、收藏状态
-        User loginUser = userService.getLoginUser(request);
+        User loginUser = userService.getLoginUserPermitNull(request);
         if (loginUser != null) {
             // 获取点赞
             LambdaQueryWrapper<PostThumb> postThumbQueryWrapper = new LambdaQueryWrapper<>();
@@ -223,7 +223,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
             if (userIdUserListMap.containsKey(userId)) {
                 user = userIdUserListMap.get(userId).get(0);
             }
-            postVO.setUser(userService.getUserSafeVO(user));
+            postVO.setUser(userService.getUserVO(user));
             postVO.setHasThumb(postIdHasThumbMap.getOrDefault(post.getId(), false));
             postVO.setHasFavour(postIdHasFavourMap.getOrDefault(post.getId(), false));
             return postVO;

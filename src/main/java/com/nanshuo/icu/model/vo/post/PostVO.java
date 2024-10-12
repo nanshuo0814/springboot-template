@@ -1,7 +1,7 @@
 package com.nanshuo.icu.model.vo.post;
 
 import com.nanshuo.icu.model.domain.Post;
-import com.nanshuo.icu.model.vo.user.UserSafetyVO;
+import com.nanshuo.icu.model.vo.user.UserVO;
 import com.nanshuo.icu.utils.JsonUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -86,7 +86,7 @@ public class PostVO implements Serializable {
      * 创建人信息
      */
     @ApiModelProperty(value = "帖子创建人信息", required = true)
-    private UserSafetyVO user;
+    private UserVO user;
 
     /**
      * 是否已点赞

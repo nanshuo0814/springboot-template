@@ -20,7 +20,6 @@ import com.nanshuo.icu.service.PostService;
 import com.nanshuo.icu.service.UserService;
 import com.nanshuo.icu.utils.JsonUtils;
 import com.nanshuo.icu.utils.ThrowUtils;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -57,7 +56,7 @@ public class PostController {
      */
     @PostMapping("/add")
     @Verify(checkAuth = UserConstant.USER_ROLE)
-    @ApiOperation(value = "添加帖子（需要 user 权限）")
+    //@ApiOperation(value = "添加帖子（需要 user 权限）")
     public ApiResponse<Long> addPost(@RequestBody PostAddRequest postAddRequest, HttpServletRequest request) {
         if (postAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -88,7 +87,7 @@ public class PostController {
      */
     @PostMapping("/delete")
     @Verify(checkAuth = UserConstant.USER_ROLE)
-    @ApiOperation(value = "删除帖子（需要 user 权限）")
+    //@ApiOperation(value = "删除帖子（需要 user 权限）")
     public ApiResponse<Boolean> deletePost(@RequestBody IdRequest idRequest, HttpServletRequest request) {
         if (idRequest == null || idRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -106,7 +105,7 @@ public class PostController {
      */
     @PostMapping("/update")
     @Verify(checkAuth = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "更新帖子内容（需要 admin 权限）")
+    //@ApiOperation(value = "更新帖子内容（需要 admin 权限）")
     public ApiResponse<Boolean> updatePost(@RequestBody PostUpdateRequest postUpdateRequest, HttpServletRequest request) {
         if (postUpdateRequest == null || postUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -140,7 +139,7 @@ public class PostController {
      */
     @PostMapping("/edit")
     @Verify(checkAuth = UserConstant.USER_ROLE)
-    @ApiOperation(value = "编辑帖子内容（需要 user 权限）")
+    //@ApiOperation(value = "编辑帖子内容（需要 user 权限）")
     public ApiResponse<Boolean> editPost(@RequestBody PostEditRequest postEditRequest, HttpServletRequest request) {
         if (postEditRequest == null || postEditRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -166,7 +165,7 @@ public class PostController {
      * @return {@code ApiResponse<PostVO>}
      */
     @GetMapping("/get/vo")
-    @ApiOperation(value = "根据帖子 id 获取")
+    //@ApiOperation(value = "根据帖子 id 获取")
     public ApiResponse<PostVO> getPostVoById(IdRequest idRequest, HttpServletRequest request) {
         if (idRequest == null || idRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -191,8 +190,8 @@ public class PostController {
      */
     @PostMapping("/list/page")
     @Verify(checkAuth = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "分页获取列表（需要 admin 权限）")
-    public ApiResponse<Page<Post>> listPostByPage(@RequestBody PostQueryRequest postQueryRequest,HttpServletRequest request) {
+    //@ApiOperation(value = "分页获取列表（需要 admin 权限）")
+    public ApiResponse<Page<Post>> listPostByPage(@RequestBody PostQueryRequest postQueryRequest, HttpServletRequest request) {
         User user = userService.getLoginUser(request);
         if (!UserConstant.ADMIN_ROLE.equals(user.getUserRole())) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "无权限获取帖子列表数据，只有管理员有权限");
@@ -215,7 +214,7 @@ public class PostController {
      * @return {@code ApiResponse<Page<PostVO>>}
      */
     @PostMapping("/list/page/vo")
-    @ApiOperation(value = "分页获取全部帖子")
+    //@ApiOperation(value = "分页获取全部帖子")
     public ApiResponse<Page<PostVO>> listPostVoByPage(@RequestBody PostQueryRequest postQueryRequest,
                                                       HttpServletRequest request) {
         return ApiResult.success(handlePaginationAndValidation(postQueryRequest, request));
@@ -229,7 +228,7 @@ public class PostController {
      * @return {@code ApiResponse<Page<PostVO>>}
      */
     @PostMapping("/my/list/page/vo")
-    @ApiOperation(value = "分页获取当前登录用户创建的帖子")
+    //@ApiOperation(value = "分页获取当前登录用户创建的帖子")
     @Verify(checkAuth = UserConstant.USER_ROLE)
     public ApiResponse<Page<PostVO>> listMyPostVoByPage(@RequestBody PostQueryRequest postQueryRequest,
                                                         HttpServletRequest request) {
@@ -269,7 +268,7 @@ public class PostController {
      * @return {@code ApiResponse<Page<PostVO>>}
      */
     @PostMapping("/search/page/vo")
-    @ApiOperation(value = "ES分页搜索帖子（需要 user 权限）")
+    //@ApiOperation(value = "ES分页搜索帖子（需要 user 权限）")
     @Verify(checkAuth = UserConstant.USER_ROLE)
     public ApiResponse<Page<PostVO>> searchPostVoByPage(@RequestBody PostQueryRequest postQueryRequest,
                                                         HttpServletRequest request) {

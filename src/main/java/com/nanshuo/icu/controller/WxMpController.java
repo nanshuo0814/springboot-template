@@ -1,7 +1,6 @@
 package com.nanshuo.icu.controller;
 
 import com.nanshuo.icu.wxmp.WxMpConstant;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.api.WxConsts.MenuButtonType;
 import me.chanjar.weixin.common.bean.menu.WxMenu;
@@ -50,7 +49,7 @@ public class WxMpController {
      * @throws IOException ioexception
      */
     @PostMapping("/")
-    @ApiOperation(value = "接收消息")
+    //@ApiOperation(value = "接收消息")
     public void receiveMessage(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         response.setContentType("text/html;charset=utf-8");
@@ -100,7 +99,7 @@ public class WxMpController {
      * @return {@code String}
      */
     @GetMapping("/")
-    @ApiOperation(value = "检查")
+    //@ApiOperation(value = "检查")
     public String check(String timestamp, String nonce, String signature, String echostr) {
         log.info("check");
         if (wxMpService.checkSignature(timestamp, nonce, signature)) {
@@ -117,7 +116,7 @@ public class WxMpController {
      * @throws WxErrorException wx错误异常
      */
     @GetMapping("/setMenu")
-    @ApiOperation(value = "设置公众号菜单")
+    //@ApiOperation(value = "设置公众号菜单")
     public String setMenu() throws WxErrorException {
         log.info("setMenu");
         WxMenu wxMenu = new WxMenu();

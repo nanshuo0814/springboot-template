@@ -39,7 +39,7 @@ public class UserLoginRequest implements Serializable {
      * 登录类型
      */
     @ApiModelProperty(value = "登录类型", required = true)
-    @CheckParam(alias = "登录类型", regex = VerifyParamRegexConstant.LOGIN_TYPE)
+    @CheckParam(required = NumberConstant.FALSE_ZERO_VALUE, alias = "登录类型", regex = VerifyParamRegexConstant.LOGIN_TYPE)
     private String type;
 
     /**

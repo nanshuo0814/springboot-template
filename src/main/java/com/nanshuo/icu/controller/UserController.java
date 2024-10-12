@@ -13,7 +13,7 @@ import com.nanshuo.icu.model.domain.User;
 import com.nanshuo.icu.model.dto.IdRequest;
 import com.nanshuo.icu.model.dto.user.*;
 import com.nanshuo.icu.model.vo.user.UserLoginVO;
-import com.nanshuo.icu.model.vo.user.UserSafetyVO;
+import com.nanshuo.icu.model.vo.user.UserVO;
 import com.nanshuo.icu.service.UserService;
 import com.nanshuo.icu.utils.ThrowUtils;
 import io.swagger.annotations.ApiOperation;
@@ -128,28 +128,28 @@ public class UserController {
     /**
      * 用户密码重置(邮箱验证码)
      *
-     * @param userPasswordResetRequest 用户密码重置Request
+     * @param userPwdResetByEmailRequest 用户密码重置Request
      * @return {@code ApiResponse<Boolean>}
      */
     @PostMapping("/pwd/reset/email")
     @ApiOperation(value = "邮箱验证码进行密码重置")
     @Verify(checkParam = true)
-    public ApiResponse<Boolean> userPasswordResetByEmail(HttpServletRequest request, @RequestBody UserPasswordResetRequest userPasswordResetRequest) {
-        return ApiResult.success(userService.userPasswordResetByEmail(request, userPasswordResetRequest), "密码重置成功！");
+    public ApiResponse<Boolean> userPasswordResetByEmail(HttpServletRequest request, @RequestBody UserPwdResetByEmailRequest userPwdResetByEmailRequest) {
+        return ApiResult.success(userService.userPasswordResetByEmail(request, userPwdResetByEmailRequest), "密码重置成功！");
     }
 
     /**
      * 用户通过电子邮件重置pwd（分步骤重置密码）
      * 先验证邮箱是否存在，再进行下一步验证邮箱验证码是否正确，最后再跳到输入新密码的页面
      *
-     * @param userResetPwdRequest 用户重置pwd请求
+     * @param userResetPwdByEmailStepRequest 用户重置pwd请求
      * @return {@link ApiResponse }<{@link String }>
      */
     @PostMapping("/pwd/reset/email/step")
     @ApiOperation(value = "邮箱验证码分步重置密码")
     @Verify(checkParam = true)
-    public ApiResponse<Integer> userResetPwdByEmail(@RequestBody UserResetPwdRequest userResetPwdRequest) {
-        return ApiResult.success(userService.userResetPwdByEmail(userResetPwdRequest), "密码重置成功！");
+    public ApiResponse<Integer> userResetPwdByEmailStep(@RequestBody UserResetPwdByEmailStepRequest userResetPwdByEmailStepRequest) {
+        return ApiResult.success(userService.userResetPwdByEmail(userResetPwdByEmailStepRequest), "密码重置成功！");
     }
 
     /**
@@ -270,7 +270,7 @@ public class UserController {
      */
     @PostMapping("/list/page/vo")
     @ApiOperation(value = "获取用户分页视图")
-    public ApiResponse<Page<UserSafetyVO>> getUserVoListByPage(@RequestBody UserQueryRequest userQueryRequest) {
+    public ApiResponse<Page<UserVO>> getUserVoListByPage(@RequestBody UserQueryRequest userQueryRequest) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
         if (size == 0L) {
@@ -279,10 +279,10 @@ public class UserController {
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
         Page<User> userPage = userService.page(new Page<>(current, size), userService.getQueryWrapper(userQueryRequest));
-        Page<UserSafetyVO> userSafetyVoPage = new Page<>(current, size, userPage.getTotal());
-        List<UserSafetyVO> userSafetyVOList = userService.getUserSafeVOList(userPage.getRecords());
-        userSafetyVoPage.setRecords(userSafetyVOList);
-        return ApiResult.success(userSafetyVoPage);
+        Page<UserVO> userVoPage = new Page<>(current, size, userPage.getTotal());
+        List<UserVO> userVOList = userService.getUserVOList(userPage.getRecords());
+        userVoPage.setRecords(userVOList);
+        return ApiResult.success(userVoPage);
     }
 
     // endregion

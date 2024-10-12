@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.nanshuo.icu.model.domain.User;
 import com.nanshuo.icu.model.dto.user.*;
 import com.nanshuo.icu.model.vo.user.UserLoginVO;
-import com.nanshuo.icu.model.vo.user.UserSafetyVO;
+import com.nanshuo.icu.model.vo.user.UserVO;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -98,10 +98,10 @@ public interface UserService extends IService<User> {
      * 用户密码重置(通过邮箱重置)
      *
      * @param request                  请求
-     * @param userPasswordResetRequest 用户密码重置Request
+     * @param userPwdResetByEmailRequest 用户密码重置Request
      * @return {@code Boolean}
      */
-    boolean userPasswordResetByEmail(HttpServletRequest request, UserPasswordResetRequest userPasswordResetRequest);
+    boolean userPasswordResetByEmail(HttpServletRequest request, UserPwdResetByEmailRequest userPwdResetByEmailRequest);
 
     /**
      * 用户密码自行更新
@@ -133,9 +133,9 @@ public interface UserService extends IService<User> {
      * 获取用户脱敏的VO list
      *
      * @param records 记录
-     * @return {@code List<UserSafetyVO>}
+     * @return {@code List<UserVO>}
      */
-    List<UserSafetyVO> getUserSafeVOList(List<User> records);
+    List<UserVO> getUserVOList(List<User> records);
 
     /**
      * 获取用户vo(脱敏)
@@ -143,7 +143,7 @@ public interface UserService extends IService<User> {
      * @param user 用户
      * @return {@code UserVO}
      */
-    UserSafetyVO getUserSafeVO(User user);
+    UserVO getUserVO(User user);
 
     /**
      * 用户密码重置(admin)
@@ -190,10 +190,10 @@ public interface UserService extends IService<User> {
     /**
      * 用户通过电子邮件重置pwd
      *
-     * @param userResetPwdRequest 用户重置pwd请求
+     * @param userResetPwdByEmailStepRequest 用户重置pwd请求
      * @return {@link Boolean }
      */
-    int userResetPwdByEmail(UserResetPwdRequest userResetPwdRequest);
+    int userResetPwdByEmail(UserResetPwdByEmailStepRequest userResetPwdByEmailStepRequest);
 
     /**
      * 删除用户
@@ -202,4 +202,12 @@ public interface UserService extends IService<User> {
      * @param user 用户
      */
     int deleteUser(Long id, User user);
+
+    /**
+     * 获取当前登录用户（允许未登录）
+     *
+     * @param request
+     * @return
+     */
+    User getLoginUserPermitNull(HttpServletRequest request);
 }

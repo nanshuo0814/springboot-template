@@ -14,8 +14,8 @@ import java.util.Date;
  * @date 2024/01/13 20:09:31
  */
 @Data
-@ApiModel(value = "UserSafetyVO", description = "用户安全视图VO")
-public class UserSafetyVO implements Serializable {
+@ApiModel(value = "UserVO", description = "用户安全视图VO")
+public class UserVO implements Serializable {
 
     /**
      * 用户id

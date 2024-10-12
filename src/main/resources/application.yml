@@ -119,8 +119,8 @@ knife4j:
   enable: true
   openapi:
     title: 接口文档  # 标题
-    description: springboot万能模板项目的接口文档  # 简介/描述
-    email: xxx@qq.com # 邮箱
+    description: 烁烁南光-SpringBoot万能模板项目的接口文档  # 简介/描述
+    email: nanshuo.icu@qq.com # 邮箱
     concat: 南烁  # 作者
     url: https://www.github.com/nanshuo0814 # 作者链接
     version: v4.0
@@ -142,9 +142,9 @@ captcha:
 # todo 邮箱配置,根据自己的邮箱需求配置
 email:
   hostName: smtp.qq.com # 邮箱域名
-  emailAddress: xxx@qq.com # 邮箱地址
+  emailAddress: ydg0814@qq.com # 邮箱地址
   password: xxx # 邮箱密码
-  senderName: springboot-template # 发件人昵称
+  senderName: 烁烁南光-SpringBoot万能开发模板 # 发件人昵称
   sslSmtpPort: 465 # 邮箱端口
   mailTitle: 邮箱验证码 # 邮件标题
   content: 快速开发模板 # 邮件正文里的项目名称
@@ -152,4 +152,4 @@ email:
 
 # 超级管理员邮箱（唯一的）最高权限的
 superAdmin:
-  email: xxx@qq.com
+  email: nanshuo.icu@qq.com

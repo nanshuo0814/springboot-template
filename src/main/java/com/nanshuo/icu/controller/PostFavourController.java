@@ -17,7 +17,6 @@ import com.nanshuo.icu.service.PostFavourService;
 import com.nanshuo.icu.service.PostService;
 import com.nanshuo.icu.service.UserService;
 import com.nanshuo.icu.utils.ThrowUtils;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,7 +53,7 @@ public class PostFavourController {
      * @return resultNum 收藏变化数
      */
     @PostMapping("/")
-    @ApiOperation(value = "收藏/取消收藏（需要 user 权限）")
+    //@ApiOperation(value = "收藏/取消收藏（需要 user 权限）")
     @Verify(checkAuth = UserConstant.USER_ROLE)
     public ApiResponse<Integer> doPostFavour(@RequestBody IdRequest idRequest,
                                              HttpServletRequest request) {
@@ -76,7 +75,7 @@ public class PostFavourController {
      * @return {@code ApiResponse<Page<PostVO>>}
      */
     @PostMapping("/my/list/page")
-    @ApiOperation(value = "获取当前登录用户自己收藏的帖子（需要 user 权限）")
+    //@ApiOperation(value = "获取当前登录用户自己收藏的帖子（需要 user 权限）")
     @Verify(checkAuth = UserConstant.USER_ROLE)
     public ApiResponse<Page<PostVO>> listMyFavourPostByPage(@RequestBody PostQueryRequest postQueryRequest,
                                                             HttpServletRequest request) {
@@ -100,7 +99,7 @@ public class PostFavourController {
      * @param request                请求
      * @return {@code ApiResponse<Page<PostVO>>}
      */
-    @ApiOperation(value = "获取用户收藏的帖子（需要 user 权限）")
+    //@ApiOperation(value = "获取用户收藏的帖子（需要 user 权限）")
     @PostMapping("/list/page")
     @Verify(checkAuth = UserConstant.USER_ROLE)
     public ApiResponse<Page<PostVO>> listFavourPostByPageAndUserId(@RequestBody PostFavourQueryRequest postFavourQueryRequest,

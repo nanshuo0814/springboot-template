@@ -45,7 +45,7 @@ public class PostThumbController {
      * @return resultNum 本次点赞变化数
      */
     @PostMapping("/")
-    @ApiOperation(value = "点赞/取消点赞（需要 user 权限）")
+    //@ApiOperation(value = "点赞/取消点赞（需要 user 权限）")
     @Verify(checkAuth = UserConstant.USER_ROLE)
     public ApiResponse<Integer> doThumb(@RequestBody PostThumbAddRequest postThumbAddRequest,
                                         HttpServletRequest request) {

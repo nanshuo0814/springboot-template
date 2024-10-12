@@ -17,7 +17,7 @@ import com.nanshuo.icu.model.enums.sort.UserSortFieldEnums;
 import com.nanshuo.icu.model.enums.user.UserEmailCaptchaTypeEnums;
 import com.nanshuo.icu.model.enums.user.UserRoleEnums;
 import com.nanshuo.icu.model.vo.user.UserLoginVO;
-import com.nanshuo.icu.model.vo.user.UserSafetyVO;
+import com.nanshuo.icu.model.vo.user.UserVO;
 import com.nanshuo.icu.service.UserService;
 import com.nanshuo.icu.utils.SqlUtils;
 import com.nanshuo.icu.utils.ThrowUtils;
@@ -365,17 +365,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 用户密码重置通过邮箱重置
      *
      * @param request                  请求
-     * @param userPasswordResetRequest 用户密码重置Request
+     * @param userPwdResetByEmailRequest 用户密码重置Request
      * @return {@code Boolean}
      */
     @Override
-    public boolean userPasswordResetByEmail(HttpServletRequest request, UserPasswordResetRequest userPasswordResetRequest) {
+    public boolean userPasswordResetByEmail(HttpServletRequest request, UserPwdResetByEmailRequest userPwdResetByEmailRequest) {
         // 获取参数
-        String userAccount = userPasswordResetRequest.getUserAccount();
-        String userPassword = userPasswordResetRequest.getUserPassword();
-        String checkPassword = userPasswordResetRequest.getCheckPassword();
-        String email = userPasswordResetRequest.getUserEmail();
-        String emailCaptcha = userPasswordResetRequest.getEmailCaptcha();
+        String userAccount = userPwdResetByEmailRequest.getUserAccount();
+        String userPassword = userPwdResetByEmailRequest.getUserPassword();
+        String checkPassword = userPwdResetByEmailRequest.getCheckPassword();
+        String email = userPwdResetByEmailRequest.getUserEmail();
+        String emailCaptcha = userPwdResetByEmailRequest.getEmailCaptcha();
         // 校验两次密码是否一致
         if (!userPassword.equals(checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次新密码输入不一致");
@@ -413,15 +413,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 用户通过电子邮件重置pwd
      *
-     * @param userResetPwdRequest 用户重置pwd请求
+     * @param userResetPwdByEmailStepRequest 用户重置pwd请求
      * @return {@link String }
      */
     @Override
-    public int userResetPwdByEmail(UserResetPwdRequest userResetPwdRequest) {
-        String newPassword = userResetPwdRequest.getNewPassword();
-        String confirmPassword = userResetPwdRequest.getConfirmPassword();
-        String voucher = userResetPwdRequest.getVoucher();
-        String email = userResetPwdRequest.getEmail();
+    public int userResetPwdByEmail(UserResetPwdByEmailStepRequest userResetPwdByEmailStepRequest) {
+        String newPassword = userResetPwdByEmailStepRequest.getNewPassword();
+        String confirmPassword = userResetPwdByEmailStepRequest.getConfirmPassword();
+        String voucher = userResetPwdByEmailStepRequest.getVoucher();
+        String email = userResetPwdByEmailStepRequest.getEmail();
         // 校验两次密码是否一致
         if (!newPassword.equals(confirmPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
@@ -571,27 +571,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return {@code UserVO}
      */
     @Override
-    public UserSafetyVO getUserSafeVO(User user) {
+    public UserVO getUserVO(User user) {
         if (user == null) {
             return null;
         }
-        UserSafetyVO userSafetyVO = new UserSafetyVO();
-        BeanUtils.copyProperties(user, userSafetyVO);
-        return userSafetyVO;
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(user, userVO);
+        return userVO;
     }
 
     /**
      * 获取用户脱敏 vo list
      *
      * @param userList 用户列表
-     * @return {@code List<UserSafetyVO>}
+     * @return {@code List<UserVO>}
      */
     @Override
-    public List<UserSafetyVO> getUserSafeVOList(List<User> userList) {
+    public List<UserVO> getUserVOList(List<User> userList) {
         if (CollectionUtils.isEmpty(userList)) {
             return new ArrayList<>();
         }
-        return userList.stream().map(this::getUserSafeVO).collect(Collectors.toList());
+        return userList.stream().map(this::getUserVO).collect(Collectors.toList());
     }
 
     /**
@@ -737,6 +737,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             request.getSession().setAttribute(USER_LOGIN_STATE, user);
             return getLoginUserVO(user);
         }
+    }
+
+    /**
+     * 获取当前登录用户（允许未登录）
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public User getLoginUserPermitNull(HttpServletRequest request) {
+        // 先判断是否已登录
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User currentUser = (User) userObj;
+        if (currentUser == null || currentUser.getId() == null) {
+            return null;
+        }
+        // 从数据库查询（追求性能的话可以注释，直接走缓存）
+        long userId = currentUser.getId();
+        return this.getById(userId);
     }
 
     /**

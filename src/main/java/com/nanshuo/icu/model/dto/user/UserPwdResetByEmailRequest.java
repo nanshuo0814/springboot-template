@@ -16,7 +16,7 @@ import java.io.Serializable;
  */
 @Data
 @ApiModel(value = "UserPasswordResetRequest", description = "用户密码重置请求DTO")
-public class UserPasswordResetRequest implements Serializable {
+public class UserPwdResetByEmailRequest implements Serializable {
 
     private static final long serialVersionUID = 7417360309354655142L;
 
