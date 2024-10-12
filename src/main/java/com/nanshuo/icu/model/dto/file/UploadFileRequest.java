@@ -23,4 +23,5 @@ public class UploadFileRequest implements Serializable {
      */
     @ApiModelProperty(value = "上传文件类型", required = true)
     private String type;
+
 }

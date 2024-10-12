@@ -29,6 +29,8 @@
         <oss.version>3.15.1</oss.version>
         <!-- 腾讯云cos版本号 -->
         <cos.version>5.6.89</cos.version>
+        <!-- 又拍云储存版本号 -->
+        <ypy.version>4.2.3</ypy.version>
         <!-- 邮箱验证码版本号 -->
         <activation.version>1.1.1</activation.version>
         <mail.version>1.4.7</mail.version>
@@ -149,6 +151,12 @@
             <groupId>com.qcloud</groupId>
             <artifactId>cos_api</artifactId>
             <version>${cos.version}</version>
+        </dependency>
+        <!-- https://github.com/upyun/java-sdk -->
+        <dependency>
+            <groupId>com.upyun</groupId>
+            <artifactId>java-sdk</artifactId>
+            <version>${ypy.version}</version>
         </dependency>
         <!-- https://hutool.cn/docs/index.html#/-->
         <dependency>

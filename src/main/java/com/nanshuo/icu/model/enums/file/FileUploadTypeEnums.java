@@ -16,10 +16,9 @@ import java.util.stream.Collectors;
 @Getter
 public enum FileUploadTypeEnums {
 
-    /**
-     * 用户头像
-     */
-    USER_AVATAR("用户头像", "user_avatar");
+    // todo 业务类型枚举
+    USER_AVATAR("用户头像", "user_avatar"),
+    APPLICATION_COVER("应用封面", "application_cover");
 
     private final String text;
 

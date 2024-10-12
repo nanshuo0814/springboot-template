@@ -8,12 +8,14 @@ import com.nanshuo.icu.constant.FileConstant;
 import com.nanshuo.icu.exception.BusinessException;
 import com.nanshuo.icu.manager.CosManager;
 import com.nanshuo.icu.manager.OssManager;
+import com.nanshuo.icu.manager.UpyunManager;
 import com.nanshuo.icu.model.domain.User;
 import com.nanshuo.icu.model.dto.file.UploadFileRequest;
 import com.nanshuo.icu.model.enums.file.FileUploadTypeEnums;
 import com.nanshuo.icu.service.UserService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Response;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -50,11 +52,13 @@ public class FileController {
 
     @Resource
     private UserService userService;
-    // todo 阿里云OSS和腾讯云cos对象储存，二选一
+    // todo 阿里云OSS和腾讯云cos对象储存，三选一
     @Resource
     private OssManager ossManager;
     @Resource
     private CosManager cosManager;
+    @Resource
+    private UpyunManager upyunManager;
 
     /**
      * 上传文件
@@ -85,11 +89,15 @@ public class FileController {
             // 上传文件
             file = File.createTempFile(filepath, null);
             multipartFile.transferTo(file);
-            // todo 阿里云OSS和腾讯云cos对象储存，二选一
-            ossManager.putObject(filepath, file);
-            //cosManager.putObject(filepath, file);
+            // todo 阿里云OSS和腾讯云cos对象储存，三选一
+            //PutObjectResult response = ossManager.putObject(filepath, file);
+            //PutObjectResult response = cosManager.putObject(filepath, file);
+            Response response = upyunManager.uploadFile(filepath, file);
+            log.info("文件上传成功，response = {}", response);
             // 返回可访问地址
-            return ApiResult.success(FileConstant.OSS_HOST_ADDRESS + filepath, "文件上传成功！");
+            //return ApiResult.success(FileConstant.COS_HOST_ADDRESS + filepath, "文件上传成功！");
+            //return ApiResult.success(FileConstant.OSS_HOST_ADDRESS + filepath, "文件上传成功！");
+            return ApiResult.success(FileConstant.UPYUN_HOST_ADDRESS + filepath, "文件上传成功！");
         } catch (Exception e) {
             log.error("file upload error, filepath = {}", filepath, e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败,请联系管理员");
@@ -115,7 +123,7 @@ public class FileController {
         long fileSize = multipartFile.getSize();
         // 文件后缀
         String fileSuffix = FileUtil.getSuffix(multipartFile.getOriginalFilename());
-        // 针对type是头像
+        // 针对type是用户头像
         if (FileUploadTypeEnums.USER_AVATAR.equals(fileUploadBizEnum)) {
             if (fileSize > MAX_SIZE) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件大小不能超过 1M");
@@ -124,5 +132,6 @@ public class FileController {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件类型错误");
             }
         }
+        // todo 可以添加其他校验条件
     }
 }

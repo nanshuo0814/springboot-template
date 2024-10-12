@@ -23,7 +23,7 @@ class MainApplicationTest {
     }
 
     @Test
-    void testTime(){
+    void testTime() {
         // 获取当前时间戳（毫秒级）
         long timestamp = System.currentTimeMillis();
 
@@ -35,4 +35,5 @@ class MainApplicationTest {
         long newTimestamp = dateObject.getTime();
         System.out.println(newTimestamp);
     }
+
 }

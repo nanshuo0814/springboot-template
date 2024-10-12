@@ -92,6 +92,13 @@ cos:
     region: xxx
     bucket: xxx
 
+# 又拍云对象存储
+upyun:
+  client:
+    bucketName: xxx
+    userName: xxx
+    password: xxx
+
 # 微信相关
 wx:
   # 微信公众平台

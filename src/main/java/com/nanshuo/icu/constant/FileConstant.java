@@ -13,4 +13,16 @@ public interface FileConstant {
      * oss主机访问地址
      */
     String OSS_HOST_ADDRESS = "https://xxx.aliyuncs.com/";
+
+    /**
+     * todo 需替换配置
+     * cos主机地址
+     */
+    String COS_HOST_ADDRESS = "https://xxx.com/";
+
+    /**
+     * todo 需替换配置
+     * upyun主机地址
+     */
+    String UPYUN_HOST_ADDRESS = "https://upyun.nanshuo.icu/";
 }
