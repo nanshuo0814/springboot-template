@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.nanshuo.icu.mapper.PostThumbMapper">
+<mapper namespace="icu.nanshuo.mapper.PostThumbMapper">
 
-    <resultMap id="BaseResultMap" type="com.nanshuo.icu.model.domain.PostThumb">
+    <resultMap id="BaseResultMap" type="icu.nanshuo.model.domain.PostThumb">
         <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="postId" column="post_id" jdbcType="BIGINT"/>
         <result property="createBy" column="create_by" jdbcType="BIGINT"/>

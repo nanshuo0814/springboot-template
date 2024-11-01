@@ -2,6 +2,8 @@ package ${packageName}.model.enums.sort;
 
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import ${packageName}.model.domain.${upperDataKey};
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -12,22 +14,26 @@ import java.util.stream.Collectors;
 /**
  * ${dataName}排序字段枚举
  *
- * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
+ * @author 袁德光
  */
 @Getter
+@ApiModel(value = "${upperDataKey}SortFieldEnums", description = "${dataName}排序字段枚举")
 public enum ${upperDataKey}SortFieldEnums {
 
     /**
      * id
      */
+    @ApiModelProperty(value = "id")
     ID(${upperDataKey}::getId),
     /**
      * 创建时间
      */
+    @ApiModelProperty(value = "创建时间")
     CREATE_TIME(${upperDataKey}::getCreateTime),
     /**
      * 更新时间
      */
+    @ApiModelProperty(value = "更新时间")
     UPDATE_TIME(${upperDataKey}::getUpdateTime);
 
     private final SFunction<${upperDataKey}, ?> fieldGetter;

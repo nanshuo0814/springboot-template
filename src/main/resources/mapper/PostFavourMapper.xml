@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.nanshuo.icu.mapper.PostFavourMapper">
+<mapper namespace="icu.nanshuo.mapper.PostFavourMapper">
 
-    <resultMap id="BaseResultMap" type="com.nanshuo.icu.model.domain.PostFavour">
+    <resultMap id="BaseResultMap" type="icu.nanshuo.model.domain.PostFavour">
         <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="postId" column="post_id" jdbcType="BIGINT"/>
         <result property="createBy" column="create_by" jdbcType="BIGINT"/>
@@ -18,7 +18,7 @@
         create_time,update_time
     </sql>
 
-    <select id="listFavourPostByPage" resultType="com.nanshuo.icu.model.domain.Post">
+    <select id="listFavourPostByPage" resultType="icu.nanshuo.model.domain.Post">
         select p.*
         from post p
                  join (select post_id from post_favour where create_by = #{favourUserId}) pf
