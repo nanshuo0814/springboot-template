@@ -77,7 +77,7 @@ public class ${upperDataKey}Controller {
     }
 
     /**
-     * 更新${dataName}（仅管理员可用）
+     * 更新${dataName}
      *
      * @param ${dataKey}UpdateRequest
      * @return
