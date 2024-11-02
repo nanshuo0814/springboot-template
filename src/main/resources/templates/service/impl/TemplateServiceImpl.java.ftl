@@ -93,7 +93,7 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
     */
     @Override
     public long delete${upperDataKey}(IdRequest deleteRequest, HttpServletRequest request) {
-        Long id = deleteRequest.getId();
+        long id = deleteRequest.getId();
         onlyMeOrAdministratorCanDo(request, id);
         ThrowUtils.throwIf(${dataKey}Mapper.deleteById(id) <= 0, ErrorCode.OPERATION_ERROR);
         return id;
