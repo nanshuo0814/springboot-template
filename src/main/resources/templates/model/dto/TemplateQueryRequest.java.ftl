@@ -18,7 +18,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@ApiModel(value = "${upperDataKey}AddRequest", description = "创建${dataName}请求")
+@ApiModel(value = "${upperDataKey}QueryRequest", description = "创建${dataName}请求")
 public class ${upperDataKey}QueryRequest extends PageBaseRequest implements Serializable {
 
    // todo 更多参数属性可自行添加

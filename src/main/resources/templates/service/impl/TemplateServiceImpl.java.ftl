@@ -52,7 +52,7 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
     private UserService userService;
     @Resource
     private ${upperDataKey}Mapper ${dataKey}Mapper;
-    // todo 如果后续需要点赞或收藏可自行添加，参考 Post 帖子表有现成的代码
+    // todo 如果后续需要点赞或收藏可自行添加
     //@Resource
     //private ${upperDataKey}PraiseMapper ${dataKey}PraiseMapper;
     //@Resource
@@ -173,7 +173,7 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
     * 是否为排序字段
     *
     * @param sortField 排序字段
-    * @return {@code SFunction<Post, ?>}
+    * @return {@code SFunction<${upperDataKey}, ?>}
     */
     private SFunction<${upperDataKey}, ?> isSortField(String sortField) {
         if (Objects.equals(sortField, "")) {
@@ -314,8 +314,8 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
         ${upperDataKey} old${upperDataKey} = ${dataKey}Mapper.selectById(id);
         ThrowUtils.throwIf(old${upperDataKey} == null, ErrorCode.NOT_FOUND_ERROR);
         // todo 设置值
-        //old${upperDataKey}.setTitle(postUpdateRequest.getTitle());
-        //old${upperDataKey}.setContent(postUpdateRequest.getContent());
+        //old${upperDataKey}.setTitle(${dataKey}UpdateRequest.getTitle());
+        //old${upperDataKey}.setContent(${dataKey}UpdateRequest.getContent());
         // 参数校验
         valid${upperDataKey}(old${upperDataKey}, false);
         // 更新
