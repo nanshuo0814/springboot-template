@@ -36,7 +36,8 @@ import java.util.stream.Collectors;
 /**
  * ${dataName}服务实现
  *
- * @author <a href="https://github.com/nanshuo0814">南烁</a>
+ * @author ${author}
+ * @Date ${date}
  */
 @Service
 @Slf4j

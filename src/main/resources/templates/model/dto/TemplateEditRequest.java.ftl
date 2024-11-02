@@ -11,7 +11,8 @@ import java.util.List;
 /**
  * 编辑${dataName}请求
  *
- * @author <a href="https://github.com/nanshuo0814">南烁</a>
+ * @author ${author}
+ * @Date ${date}
  */
 @Data
 @ApiModel(value = "${upperDataKey}AddRequest", description = "创建${dataName}请求")

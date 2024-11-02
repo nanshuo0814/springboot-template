@@ -1,5 +1,6 @@
 package icu.nanshuo.generator;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -35,10 +36,12 @@ public class CodeGenerator {
 
         // 封装生成参数
         Map<String, Object> dataModel = new HashMap<>();
+        dataModel.put("author", "<a href=\"https://github.com/nanshuo0814\">南烁</a>");
         dataModel.put("packageName", packageName);
         dataModel.put("dataName", dataName);
         dataModel.put("dataKey", dataKey);
         dataModel.put("upperDataKey", upperDataKey);
+        dataModel.put("date", DateUtil.format(new java.util.Date(), "yyyy/MM/dd"));
 
         // 生成路径默认值
         String projectPath = System.getProperty("user.dir");

@@ -12,7 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * ${dataName}服务
  *
- * @author <a href="https://github.com/nanshuo0814">南烁</a>
+ * @author ${author}
+ * @Date ${date}
  */
 public interface ${upperDataKey}Service extends IService<${upperDataKey}> {
 

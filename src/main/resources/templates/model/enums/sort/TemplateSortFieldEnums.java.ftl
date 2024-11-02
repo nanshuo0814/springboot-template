@@ -14,7 +14,8 @@ import java.util.stream.Collectors;
 /**
  * ${dataName}排序字段枚举
  *
- * @author 袁德光
+ * @author ${author}
+ * @Date ${date}
  */
 @Getter
 @ApiModel(value = "${upperDataKey}SortFieldEnums", description = "${dataName}排序字段枚举")

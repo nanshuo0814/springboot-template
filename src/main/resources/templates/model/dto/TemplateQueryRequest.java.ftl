@@ -13,7 +13,8 @@ import java.util.List;
 /**
  * 查询${dataName}请求
  *
- * @author <a href="https://github.com/nanshuo0814">南烁</a>
+ * @author ${author}
+ * @Date ${date}
  */
 @EqualsAndHashCode(callSuper = true)
 @Data

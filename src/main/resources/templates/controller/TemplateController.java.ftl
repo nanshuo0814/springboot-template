@@ -30,7 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * ${dataName}接口
  *
- * @author <a href="https://github.com/nanshuo0814">南烁</a>
+ * @author ${author}
+ * @Date ${date}
  */
 @RestController
 @RequestMapping("/${dataKey}")
