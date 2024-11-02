@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import ${packageName}.exception.BusinessException;
 import ${packageName}.common.ErrorCode;
 import ${packageName}.constant.PageConstant;
+import ${packageName}.model.dto.${dataKey}.${upperDataKey}AddRequest;
 import ${packageName}.utils.ThrowUtils;
 import ${packageName}.mapper.${upperDataKey}Mapper;
 import ${packageName}.mapper.${upperDataKey}CollectMapper;
@@ -19,12 +20,14 @@ import ${packageName}.model.domain.${upperDataKey}Collect;
 import ${packageName}.model.domain.${upperDataKey}Praise;
 import ${packageName}.model.domain.User;
 import ${packageName}.model.vo.${dataKey}.${upperDataKey}VO;
+import ${packageName}.model.dto.IdRequest;
 import ${packageName}.model.vo.user.UserVO;
 import ${packageName}.service.${upperDataKey}Service;
 import ${packageName}.model.enums.sort.${upperDataKey}SortFieldEnums;
 import ${packageName}.service.UserService;
 import ${packageName}.utils.SqlUtils;
 import ${packageName}.constant.UserConstant;
+import org.springframework.beans.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -54,6 +57,47 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
     //private ${upperDataKey}PraiseMapper ${dataKey}PraiseMapper;
     //@Resource
     //private ${upperDataKey}CollectMapper ${dataKey}CollectMapper;
+
+    /**
+    * 添加${dataName}
+    *
+    * @param ${dataKey}AddRequest 发表评论添加请求
+    * @param request               请求
+    * @return long
+    */
+    @Override
+    public long add${upperDataKey}(${upperDataKey}AddRequest ${dataKey}AddRequest, HttpServletRequest request) {
+        // todo 在此处将实体类和 DTO 进行转换
+        ${upperDataKey} ${dataKey} = new ${upperDataKey}();
+        BeanUtils.copyProperties(${dataKey}AddRequest, ${dataKey});
+        // 数据校验
+        valid${upperDataKey}(${dataKey}, true);
+        // todo 填充值
+        User loginUser = userService.getLoginUser(request);
+        ${dataKey}.setCreateBy(loginUser.getId());
+        // 写入数据库
+        int insert = ${dataKey}Mapper.insert(${dataKey});
+        ThrowUtils.throwIf(insert <= 0, ErrorCode.OPERATION_ERROR);
+        // 返回新写入的数据 id
+        long new${upperDataKey}Id = ${dataKey}.getId();
+        // 返回新写入的数据 id
+        return ${dataKey}.getId();
+    }
+
+    /**
+    * 删除${dataName}
+    *
+    * @param deleteRequest 删除请求
+    * @param request       请求
+    * @return long
+    */
+    @Override
+    public long delete${upperDataKey}(IdRequest deleteRequest, HttpServletRequest request) {
+        Long id = deleteRequest.getId();
+        onlyMeOrAdministratorCanDo(request, id);
+        ThrowUtils.throwIf(${dataKey}Mapper.deleteById(id) <= 0, ErrorCode.OPERATION_ERROR);
+        return id;
+    }
 
     /**
      * 校验数据
@@ -145,12 +189,16 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
     /**
      * 获取${dataName}封装
      *
-     * @param ${dataKey}
+     * @param idRequest
      * @param request
      * @return
      */
     @Override
-    public ${upperDataKey}VO get${upperDataKey}VO(${upperDataKey} ${dataKey}, HttpServletRequest request) {
+    public ${upperDataKey}VO get${upperDataKey}VO(IdRequest idRequest, HttpServletRequest request) {
+        long id = idRequest.getId();
+        // 查询数据库
+        ${upperDataKey} ${dataKey} = ${dataKey}Mapper.selectById(id);
+        ThrowUtils.throwIf(${dataKey} == null, ErrorCode.NOT_FOUND_ERROR);
         // 对象转封装类
         ${upperDataKey}VO ${dataKey}VO = ${upperDataKey}VO.objToVo(${dataKey});
 
@@ -165,6 +213,26 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
         UserVO userVO = userService.getUserVO(user);
         ${dataKey}VO.setUser(userVO);
         return ${dataKey}VO;
+    }
+
+    /**
+    * “获取列表” 页
+    *
+    * @param ${dataKey}QueryRequest
+    * @return {@link Page }<{@link ${upperDataKey} }>
+    */
+    @Override
+    public Page<${upperDataKey}> getListPage(${upperDataKey}QueryRequest ${dataKey}QueryRequest) {
+        long current = ${dataKey}QueryRequest.getCurrent();
+        long size = ${dataKey}QueryRequest.getPageSize();
+        if (size == 0L) {
+            size = PageConstant.PAGE_SIZE;
+        }
+        if (current == 0L) {
+            current = PageConstant.CURRENT_PAGE;
+        }
+        // 查询数据库
+        return this.page(new Page<>(current, size), this.getQueryWrapper(${dataKey}QueryRequest));
     }
 
     /**
@@ -253,6 +321,47 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
         // 更新
         ${dataKey}Mapper.updateById(old${upperDataKey});
         return id;
+    }
+
+    /**
+    * 处理分页和验证
+    *
+    * @param ${dataKey}QueryRequest ${dataName}查询请求
+    * @param request          请求
+    * @return {@code Page<${upperDataKey}VO>}
+    */
+    @Override
+    public Page<${upperDataKey}VO> handlePaginationAndValidation(${upperDataKey}QueryRequest ${dataKey}QueryRequest, HttpServletRequest request) {
+        long current = ${dataKey}QueryRequest.getCurrent();
+        long size = ${dataKey}QueryRequest.getPageSize();
+        if (size == 0L) {
+            size = PageConstant.PAGE_SIZE;
+        }
+        if (current == 0L) {
+            current = PageConstant.CURRENT_PAGE;
+        }
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        Page<${upperDataKey}> ${dataKey}Page = this.page(new Page<>(current, size), this.getQueryWrapper(${dataKey}QueryRequest));
+        return this.get${upperDataKey}VOPage(${dataKey}Page, request);
+    }
+
+    /**
+    * 只有本人或管理员可以执行
+    *
+    * @param request 请求
+    * @param id      id
+    */
+    @Override
+    public void onlyMeOrAdministratorCanDo(HttpServletRequest request, Long id) {
+        User loginUser = userService.getLoginUser(request);
+        // 判断是否存在
+        ${upperDataKey} old${upperDataKey} = ${dataKey}Mapper.selectById(id);
+        ThrowUtils.throwIf(old${upperDataKey} == null, ErrorCode.NOT_FOUND_ERROR);
+        // 仅本人或管理员可操作（这里假设"编辑"和"删除"操作的权限是一样的）
+        if (!old${upperDataKey}.getCreateBy().equals(loginUser.getId()) && !userService.isAdmin(request)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "你当前暂无该权限！");
+        }
     }
 
 }

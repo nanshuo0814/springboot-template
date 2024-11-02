@@ -2,6 +2,8 @@ package ${packageName}.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import ${packageName}.model.dto.IdRequest;
+import ${packageName}.model.dto.${dataKey}.${upperDataKey}AddRequest;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import ${packageName}.model.dto.${dataKey}.${upperDataKey}QueryRequest;
 import ${packageName}.model.dto.${dataKey}.${upperDataKey}UpdateRequest;
@@ -37,11 +39,11 @@ public interface ${upperDataKey}Service extends IService<${upperDataKey}> {
     /**
      * 获取${dataName}封装
      *
-     * @param ${dataKey}
+     * @param idRequest
      * @param request
      * @return
      */
-    ${upperDataKey}VO get${upperDataKey}VO(${upperDataKey} ${dataKey}, HttpServletRequest request);
+    ${upperDataKey}VO get${upperDataKey}VO(IdRequest idRequest, HttpServletRequest request);
 
     /**
      * 分页获取${dataName}封装
@@ -60,4 +62,47 @@ public interface ${upperDataKey}Service extends IService<${upperDataKey}> {
     * @return long
     */
     long update${upperDataKey}(${upperDataKey}UpdateRequest ${dataKey}UpdateRequest, HttpServletRequest request);
+
+    /**
+    * 添加${dataName}
+    *
+    * @param ${dataKey}AddRequest ${dataName}添加请求
+    * @param request               请求
+    * @return long
+    */
+    long add${upperDataKey}(${upperDataKey}AddRequest ${dataKey}AddRequest, HttpServletRequest request);
+
+    /**
+    * 删除${dataName}
+    *
+    * @param deleteRequest 删除请求
+    * @param request       请求
+    * @return int
+    */
+    long delete${upperDataKey}(IdRequest deleteRequest, HttpServletRequest request);
+
+    /**
+    * “获取列表” 页
+    *
+    * @param ${dataKey}QueryRequest
+    * @return {@link Page }<{@link ${upperDataKey} }>
+    */
+    Page<${upperDataKey}> getListPage(${upperDataKey}QueryRequest ${dataKey}QueryRequest);
+
+    /**
+    * 处理分页和验证
+    *
+    * @param ${dataKey}QueryRequest
+    * @param request                 请求
+    * @return {@link Page }<{@link ${upperDataKey}VO }>
+    */
+    Page<${upperDataKey}VO> handlePaginationAndValidation(${upperDataKey}QueryRequest ${dataKey}QueryRequest, HttpServletRequest request);
+
+    /**
+    * 只有我或管理员可以做
+    *
+    * @param request 请求
+    * @param id      id
+    */
+    void onlyMeOrAdministratorCanDo(HttpServletRequest request, Long id);
 }

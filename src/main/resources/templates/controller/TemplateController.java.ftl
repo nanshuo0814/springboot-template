@@ -59,20 +59,7 @@ public class ${upperDataKey}Controller {
     @ApiOperation(value = "创建${dataName}")
     public ApiResponse<Long> add${upperDataKey}(@RequestBody ${upperDataKey}AddRequest ${dataKey}AddRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(${dataKey}AddRequest == null, ErrorCode.PARAMS_ERROR);
-        // todo 在此处将实体类和 DTO 进行转换
-        ${upperDataKey} ${dataKey} = new ${upperDataKey}();
-        BeanUtils.copyProperties(${dataKey}AddRequest, ${dataKey});
-        // 数据校验
-        ${dataKey}Service.valid${upperDataKey}(${dataKey}, true);
-        // todo 填充默认值
-        User loginUser = userService.getLoginUser(request);
-        ${dataKey}.setCreateBy(loginUser.getId());
-        // 写入数据库
-        boolean result = ${dataKey}Service.save(${dataKey});
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-        // 返回新写入的数据 id
-        long new${upperDataKey}Id = ${dataKey}.getId();
-        return ApiResult.success(new${upperDataKey}Id);
+        return ApiResult.success(${dataKey}Service.add${upperDataKey}(${dataKey}AddRequest, request));
     }
 
     /**
@@ -85,13 +72,8 @@ public class ${upperDataKey}Controller {
     @PostMapping("/delete")
     @ApiOperation(value = "删除${dataName}")
     public ApiResponse<Long> delete${upperDataKey}(@RequestBody IdRequest deleteRequest, HttpServletRequest request) {
-        if (deleteRequest == null || deleteRequest.getId() <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        Long id = deleteRequest.getId();
-        onlyMeOrAdministratorCanDo(request, id);
-        ThrowUtils.throwIf(${dataKey}Service.removeById(id), ErrorCode.OPERATION_ERROR);
-        return ApiResult.success(id, "删除成功！");
+        ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
+        return ApiResult.success(${dataKey}Service.delete${upperDataKey}(deleteRequest, request), "删除成功！");
     }
 
     /**
@@ -104,9 +86,7 @@ public class ${upperDataKey}Controller {
     @ApiOperation(value = "更新${dataName}（需要 user 权限）")
     @Verify(checkAuth = UserConstant.USER_ROLE)
     public ApiResponse<Long> update${upperDataKey}(@RequestBody ${upperDataKey}UpdateRequest ${dataKey}UpdateRequest, HttpServletRequest request) {
-        if (${dataKey}UpdateRequest == null || ${dataKey}UpdateRequest.getId() <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+        ThrowUtils.throwIf(${dataKey}UpdateRequest == null || ${dataKey}UpdateRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
         return ApiResult.success(${dataKey}Service.update${upperDataKey}(${dataKey}UpdateRequest, request), "更新成功！");
     }
 
@@ -119,15 +99,9 @@ public class ${upperDataKey}Controller {
     @GetMapping("/get/vo")
     @ApiOperation(value = "根据 id 获取${dataName}（封装类）")
     public ApiResponse<${upperDataKey}VO> get${upperDataKey}VOById(IdRequest idRequest, HttpServletRequest request) {
-        if (idRequest == null || idRequest.getId() <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        long id = idRequest.getId();
-        // 查询数据库
-        ${upperDataKey} ${dataKey} = ${dataKey}Service.getById(id);
-        ThrowUtils.throwIf(${dataKey} == null, ErrorCode.NOT_FOUND_ERROR);
+        ThrowUtils.throwIf(idRequest == null || idRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
         // 获取封装类
-        return ApiResult.success(${dataKey}Service.get${upperDataKey}VO(${dataKey}, request));
+        return ApiResult.success(${dataKey}Service.get${upperDataKey}VO(idRequest, request));
     }
 
     /**
@@ -140,18 +114,8 @@ public class ${upperDataKey}Controller {
     @ApiOperation(value = "分页获取${dataName}列表（仅管理员可用）")
     @Verify(checkAuth = UserConstant.ADMIN_ROLE)
     public ApiResponse<Page<${upperDataKey}>> list${upperDataKey}ByPage(@RequestBody ${upperDataKey}QueryRequest ${dataKey}QueryRequest) {
-        long current = ${dataKey}QueryRequest.getCurrent();
-        long size = ${dataKey}QueryRequest.getPageSize();
-        if (size == 0L) {
-            size = PageConstant.PAGE_SIZE;
-        }
-        if (current == 0L) {
-            current = PageConstant.CURRENT_PAGE;
-        }
-        // 查询数据库
-        Page<${upperDataKey}> ${dataKey}Page = ${dataKey}Service.page(new Page<>(current, size),
-                ${dataKey}Service.getQueryWrapper(${dataKey}QueryRequest));
-        return ApiResult.success(${dataKey}Page);
+        ThrowUtils.throwIf(${dataKey}QueryRequest == null, ErrorCode.PARAMS_ERROR);
+        return ApiResult.success(${dataKey}Service.getListPage(${dataKey}QueryRequest));
     }
 
     /**
@@ -163,9 +127,9 @@ public class ${upperDataKey}Controller {
      */
     @PostMapping("/list/page/vo")
     @ApiOperation(value = "分页获取${dataName}列表（封装类）")
-    public ApiResponse<Page<${upperDataKey}VO>> list${upperDataKey}VOByPage(@RequestBody ${upperDataKey}QueryRequest ${dataKey}QueryRequest,
-                                                               HttpServletRequest request) {
-        return ApiResult.success(handlePaginationAndValidation(${dataKey}QueryRequest, request));
+    public ApiResponse<Page<${upperDataKey}VO>> list${upperDataKey}VOByPage(@RequestBody ${upperDataKey}QueryRequest ${dataKey}QueryRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(${dataKey}QueryRequest == null, ErrorCode.PARAMS_ERROR);
+        return ApiResult.success(${dataKey}Service.handlePaginationAndValidation(${dataKey}QueryRequest, request));
     }
 
     /**
@@ -177,58 +141,11 @@ public class ${upperDataKey}Controller {
      */
     @PostMapping("/my/list/page/vo")
     @ApiOperation(value = "分页获取当前登录用户创建的${dataName}列表")
-    public ApiResponse<Page<${upperDataKey}VO>> listMy${upperDataKey}VOByPage(@RequestBody ${upperDataKey}QueryRequest ${dataKey}QueryRequest,
-                                                                 HttpServletRequest request) {
-        if (${dataKey}QueryRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+    public ApiResponse<Page<${upperDataKey}VO>> listMy${upperDataKey}VOByPage(@RequestBody ${upperDataKey}QueryRequest ${dataKey}QueryRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(${dataKey}QueryRequest == null, ErrorCode.PARAMS_ERROR);
         User loginUser = userService.getLoginUser(request);
         ${dataKey}QueryRequest.setCreateBy(loginUser.getId());
-        return ApiResult.success(handlePaginationAndValidation(${dataKey}QueryRequest, request));
-    }
-
-    // endregion
-
-
-   // region 公用方法
-
-    /**
-    * 处理分页和验证
-    *
-    * @param ${dataKey}QueryRequest ${dataName}查询请求
-    * @param request          请求
-    * @return {@code Page<${upperDataKey}VO>}
-    */
-    private Page<${upperDataKey}VO> handlePaginationAndValidation(${upperDataKey}QueryRequest ${dataKey}QueryRequest, HttpServletRequest request) {
-        long current = ${dataKey}QueryRequest.getCurrent();
-        long size = ${dataKey}QueryRequest.getPageSize();
-        if (size == 0L) {
-            size = PageConstant.PAGE_SIZE;
-        }
-        if (current == 0L) {
-            current = PageConstant.CURRENT_PAGE;
-        }
-        // 限制爬虫
-        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        Page<${upperDataKey}> ${dataKey}Page = ${dataKey}Service.page(new Page<>(current, size), ${dataKey}Service.getQueryWrapper(${dataKey}QueryRequest));
-        return ${dataKey}Service.get${upperDataKey}VOPage(${dataKey}Page, request);
-    }
-
-    /**
-    * 只有本人或管理员可以执行
-    *
-    * @param request 请求
-    * @param id      id
-    */
-    private void onlyMeOrAdministratorCanDo(HttpServletRequest request, Long id) {
-        User loginUser = userService.getLoginUser(request);
-        // 判断是否存在
-        ${upperDataKey} old${upperDataKey} = ${dataKey}Service.getById(id);
-        ThrowUtils.throwIf(old${upperDataKey} == null, ErrorCode.NOT_FOUND_ERROR);
-        // 仅本人或管理员可操作（这里假设"编辑"和"删除"操作的权限是一样的）
-        if (!old${upperDataKey}.getCreateBy().equals(loginUser.getId()) && !userService.isAdmin(request)) {
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "你当前暂无该权限！");
-        }
+        return ApiResult.success(${dataKey}Service.handlePaginationAndValidation(${dataKey}QueryRequest, request));
     }
 
     // endregion
