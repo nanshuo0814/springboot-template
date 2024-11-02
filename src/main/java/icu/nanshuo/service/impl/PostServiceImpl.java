@@ -10,12 +10,12 @@ import icu.nanshuo.constant.PageConstant;
 import icu.nanshuo.model.enums.sort.PostSortFieldEnums;
 import icu.nanshuo.model.vo.post.PostVO;
 import icu.nanshuo.exception.BusinessException;
-import icu.nanshuo.mapper.PostFavourMapper;
+import icu.nanshuo.mapper.PostCollectMapper;
 import icu.nanshuo.mapper.PostMapper;
-import icu.nanshuo.mapper.PostThumbMapper;
+import icu.nanshuo.mapper.PostPraiseMapper;
 import icu.nanshuo.model.domain.Post;
-import icu.nanshuo.model.domain.PostFavour;
-import icu.nanshuo.model.domain.PostThumb;
+import icu.nanshuo.model.domain.PostCollect;
+import icu.nanshuo.model.domain.PostPraise;
 import icu.nanshuo.model.domain.User;
 import icu.nanshuo.model.dto.post.PostEsRequest;
 import icu.nanshuo.model.dto.post.PostQueryRequest;
@@ -68,9 +68,9 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     @Resource
     private UserService userService;
     @Resource
-    private PostThumbMapper postThumbMapper;
+    private PostPraiseMapper postPraiseMapper;
     @Resource
-    private PostFavourMapper postFavourMapper;
+    private PostCollectMapper postCollectMapper;
     @Resource
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
@@ -124,17 +124,17 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         User loginUser = userService.getLoginUserPermitNull(request);
         if (loginUser != null) {
             // 获取点赞
-            LambdaQueryWrapper<PostThumb> postThumbQueryWrapper = new LambdaQueryWrapper<>();
-            postThumbQueryWrapper.in(PostThumb::getPostId, postId);
-            postThumbQueryWrapper.eq(PostThumb::getCreateBy, loginUser.getId());
-            PostThumb postThumb = postThumbMapper.selectOne(postThumbQueryWrapper);
-            postVO.setHasThumb(postThumb != null);
+            LambdaQueryWrapper<PostPraise> postPraiseQueryWrapper = new LambdaQueryWrapper<>();
+            postPraiseQueryWrapper.in(PostPraise::getPostId, postId);
+            postPraiseQueryWrapper.eq(PostPraise::getCreateBy, loginUser.getId());
+            PostPraise postPraise = postPraiseMapper.selectOne(postPraiseQueryWrapper);
+            postVO.setHasPraise(postPraise != null);
             // 获取收藏
-            LambdaQueryWrapper<PostFavour> postFavourQueryWrapper = new LambdaQueryWrapper<>();
-            postFavourQueryWrapper.in(PostFavour::getPostId, postId);
-            postFavourQueryWrapper.eq(PostFavour::getCreateBy, loginUser.getId());
-            PostFavour postFavour = postFavourMapper.selectOne(postFavourQueryWrapper);
-            postVO.setHasFavour(postFavour != null);
+            LambdaQueryWrapper<PostCollect> postCollectQueryWrapper = new LambdaQueryWrapper<>();
+            postCollectQueryWrapper.in(PostCollect::getPostId, postId);
+            postCollectQueryWrapper.eq(PostCollect::getCreateBy, loginUser.getId());
+            PostCollect postCollect = postCollectMapper.selectOne(postCollectQueryWrapper);
+            postVO.setHasCollect(postCollect != null);
         }
         return postVO;
     }
@@ -198,22 +198,22 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIdSet).stream()
                 .collect(Collectors.groupingBy(User::getId));
         // 2. 已登录，获取用户点赞、收藏状态
-        Map<Long, Boolean> postIdHasThumbMap = new HashMap<>();
-        Map<Long, Boolean> postIdHasFavourMap = new HashMap<>();
+        Map<Long, Boolean> postIdHasPraiseMap = new HashMap<>();
+        Map<Long, Boolean> postIdHasCollectMap = new HashMap<>();
         if (loginUser != null) {
             Set<Long> postIdSet = postList.stream().map(Post::getId).collect(Collectors.toSet());
             // 获取点赞
-            LambdaQueryWrapper<PostThumb> postThumbQueryWrapper = new LambdaQueryWrapper<>();
-            postThumbQueryWrapper.in(PostThumb::getId, postIdSet);
-            postThumbQueryWrapper.eq(PostThumb::getCreateBy, loginUser.getId());
-            List<PostThumb> postPostThumbList = postThumbMapper.selectList(postThumbQueryWrapper);
-            postPostThumbList.forEach(postPostThumb -> postIdHasThumbMap.put(postPostThumb.getPostId(), true));
+            LambdaQueryWrapper<PostPraise> postPraiseQueryWrapper = new LambdaQueryWrapper<>();
+            postPraiseQueryWrapper.in(PostPraise::getId, postIdSet);
+            postPraiseQueryWrapper.eq(PostPraise::getCreateBy, loginUser.getId());
+            List<PostPraise> postPostPraiseList = postPraiseMapper.selectList(postPraiseQueryWrapper);
+            postPostPraiseList.forEach(postPostPraise -> postIdHasPraiseMap.put(postPostPraise.getPostId(), true));
             // 获取收藏
-            LambdaQueryWrapper<PostFavour> postFavourQueryWrapper = new LambdaQueryWrapper<>();
-            postFavourQueryWrapper.in(PostFavour::getPostId, postIdSet);
-            postFavourQueryWrapper.eq(PostFavour::getCreateBy, loginUser.getId());
-            List<PostFavour> postFavourList = postFavourMapper.selectList(postFavourQueryWrapper);
-            postFavourList.forEach(postFavour -> postIdHasFavourMap.put(postFavour.getPostId(), true));
+            LambdaQueryWrapper<PostCollect> postCollectQueryWrapper = new LambdaQueryWrapper<>();
+            postCollectQueryWrapper.in(PostCollect::getPostId, postIdSet);
+            postCollectQueryWrapper.eq(PostCollect::getCreateBy, loginUser.getId());
+            List<PostCollect> postCollectList = postCollectMapper.selectList(postCollectQueryWrapper);
+            postCollectList.forEach(postCollect -> postIdHasCollectMap.put(postCollect.getPostId(), true));
         }
         // 填充信息
         List<PostVO> postVOList = postList.stream().map(post -> {
@@ -224,8 +224,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
                 user = userIdUserListMap.get(userId).get(0);
             }
             postVO.setUser(userService.getUserVO(user));
-            postVO.setHasThumb(postIdHasThumbMap.getOrDefault(post.getId(), false));
-            postVO.setHasFavour(postIdHasFavourMap.getOrDefault(post.getId(), false));
+            postVO.setHasPraise(postIdHasPraiseMap.getOrDefault(post.getId(), false));
+            postVO.setHasCollect(postIdHasCollectMap.getOrDefault(post.getId(), false));
             return postVO;
         }).collect(Collectors.toList());
         postVoPage.setRecords(postVOList);

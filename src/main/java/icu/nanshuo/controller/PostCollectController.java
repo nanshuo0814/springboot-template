@@ -11,9 +11,8 @@ import icu.nanshuo.model.domain.Post;
 import icu.nanshuo.model.domain.User;
 import icu.nanshuo.model.dto.IdRequest;
 import icu.nanshuo.model.dto.post.PostQueryRequest;
-import icu.nanshuo.model.dto.postfavour.PostFavourQueryRequest;
 import icu.nanshuo.model.vo.post.PostVO;
-import icu.nanshuo.service.PostFavourService;
+import icu.nanshuo.service.PostCollectService;
 import icu.nanshuo.service.PostService;
 import icu.nanshuo.service.UserService;
 import icu.nanshuo.utils.ThrowUtils;
@@ -33,13 +32,13 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2024/03/31
  */
 @RestController
-@RequestMapping("/post_favour")
+@RequestMapping("/postCollect")
 @Slf4j
 //@Api(tags = "帖子收藏模块")
-public class PostFavourController {
+public class PostCollectController {
 
     @Resource
-    private PostFavourService postFavourService;
+    private PostCollectService postCollectService;
     @Resource
     private PostService postService;
     @Resource
@@ -55,7 +54,7 @@ public class PostFavourController {
     @PostMapping("/")
     //@ApiOperation(value = "收藏/取消收藏（需要 user 权限）")
     @Verify(checkAuth = UserConstant.USER_ROLE)
-    public ApiResponse<Integer> doPostFavour(@RequestBody IdRequest idRequest,
+    public ApiResponse<Integer> doPostCollect(@RequestBody IdRequest idRequest,
                                              HttpServletRequest request) {
         if (idRequest == null || idRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -63,7 +62,7 @@ public class PostFavourController {
         // 登录才能操作
         final User loginUser = userService.getLoginUser(request);
         long postId = idRequest.getId();
-        int result = postFavourService.doPostFavour(postId, loginUser);
+        int result = postCollectService.doPostCollect(postId, loginUser);
         return ApiResult.success(result);
     }
 
@@ -77,7 +76,7 @@ public class PostFavourController {
     @PostMapping("/my/list/page")
     //@ApiOperation(value = "获取当前登录用户自己收藏的帖子（需要 user 权限）")
     @Verify(checkAuth = UserConstant.USER_ROLE)
-    public ApiResponse<Page<PostVO>> listMyFavourPostByPage(@RequestBody PostQueryRequest postQueryRequest,
+    public ApiResponse<Page<PostVO>> listMyCollectPostByPage(@RequestBody PostQueryRequest postQueryRequest,
                                                             HttpServletRequest request) {
         if (postQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -87,7 +86,7 @@ public class PostFavourController {
         long size = postQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        Page<Post> postPage = postFavourService.listFavourPostByPage(new Page<>(current, size),
+        Page<Post> postPage = postCollectService.listCollectPostByPage(new Page<>(current, size),
                 postService.getQueryWrapper(postQueryRequest), loginUser.getId());
         return ApiResult.success(postService.getPostVoPage(postPage, loginUser));
     }
@@ -95,26 +94,26 @@ public class PostFavourController {
     /**
      * 获取用户收藏的帖子列表（需要 user 权限）
      *
-     * @param postFavourQueryRequest 帖子收藏查询请求
+     * @param postCollectQueryRequest 帖子收藏查询请求
      * @param request                请求
      * @return {@code ApiResponse<Page<PostVO>>}
      */
     //@ApiOperation(value = "获取用户收藏的帖子（需要 user 权限）")
     @PostMapping("/list/page")
     @Verify(checkAuth = UserConstant.USER_ROLE)
-    public ApiResponse<Page<PostVO>> listFavourPostByPageAndUserId(@RequestBody PostFavourQueryRequest postFavourQueryRequest,
+    public ApiResponse<Page<PostVO>> listCollectPostByPageAndUserId(@RequestBody PostQueryRequest postCollectQueryRequest,
             HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
-        if (postFavourQueryRequest == null) {
+        if (postCollectQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        long current = postFavourQueryRequest.getCurrent();
-        long size = postFavourQueryRequest.getPageSize();
-        Long userId = postFavourQueryRequest.getCreateBy();
+        long current = postCollectQueryRequest.getCurrent();
+        long size = postCollectQueryRequest.getPageSize();
+        Long userId = postCollectQueryRequest.getCreateBy();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20 || userId == null, ErrorCode.PARAMS_ERROR);
-        Page<Post> postPage = postFavourService.listFavourPostByPage(new Page<>(current, size),
-                postService.getQueryWrapper(postFavourQueryRequest.getPostQueryRequest()), userId);
+        Page<Post> postPage = postCollectService.listCollectPostByPage(new Page<>(current, size),
+                postService.getQueryWrapper(postCollectQueryRequest), userId);
         return ApiResult.success(postService.getPostVoPage(postPage, loginUser));
     }
 

@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 @ApiModel(value = "${upperDataKey}SortFieldEnums", description = "${dataName}排序字段枚举")
 public enum ${upperDataKey}SortFieldEnums {
 
+    // todo 更多排序字段可自行添加
+
     /**
      * id
      */

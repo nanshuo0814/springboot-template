@@ -7,11 +7,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import icu.nanshuo.common.ErrorCode;
 import icu.nanshuo.exception.BusinessException;
-import icu.nanshuo.mapper.PostFavourMapper;
+import icu.nanshuo.mapper.PostCollectMapper;
 import icu.nanshuo.model.domain.Post;
-import icu.nanshuo.model.domain.PostFavour;
+import icu.nanshuo.model.domain.PostCollect;
 import icu.nanshuo.model.domain.User;
-import icu.nanshuo.service.PostFavourService;
+import icu.nanshuo.service.PostCollectService;
 import icu.nanshuo.service.PostService;
 import icu.nanshuo.utils.SpringBeanContextUtils;
 import org.springframework.stereotype.Service;
@@ -26,8 +26,8 @@ import javax.annotation.Resource;
  * @date 2024/07/26
  */
 @Service
-public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFavour>
-    implements PostFavourService {
+public class PostCollectServiceImpl extends ServiceImpl<PostCollectMapper, PostCollect>
+    implements PostCollectService {
 
     @Resource
     private PostService postService;
@@ -40,7 +40,7 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
      * @return int
      */
     @Override
-    public int doPostFavour(long postId, User loginUser) {
+    public int doPostCollect(long postId, User loginUser) {
         // 判断是否存在
         Post post = postService.getById(postId);
         if (post == null) {
@@ -50,9 +50,9 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
         long userId = loginUser.getId();
         // 每个用户串行帖子收藏
         // 锁必须要包裹住事务方法
-        PostFavourService postFavourService = SpringBeanContextUtils.getBeanByClass(PostFavourService.class);
+        PostCollectService postCollectService = SpringBeanContextUtils.getBeanByClass(PostCollectService.class);
         synchronized (String.valueOf(userId).intern()) {
-            return postFavourService.doPostFavourInner(userId, postId);
+            return postCollectService.doPostCollectInner(userId, postId);
         }
     }
 
@@ -65,37 +65,37 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int doPostFavourInner(long userId, long postId) {
-        PostFavour postFavour = new PostFavour();
-        postFavour.setCreateBy(userId);
-        postFavour.setUpdateBy(userId);
-        postFavour.setPostId(postId);
-        QueryWrapper<PostFavour> postFavourQueryWrapper = new QueryWrapper<>(postFavour);
-        PostFavour oldPostFavour = this.getOne(postFavourQueryWrapper);
+    public int doPostCollectInner(long userId, long postId) {
+        PostCollect postCollect = new PostCollect();
+        postCollect.setCreateBy(userId);
+        postCollect.setUpdateBy(userId);
+        postCollect.setPostId(postId);
+        QueryWrapper<PostCollect> postCollectQueryWrapper = new QueryWrapper<>(postCollect);
+        PostCollect oldPostCollect = this.getOne(postCollectQueryWrapper);
         boolean result;
-        int favourNumChange; // 用于记录收藏数的变化，1表示增加，-1表示减少
+        int collectNumChange; // 用于记录收藏数的变化，1表示增加，-1表示减少
         // 已收藏，执行取消收藏操作
-        if (oldPostFavour != null) {
-            result = this.remove(postFavourQueryWrapper);
-            favourNumChange = -1; // 取消收藏，收藏数减少
+        if (oldPostCollect != null) {
+            result = this.remove(postCollectQueryWrapper);
+            collectNumChange = -1; // 取消收藏，收藏数减少
         } else {
             // 未收藏，执行收藏操作
-            result = this.save(postFavour);
-            favourNumChange = 1; // 收藏，收藏数增加
+            result = this.save(postCollect);
+            collectNumChange = 1; // 收藏，收藏数增加
         }
         if (result) {
             // 更新帖子收藏数
             Post post = postService.getById(postId);
             if (post != null) {
-                int newFavourNum = post.getFavourNum() + favourNumChange;
+                int newCollectNum = post.getCollectNum() + collectNumChange;
                 // 判断收藏数是否为负数
-                if (newFavourNum >= 0) {
+                if (newCollectNum >= 0) {
                     // 使用Lambda表达式更新帖子收藏数
                     boolean updateResult = postService.lambdaUpdate()
                             .eq(Post::getId, postId)
-                            .set(Post::getFavourNum, newFavourNum) // 直接设置为新的收藏数
+                            .set(Post::getCollectNum, newCollectNum) // 直接设置为新的收藏数
                             .update();
-                    return updateResult ? favourNumChange : 0; // 返回变化的值，1或-1
+                    return updateResult ? collectNumChange : 0; // 返回变化的值，1或-1
                 } else {
                     // 如果收藏数为负数，则抛出异常或进行其他处理
                     throw new BusinessException(ErrorCode.OPERATION_ERROR);
@@ -114,15 +114,15 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
      *
      * @param page         第页
      * @param queryWrapper 查询包装器
-     * @param favourUserId 收藏用户id
+     * @param collectUserId 收藏用户id
      * @return {@code Page<Post>}
      */
     @Override
-    public Page<Post> listFavourPostByPage(IPage<Post> page, Wrapper<Post> queryWrapper, long favourUserId) {
-        if (favourUserId <= 0) {
+    public Page<Post> listCollectPostByPage(IPage<Post> page, Wrapper<Post> queryWrapper, long collectUserId) {
+        if (collectUserId <= 0) {
             return new Page<>();
         }
-        return baseMapper.listFavourPostByPage(page, queryWrapper, favourUserId);
+        return baseMapper.listCollectPostByPage(page, queryWrapper, collectUserId);
     }
 
 }

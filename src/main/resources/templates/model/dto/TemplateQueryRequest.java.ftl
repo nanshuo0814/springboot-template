@@ -21,6 +21,8 @@ import java.util.List;
 @ApiModel(value = "${upperDataKey}AddRequest", description = "创建${dataName}请求")
 public class ${upperDataKey}QueryRequest extends PageBaseRequest implements Serializable {
 
+   // todo 更多参数属性可自行添加
+
     /**
      * id
      */
@@ -52,16 +54,16 @@ public class ${upperDataKey}QueryRequest extends PageBaseRequest implements Seri
     private String content;
 
     /**
-     * 标签列表
-     */
-    @ApiModelProperty(value = "标签列表")
-    private List<String> tags;
-
-    /**
      * 创建用户 id
      */
     @ApiModelProperty(value = "创建用户 id")
     private Long createBy;
+
+    /**
+    * 标签列表
+    */
+    //@ApiModelProperty(value = "标签列表")
+    //private List<String> tags;
 
     private static final long serialVersionUID = 1L;
 }

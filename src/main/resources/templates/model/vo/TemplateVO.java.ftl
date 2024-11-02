@@ -22,6 +22,8 @@ import java.util.List;
 @ApiModel(value = "${upperDataKey}AddRequest", description = "创建${dataName}请求")
 public class ${upperDataKey}VO implements Serializable {
 
+    // 更多参数属性可自行添加
+
     /**
      * id
      */
@@ -59,16 +61,16 @@ public class ${upperDataKey}VO implements Serializable {
     private Date updateTime;
 
     /**
-     * 标签列表
-     */
-    @ApiModelProperty(value = "标签列表")
-    private List<String> tagList;
-
-    /**
      * 创建用户信息
      */
     @ApiModelProperty(value = "创建用户信息")
     private UserVO user;
+
+    /**
+    * 标签列表
+    */
+    //@ApiModelProperty(value = "标签列表")
+    //private List<String> tags;
 
     /**
      * 封装类转对象
@@ -82,8 +84,8 @@ public class ${upperDataKey}VO implements Serializable {
         }
         ${upperDataKey} ${dataKey} = new ${upperDataKey}();
         BeanUtils.copyProperties(${dataKey}VO, ${dataKey});
-        List<String> tagList = ${dataKey}VO.getTagList();
-        ${dataKey}.setTags(JSONUtil.toJsonStr(tagList));
+        //List<String> tagList = ${dataKey}VO.getTagList();
+        //${dataKey}.setTags(JSONUtil.toJsonStr(tagList));
         return ${dataKey};
     }
 
@@ -99,7 +101,7 @@ public class ${upperDataKey}VO implements Serializable {
         }
         ${upperDataKey}VO ${dataKey}VO = new ${upperDataKey}VO();
         BeanUtils.copyProperties(${dataKey}, ${dataKey}VO);
-        ${dataKey}VO.setTagList(JSONUtil.toList(${dataKey}.getTags(), String.class));
+        //${dataKey}VO.setTagList(JSONUtil.toList(${dataKey}.getTags(), String.class));
         return ${dataKey}VO;
     }
 }

@@ -43,16 +43,16 @@ public class Post extends CommonBaseEntity implements Serializable {
     /**
      * 点赞数
      */
-    @TableField(value = "thumb_num")
+    @TableField(value = "praise_num")
     @ApiModelProperty(value = "帖子点赞数")
-    private Integer thumbNum;
+    private Integer praiseNum;
 
     /**
      * 收藏数
      */
-    @TableField(value = "favour_num")
+    @TableField(value = "collect_num")
     @ApiModelProperty(value = "帖子收藏数")
-    private Integer favourNum;
+    private Integer collectNum;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

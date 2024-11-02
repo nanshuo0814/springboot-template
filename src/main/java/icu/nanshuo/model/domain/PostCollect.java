@@ -15,9 +15,9 @@ import java.io.Serializable;
  * @date 2024/07/26
  */
 @EqualsAndHashCode(callSuper = true)
-@TableName(value ="post_favour")
+@TableName(value ="post_collect")
 @Data
-public class PostFavour extends CommonBaseEntity implements Serializable {
+public class PostCollect extends CommonBaseEntity implements Serializable {
 
     /**
      * 帖子 id

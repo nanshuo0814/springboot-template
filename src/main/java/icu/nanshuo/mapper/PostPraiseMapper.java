@@ -1,6 +1,6 @@
 package icu.nanshuo.mapper;
 
-import icu.nanshuo.model.domain.PostThumb;
+import icu.nanshuo.model.domain.PostPraise;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/07/26
  */
-public interface PostThumbMapper extends BaseMapper<PostThumb> {
+public interface PostPraiseMapper extends BaseMapper<PostPraise> {
 
 }
 

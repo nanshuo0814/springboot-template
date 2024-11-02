@@ -33,11 +33,11 @@ public enum PostSortFieldEnums {
     /**
      * 收藏数
      */
-    FAVOUR_NUM(Post::getFavourNum),
+    COLLECT_NUM(Post::getCollectNum),
     /**
      * 点赞数
      */
-    THUMB_NUM(Post::getThumbNum);
+    PRAISE_NUM(Post::getPraiseNum);
 
     private final SFunction<Post, ?> fieldGetter;
 

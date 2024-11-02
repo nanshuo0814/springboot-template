@@ -10,12 +10,13 @@ import ${packageName}.common.ErrorCode;
 import ${packageName}.constant.PageConstant;
 import ${packageName}.utils.ThrowUtils;
 import ${packageName}.mapper.${upperDataKey}Mapper;
-import ${packageName}.mapper.${upperDataKey}FavourMapper;
-import ${packageName}.mapper.${upperDataKey}ThumbMapper;
+import ${packageName}.mapper.${upperDataKey}CollectMapper;
+import ${packageName}.mapper.${upperDataKey}PraiseMapper;
 import ${packageName}.model.dto.${dataKey}.${upperDataKey}QueryRequest;
+import ${packageName}.model.dto.${dataKey}.${upperDataKey}UpdateRequest;
 import ${packageName}.model.domain.${upperDataKey};
-import ${packageName}.model.domain.${upperDataKey}Favour;
-import ${packageName}.model.domain.${upperDataKey}Thumb;
+import ${packageName}.model.domain.${upperDataKey}Collect;
+import ${packageName}.model.domain.${upperDataKey}Praise;
 import ${packageName}.model.domain.User;
 import ${packageName}.model.vo.${dataKey}.${upperDataKey}VO;
 import ${packageName}.model.vo.user.UserVO;
@@ -23,6 +24,7 @@ import ${packageName}.service.${upperDataKey}Service;
 import ${packageName}.model.enums.sort.${upperDataKey}SortFieldEnums;
 import ${packageName}.service.UserService;
 import ${packageName}.utils.SqlUtils;
+import ${packageName}.constant.UserConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,9 +48,12 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
     @Resource
     private UserService userService;
     @Resource
-    private ${upperDataKey}ThumbMapper ${dataKey}ThumbMapper;
-    @Resource
-    private ${upperDataKey}FavourMapper ${dataKey}FavourMapper;
+    private ${upperDataKey}Mapper ${dataKey}Mapper;
+    // todo 如果后续需要点赞或收藏可自行添加，参考 Post 帖子表有现成的代码
+    //@Resource
+    //private ${upperDataKey}PraiseMapper ${dataKey}PraiseMapper;
+    //@Resource
+    //private ${upperDataKey}CollectMapper ${dataKey}CollectMapper;
 
     /**
      * 校验数据
@@ -59,18 +64,19 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
     @Override
     public void valid${upperDataKey}(${upperDataKey} ${dataKey}, boolean add) {
         ThrowUtils.throwIf(${dataKey} == null, ErrorCode.PARAMS_ERROR);
-        // todo 从对象中取值
-        String title = ${dataKey}.getTitle();
+        // todo 从对象中取值，自行修改为正确的属性
+        //String title = ${dataKey}.getTitle();
+
         // 创建数据时，参数不能为空
         if (add) {
-            // todo 补充校验规则
-            ThrowUtils.throwIf(StringUtils.isBlank(title), ErrorCode.PARAMS_ERROR);
+            // todo 补充参数不为空校验规则
+            //ThrowUtils.throwIf(StringUtils.isBlank(title), ErrorCode.PARAMS_ERROR);
         }
         // 修改数据时，有参数则校验
-        // todo 补充校验规则
-        if (StringUtils.isNotBlank(title)) {
-            ThrowUtils.throwIf(title.length() > 80, ErrorCode.PARAMS_ERROR, "标题过长");
-        }
+        // todo 补充参数其他校验规则
+        //if (StringUtils.isNotBlank(title)) {
+        //    ThrowUtils.throwIf(title.length() > 80, ErrorCode.PARAMS_ERROR, "标题过长");
+        //}
     }
 
     /**
@@ -93,26 +99,26 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
         String searchText = ${dataKey}QueryRequest.getSearchText();
         String sortField = ${dataKey}QueryRequest.getSortField();
         String sortOrder = ${dataKey}QueryRequest.getSortOrder();
-        List<String> tagList = ${dataKey}QueryRequest.getTags();
         Long userId = ${dataKey}QueryRequest.getCreateBy();
+        //List<String> tagList = ${dataKey}QueryRequest.getTags();
         // todo 补充需要的查询条件
         // 从多字段中搜索
-        if (StringUtils.isNotBlank(searchText)) {
-            // 需要拼接查询条件
-            queryWrapper.and(qw -> qw.like(${upperDataKey}::getTitle, searchText).or().like(${upperDataKey}::getContent, searchText));
-        }
+        //if (StringUtils.isNotBlank(searchText)) {
+        //    // todo 需要拼接查询条件
+        //    queryWrapper.and(qw -> qw.like(${upperDataKey}::getTitle, searchText).or().like(${upperDataKey}::getContent, searchText));
+        //}
         // 模糊查询
-        queryWrapper.like(StringUtils.isNotBlank(title), ${upperDataKey}::getTitle, title);
-        queryWrapper.like(StringUtils.isNotBlank(content), ${upperDataKey}::getContent, content);
+        //queryWrapper.like(StringUtils.isNotBlank(title), ${upperDataKey}::getTitle, title);
+        //queryWrapper.like(StringUtils.isNotBlank(content), ${upperDataKey}::getContent, content);
         // JSON 数组查询
-        if (CollUtil.isNotEmpty(tagList)) {
-            for (String tag : tagList) {
-                queryWrapper.like(${upperDataKey}::getTags, "\"" + tag + "\"");
-            }
-        }
+        //if (CollUtil.isNotEmpty(tagList)) {
+        //    for (String tag : tagList) {
+        //        queryWrapper.like(${upperDataKey}::getTags, "\"" + tag + "\"");
+        //    }
+        //}
         // 精确查询
-        queryWrapper.ne(ObjectUtils.isNotEmpty(notId), ${upperDataKey}::getId, notId);
-        queryWrapper.eq(ObjectUtils.isNotEmpty(id), ${upperDataKey}::getId, id);
+        //queryWrapper.ne(ObjectUtils.isNotEmpty(notId), ${upperDataKey}::getId, notId);
+        //queryWrapper.eq(ObjectUtils.isNotEmpty(id), ${upperDataKey}::getId, id);
         queryWrapper.eq(ObjectUtils.isNotEmpty(userId), ${upperDataKey}::getCreateBy, userId);
         // 排序规则
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(PageConstant.SORT_ORDER_ASC), isSortField(sortField));
@@ -187,25 +193,25 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
         Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIdSet).stream()
                 .collect(Collectors.groupingBy(User::getId));
         // 2. 已登录，获取用户点赞、收藏状态
-        Map<Long, Boolean> ${dataKey}IdHasThumbMap = new HashMap<>();
-        Map<Long, Boolean> ${dataKey}IdHasFavourMap = new HashMap<>();
-        User loginUser = userService.getLoginUserPermitNull(request);
-        if (loginUser != null) {
-            Set<Long> ${dataKey}IdSet = ${dataKey}List.stream().map(${upperDataKey}::getId).collect(Collectors.toSet());
-            loginUser = userService.getLoginUser(request);
-            // 获取点赞
-            LambdaQueryWrapper<${upperDataKey}Thumb> ${dataKey}ThumbQueryWrapper = new LambdaQueryWrapper<>();
-            ${dataKey}ThumbQueryWrapper.in(${upperDataKey}Thumb::getId, ${dataKey}IdSet);
-            ${dataKey}ThumbQueryWrapper.eq(${upperDataKey}Thumb::getCreateBy, loginUser.getId());
-            List<${upperDataKey}Thumb> ${dataKey}${upperDataKey}ThumbList = ${dataKey}ThumbMapper.selectList(${dataKey}ThumbQueryWrapper);
-            ${dataKey}${upperDataKey}ThumbList.forEach(${dataKey}${upperDataKey}Thumb -> ${dataKey}IdHasThumbMap.put(${dataKey}${upperDataKey}Thumb.get${upperDataKey}Id(), true));
-            // 获取收藏
-            LambdaQueryWrapper<${upperDataKey}Favour> ${dataKey}FavourQueryWrapper = new LambdaQueryWrapper<>();
-            ${dataKey}FavourQueryWrapper.in(${upperDataKey}Favour::getId, ${dataKey}IdSet);
-            ${dataKey}FavourQueryWrapper.eq(${upperDataKey}Favour::getCreateBy, loginUser.getId());
-            List<${upperDataKey}Favour> ${dataKey}FavourList = ${dataKey}FavourMapper.selectList(${dataKey}FavourQueryWrapper);
-            ${dataKey}FavourList.forEach(${dataKey}Favour -> ${dataKey}IdHasFavourMap.put(${dataKey}Favour.get${upperDataKey}Id(), true));
-        }
+        //Map<Long, Boolean> ${dataKey}IdHasPraiseMap = new HashMap<>();
+        //Map<Long, Boolean> ${dataKey}IdHasCollectMap = new HashMap<>();
+        //User loginUser = userService.getLoginUserPermitNull(request);
+        //if (loginUser != null) {
+        //    Set<Long> ${dataKey}IdSet = ${dataKey}List.stream().map(${upperDataKey}::getId).collect(Collectors.toSet());
+        //    loginUser = userService.getLoginUser(request);
+        //    // 获取点赞
+        //    LambdaQueryWrapper<${upperDataKey}Praise> ${dataKey}PraiseQueryWrapper = new LambdaQueryWrapper<>();
+        //    ${dataKey}PraiseQueryWrapper.in(${upperDataKey}Praise::getId, ${dataKey}IdSet);
+        //    ${dataKey}PraiseQueryWrapper.eq(${upperDataKey}Praise::getCreateBy, loginUser.getId());
+        //    List<${upperDataKey}Praise> ${dataKey}${upperDataKey}PraiseList = ${dataKey}ThumbMapper.selectList(${dataKey}ThumbQueryWrapper);
+        //    ${dataKey}${upperDataKey}ThumbList.forEach(${dataKey}${upperDataKey}Praise -> ${dataKey}IdHasPraiseMap.put(${dataKey}${upperDataKey}Praise.get${upperDataKey}Id(), true));
+        //    // 获取收藏
+        //    LambdaQueryWrapper<${upperDataKey}Collect> ${dataKey}CollectQueryWrapper = new LambdaQueryWrapper<>();
+        //    ${dataKey}CollectQueryWrapper.in(${upperDataKey}Collect::getId, ${dataKey}IdSet);
+        //    ${dataKey}CollectQueryWrapper.eq(${upperDataKey}Collect::getCreateBy, loginUser.getId());
+        //    List<${upperDataKey}Collect> ${dataKey}CollectList = ${dataKey}CollectMapper.selectList(${dataKey}CollectQueryWrapper);
+        //    ${dataKey}CollectList.forEach(${dataKey}Collect -> ${dataKey}IdHasCollectMap.put(${dataKey}Collect.get${upperDataKey}Id(), true));
+        //}
         // 填充信息
         ${dataKey}VOList.forEach(${dataKey}VO -> {
             Long userId = ${dataKey}VO.getCreateBy();
@@ -219,6 +225,34 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
 
         ${dataKey}VOPage.setRecords(${dataKey}VOList);
         return ${dataKey}VOPage;
+    }
+
+    /**
+    * 更新${dataName}
+    *
+    * @param ${dataKey}UpdateRequest 更新后请求
+    * @param request           请求
+    * @return long
+    */
+    @Override
+    public long update${upperDataKey}(${upperDataKey}UpdateRequest ${dataKey}UpdateRequest, HttpServletRequest request) {
+        // 本人和管理员可修改
+        User user = userService.getLoginUser(request);
+        if (!UserConstant.ADMIN_ROLE.equals(user.getUserRole()) && !Objects.equals(user.getId(), ${dataKey}UpdateRequest.getCreateBy())) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        long id = ${dataKey}UpdateRequest.getId();
+        // 获取数据
+        ${upperDataKey} old${upperDataKey} = ${dataKey}Mapper.selectById(id);
+        ThrowUtils.throwIf(old${upperDataKey} == null, ErrorCode.NOT_FOUND_ERROR);
+        // todo 设置值
+        //old${upperDataKey}.setTitle(postUpdateRequest.getTitle());
+        //old${upperDataKey}.setContent(postUpdateRequest.getContent());
+        // 参数校验
+        valid${upperDataKey}(old${upperDataKey}, false);
+        // 更新
+        ${dataKey}Mapper.updateById(old${upperDataKey});
+        return id;
     }
 
 }

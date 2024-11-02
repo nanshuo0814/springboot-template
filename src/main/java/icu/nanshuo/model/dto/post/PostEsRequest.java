@@ -63,13 +63,13 @@ public class PostEsRequest implements Serializable {
      * 点赞数
      */
     @ApiModelProperty(value = "点赞数", required = true)
-    private Integer thumbNum;
+    private Integer praiseNum;
 
     /**
      * 收藏数
      */
     @ApiModelProperty(value = "收藏数", required = true)
-    private Integer favourNum;
+    private Integer collectNum;
 
     /**
      * 创建人 id

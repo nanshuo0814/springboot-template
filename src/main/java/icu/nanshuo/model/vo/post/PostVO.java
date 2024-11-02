@@ -44,13 +44,13 @@ public class PostVO implements Serializable {
      * 点赞数
      */
     @ApiModelProperty(value = "帖子点赞数", required = true)
-    private Integer thumbNum;
+    private Integer praiseNum;
 
     /**
      * 收藏数
      */
     @ApiModelProperty(value = "帖子收藏数", required = true)
-    private Integer favourNum;
+    private Integer collectNum;
 
     /**
      * 创建人
@@ -92,13 +92,13 @@ public class PostVO implements Serializable {
      * 是否已点赞
      */
     @ApiModelProperty(value = "是否已点赞", required = true)
-    private Boolean hasThumb;
+    private Boolean hasPraise;
 
     /**
      * 是否已收藏
      */
     @ApiModelProperty(value = "是否已收藏", required = true)
-    private Boolean hasFavour;
+    private Boolean hasCollect;
 
     /**
      * 包装类转对象

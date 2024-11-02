@@ -17,6 +17,8 @@ import java.util.List;
 @ApiModel(value = "${upperDataKey}AddRequest", description = "创建${dataName}请求")
 public class ${upperDataKey}UpdateRequest implements Serializable {
 
+    // todo 更多参数属性可自行添加
+
     /**
      * id
      */
@@ -24,22 +26,16 @@ public class ${upperDataKey}UpdateRequest implements Serializable {
     private Long id;
 
     /**
-     * 标题
-     */
-    @ApiModelProperty(value = "标题")
-    private String title;
+    * 创建者
+    */
+    @ApiModelProperty(value = "创建者")
+    private Long createBy;
 
     /**
-     * 内容
-     */
-    @ApiModelProperty(value = "内容")
-    private String content;
-
-    /**
-     * 标签列表
-     */
-    @ApiModelProperty(value = "标签列表")
-    private List<String> tags;
+    * 标签列表
+    */
+    //@ApiModelProperty(value = "标签列表")
+    //private List<String> tags;
 
     private static final long serialVersionUID = 1L;
 }

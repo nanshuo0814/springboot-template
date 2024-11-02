@@ -54,8 +54,8 @@ public class PostEsDaoTest {
         postEsRequest.setTitle("test");
         postEsRequest.setContent("test");
         postEsRequest.setTags(Arrays.asList("java", "python"));
-        postEsRequest.setThumbNum(1);
-        postEsRequest.setFavourNum(1);
+        postEsRequest.setCollectNum(1);
+        postEsRequest.setPraiseNum(1);
         postEsRequest.setCreateBy(1L);
         postEsRequest.setCreateTime(new Date());
         postEsRequest.setUpdateTime(new Date());

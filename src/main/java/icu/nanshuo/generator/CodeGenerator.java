@@ -85,9 +85,9 @@ public class CodeGenerator {
         inputPath = projectPath + File.separator + "src/main/resources/templates/model/dto/TemplateQueryRequest.java.ftl";
         outputPath = String.format("%s/src/main/java/generator/model/dto/" + dataKey + "/%sQueryRequest.java", projectPath, upperDataKey);
         doGenerate(inputPath, outputPath, dataModel, generateSwaggerAnnotation);
-        inputPath = projectPath + File.separator + "src/main/resources/templates/model/dto/TemplateEditRequest.java.ftl";
-        outputPath = String.format("%s/src/main/java/generator/model/dto/" + dataKey + "/%sEditRequest.java", projectPath, upperDataKey);
-        doGenerate(inputPath, outputPath, dataModel, generateSwaggerAnnotation);
+        //inputPath = projectPath + File.separator + "src/main/resources/templates/model/dto/TemplateEditRequest.java.ftl";
+        //outputPath = String.format("%s/src/main/java/generator/model/dto/" + dataKey + "/%sEditRequest.java", projectPath, upperDataKey);
+        //doGenerate(inputPath, outputPath, dataModel, generateSwaggerAnnotation);
         inputPath = projectPath + File.separator + "src/main/resources/templates/model/dto/TemplateUpdateRequest.java.ftl";
         outputPath = String.format("%s/src/main/java/generator/model/dto/" + dataKey + "/%sUpdateRequest.java", projectPath, upperDataKey);
         doGenerate(inputPath, outputPath, dataModel, generateSwaggerAnnotation);

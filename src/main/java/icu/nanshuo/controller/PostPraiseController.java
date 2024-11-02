@@ -7,8 +7,8 @@ import icu.nanshuo.common.ErrorCode;
 import icu.nanshuo.constant.UserConstant;
 import icu.nanshuo.exception.BusinessException;
 import icu.nanshuo.model.domain.User;
-import icu.nanshuo.model.dto.postthumb.PostThumbAddRequest;
-import icu.nanshuo.service.PostThumbService;
+import icu.nanshuo.model.dto.IdRequest;
+import icu.nanshuo.service.PostPraiseService;
 import icu.nanshuo.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,35 +26,35 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2024/03/31
  */
 @RestController
-@RequestMapping("/post_thumb")
+@RequestMapping("/postPraise")
 @Slf4j
 //@Api(tags = "帖子点赞模块")
-public class PostThumbController {
+public class PostPraiseController {
 
     @Resource
-    private PostThumbService postThumbService;
+    private PostPraiseService postPraiseService;
     @Resource
     private UserService userService;
 
     /**
      * 点赞 / 取消点赞
      *
-     * @param postThumbAddRequest 帖子点赞添加请求
+     * @param postPraiseAddRequest 帖子点赞添加请求
      * @param request             请求
      * @return resultNum 本次点赞变化数
      */
     @PostMapping("/")
     //@ApiOperation(value = "点赞/取消点赞（需要 user 权限）")
     @Verify(checkAuth = UserConstant.USER_ROLE)
-    public ApiResponse<Integer> doThumb(@RequestBody PostThumbAddRequest postThumbAddRequest,
+    public ApiResponse<Integer> doPraise(@RequestBody IdRequest postPraiseAddRequest,
                                         HttpServletRequest request) {
-        if (postThumbAddRequest == null || postThumbAddRequest.getPostId() <= 0) {
+        if (postPraiseAddRequest == null || postPraiseAddRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 登录才能点赞
         final User loginUser = userService.getLoginUser(request);
-        long postId = postThumbAddRequest.getPostId();
-        int result = postThumbService.doPostThumb(postId, loginUser);
+        long postId = postPraiseAddRequest.getId();
+        int result = postPraiseService.doPostPraise(postId, loginUser);
         return ApiResult.success(result);
     }
 

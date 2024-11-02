@@ -70,8 +70,8 @@ public class PostController {
         postService.validPost(post, true);
         User loginUser = userService.getLoginUser(request);
         post.setCreateBy(loginUser.getId());
-        post.setFavourNum(0);
-        post.setThumbNum(0);
+        post.setCollectNum(0);
+        post.setPraiseNum(0);
         boolean result = postService.save(post);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         long newPostId = post.getId();

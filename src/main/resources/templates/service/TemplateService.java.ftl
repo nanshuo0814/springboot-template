@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import ${packageName}.model.dto.${dataKey}.${upperDataKey}QueryRequest;
+import ${packageName}.model.dto.${dataKey}.${upperDataKey}UpdateRequest;
 import ${packageName}.model.domain.${upperDataKey};
 import ${packageName}.model.vo.${dataKey}.${upperDataKey}VO;
 
@@ -50,4 +51,13 @@ public interface ${upperDataKey}Service extends IService<${upperDataKey}> {
      * @return
      */
     Page<${upperDataKey}VO> get${upperDataKey}VOPage(Page<${upperDataKey}> ${dataKey}Page, HttpServletRequest request);
+
+    /**
+    * 更新${dataName}
+    *
+    * @param ${dataKey}UpdateRequest 更新后请求
+    * @param request           请求
+    * @return long
+    */
+    long update${upperDataKey}(${upperDataKey}UpdateRequest ${dataKey}UpdateRequest, HttpServletRequest request);
 }

@@ -41,8 +41,8 @@ create table if not exists post
     title       varchar(512)                       null comment '标题',
     content     text                               null comment '内容',
     tags        varchar(1024)                      null comment '标签列表（json 数组）',
-    thumb_num   int      default 0                 not null comment '点赞数',
-    favour_num  int      default 0                 not null comment '收藏数',
+    praise_num   int      default 0                 not null comment '点赞数',
+    collect_num  int      default 0                 not null comment '收藏数',
     created_by  bigint unsigned                    not null comment '创建帖子用户的id',
     updated_by  bigint unsigned                    not null comment '更新帖子用户的id',
     create_time datetime default current_timestamp not null comment '创建时间',
@@ -54,7 +54,7 @@ create table if not exists post
                    collate utf8mb4_unicode_ci;
 
 -- 帖子点赞表（硬删除）
-create table if not exists post_thumb
+create table if not exists post_praise
 (
     id          bigint auto_increment comment 'id' primary key,
     post_id     bigint                             not null comment '帖子 id',
@@ -69,7 +69,7 @@ create table if not exists post_thumb
                        collate utf8mb4_unicode_ci;
 
 -- 帖子收藏表（硬删除）
-create table if not exists post_favour
+create table if not exists post_collect
 (
     id          bigint auto_increment comment 'id' primary key,
     post_id     bigint                             not null comment '帖子的id',

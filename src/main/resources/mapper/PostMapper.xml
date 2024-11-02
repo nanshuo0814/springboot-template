@@ -9,8 +9,8 @@
         <result property="title" column="title" jdbcType="VARCHAR"/>
         <result property="content" column="content" jdbcType="VARCHAR"/>
         <result property="tags" column="tags" jdbcType="VARCHAR"/>
-        <result property="thumbNum" column="thumb_num" jdbcType="INTEGER"/>
-        <result property="favourNum" column="favour_num" jdbcType="INTEGER"/>
+        <result property="collectNum" column="collect_num" jdbcType="INTEGER"/>
+        <result property="praiseNum" column="praise_num" jdbcType="INTEGER"/>
         <result property="createBy" column="create_by" jdbcType="BIGINT"/>
         <result property="updateBy" column="update_by" jdbcType="BIGINT"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
@@ -20,7 +20,7 @@
 
     <sql id="Base_Column_List">
         id,title,content,
-        tags,thumb_num,favour_num,
+        tags,collect_num,praise_num,
         create_by,update_by,create_time,update_time,
         is_delete
     </sql>
