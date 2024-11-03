@@ -57,6 +57,7 @@ public class ${upperDataKey}Controller {
      */
     @PostMapping("/add")
     @ApiOperation(value = "创建${dataName}")
+    @Verify(checkAuth = UserConstant.USER_ROLE)
     public ApiResponse<Long> add${upperDataKey}(@RequestBody ${upperDataKey}AddRequest ${dataKey}AddRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(${dataKey}AddRequest == null, ErrorCode.PARAMS_ERROR);
         return ApiResult.success(${dataKey}Service.add${upperDataKey}(${dataKey}AddRequest, request));
@@ -71,6 +72,7 @@ public class ${upperDataKey}Controller {
      */
     @PostMapping("/delete")
     @ApiOperation(value = "删除${dataName}")
+    @Verify(checkAuth = UserConstant.USER_ROLE)
     public ApiResponse<Long> delete${upperDataKey}(@RequestBody IdRequest deleteRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
         return ApiResult.success(${dataKey}Service.delete${upperDataKey}(deleteRequest, request), "删除成功！");
@@ -98,6 +100,7 @@ public class ${upperDataKey}Controller {
      */
     @GetMapping("/get/vo")
     @ApiOperation(value = "根据 id 获取${dataName}（封装类）")
+    @Verify(checkAuth = UserConstant.USER_ROLE)
     public ApiResponse<${upperDataKey}VO> get${upperDataKey}VOById(IdRequest idRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(idRequest == null || idRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
         // 获取封装类
