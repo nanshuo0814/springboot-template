@@ -49,14 +49,14 @@ public class ${upperDataKey}Controller {
     // region 增删改查
 
     /**
-     * 创建${dataName}
+     * 创建${dataName}（需要 user 权限）
      *
      * @param ${dataKey}AddRequest
      * @param request
      * @return
      */
     @PostMapping("/add")
-    @ApiOperation(value = "创建${dataName}")
+    @ApiOperation(value = "创建${dataName}（需要 user 权限）")
     @Verify(checkAuth = UserConstant.USER_ROLE)
     public ApiResponse<Long> add${upperDataKey}(@RequestBody ${upperDataKey}AddRequest ${dataKey}AddRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(${dataKey}AddRequest == null, ErrorCode.PARAMS_ERROR);
@@ -64,14 +64,14 @@ public class ${upperDataKey}Controller {
     }
 
     /**
-     * 删除${dataName}
+     * 删除${dataName}（需要 user 权限）
      *
      * @param deleteRequest
      * @param request
      * @return
      */
     @PostMapping("/delete")
-    @ApiOperation(value = "删除${dataName}")
+    @ApiOperation(value = "删除${dataName}（需要 user 权限）")
     @Verify(checkAuth = UserConstant.USER_ROLE)
     public ApiResponse<Long> delete${upperDataKey}(@RequestBody IdRequest deleteRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
@@ -79,7 +79,7 @@ public class ${upperDataKey}Controller {
     }
 
     /**
-     * 更新${dataName}
+     * 更新${dataName}（需要 user 权限）
      *
      * @param ${dataKey}UpdateRequest
      * @return
@@ -93,13 +93,13 @@ public class ${upperDataKey}Controller {
     }
 
     /**
-     * 根据 id 获取${dataName}（封装类）
+     * 根据 id 获取${dataName}（需要 user 权限）
      *
      * @param idRequest
      * @return
      */
     @GetMapping("/get/vo")
-    @ApiOperation(value = "根据 id 获取${dataName}（封装类）")
+    @ApiOperation(value = "根据 id 获取${dataName}（需要 user 权限）")
     @Verify(checkAuth = UserConstant.USER_ROLE)
     public ApiResponse<${upperDataKey}VO> get${upperDataKey}VOById(IdRequest idRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(idRequest == null || idRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
