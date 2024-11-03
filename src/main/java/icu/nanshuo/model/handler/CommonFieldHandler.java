@@ -1,6 +1,7 @@
 package icu.nanshuo.model.handler;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import icu.nanshuo.constant.UserConstant;
 import icu.nanshuo.model.domain.User;
 import icu.nanshuo.service.UserService;
 import icu.nanshuo.utils.SpringBeanContextUtils;
@@ -25,16 +26,28 @@ public class CommonFieldHandler implements MetaObjectHandler {
     public void insertFill(MetaObject metaObject) {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         UserService userService = SpringBeanContextUtils.getBeanByClass(UserService.class);
-        User user = userService.getLoginUser(request);
-        this.setFieldValByName("createBy", user.getId(), metaObject);
-        this.setFieldValByName("updateBy", user.getId(), metaObject);
+        Object flag = request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
+        long createBy = 1L;
+        long updateBy = 1L;
+        if (flag != null) {
+            User user = userService.getLoginUser(request);
+            createBy = user.getId();
+            updateBy = user.getId();
+        }
+        this.setFieldValByName("createBy", createBy, metaObject);
+        this.setFieldValByName("updateBy", updateBy, metaObject);
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         UserService userService = SpringBeanContextUtils.getBeanByClass(UserService.class);
-        User user = userService.getLoginUser(request);
-        this.setFieldValByName("updateBy", user.getId(), metaObject);
+        Object flag = request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
+        long updateBy = 1L;
+        if (flag != null) {
+            User user = userService.getLoginUser(request);
+            updateBy = user.getId();
+        }
+        this.setFieldValByName("updateBy", updateBy, metaObject);
     }
 }
