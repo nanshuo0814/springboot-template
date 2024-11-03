@@ -111,13 +111,12 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
         // todo 从对象中取值，自行修改为正确的属性
         //String title = ${dataKey}.getTitle();
 
-        // 创建数据时，参数不能为空
-        if (add) {
+        // 修改数据时的校验规则
+        if (!add) {
             // todo 补充参数不为空校验规则
             //ThrowUtils.throwIf(StringUtils.isBlank(title), ErrorCode.PARAMS_ERROR);
         }
-        // 修改数据时，有参数则校验
-        // todo 补充参数其他校验规则
+        // todo 修改和添加的公共规则
         //if (StringUtils.isNotBlank(title)) {
         //    ThrowUtils.throwIf(title.length() > 80, ErrorCode.PARAMS_ERROR, "标题过长");
         //}
