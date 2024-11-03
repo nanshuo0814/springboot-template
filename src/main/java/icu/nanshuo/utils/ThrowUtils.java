@@ -54,4 +54,23 @@ public class ThrowUtils {
     public static void throwIfNull(Object data) {
         throwIf(data == null, ErrorCode.PARAMS_NULL);
     }
+
+    /**
+     * 如果为 null，则抛出参数异常40000
+     *
+     * @param data 数据
+     */
+    public static void throwIfNull(Object data, String message) {
+        throwIf(data == null, ErrorCode.PARAMS_NULL, message);
+    }
+
+    /**
+     * 条件成立则抛参数异常40000
+     *
+     * @param condition 条件
+     * @param message   信息
+     */
+    public static void throwIf(boolean condition, String message) {
+        throwIf(condition, new BusinessException(message));
+    }
 }

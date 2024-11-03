@@ -23,14 +23,35 @@ public class BusinessException extends RuntimeException {
         this.code = code;
     }
 
+    /**
+     * 业务异常（自定义错误码）
+     *
+     * @param errorCode 错误代码
+     */
     public BusinessException(ErrorCode errorCode) {
         super(errorCode.getMessage());
         this.code = errorCode.getCode();
     }
 
+    /**
+     * 业务异常(自定义错误码和错误信息）
+     *
+     * @param errorCode 错误代码
+     * @param message   信息
+     */
     public BusinessException(ErrorCode errorCode, String message) {
         super(message);
         this.code = errorCode.getCode();
+    }
+
+    /**
+     * 业务异常（参数异常40000）
+     *
+     * @param message 信息
+     */
+    public BusinessException(String message) {
+        super(message);
+        this.code = ErrorCode.PARAMS_ERROR.getCode();
     }
 
 }
