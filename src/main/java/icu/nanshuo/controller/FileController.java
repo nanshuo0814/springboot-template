@@ -1,10 +1,12 @@
 package icu.nanshuo.controller;
 
 import cn.hutool.core.io.FileUtil;
+import icu.nanshuo.annotation.Verify;
 import icu.nanshuo.common.ApiResponse;
 import icu.nanshuo.common.ApiResult;
 import icu.nanshuo.common.ErrorCode;
 import icu.nanshuo.constant.FileConstant;
+import icu.nanshuo.constant.UserConstant;
 import icu.nanshuo.exception.BusinessException;
 import icu.nanshuo.manager.CosManager;
 import icu.nanshuo.manager.OssManager;
@@ -71,6 +73,7 @@ public class FileController {
      */
     @PostMapping("/upload")
     @ApiOperation(value = "文件上传")
+    @Verify(checkAuth = UserConstant.USER_ROLE)
     public ApiResponse<String> uploadFile(@RequestPart("file") MultipartFile multipartFile,
                                           UploadFileRequest uploadFileRequest, HttpServletRequest request) {
         String type = uploadFileRequest.getType();
