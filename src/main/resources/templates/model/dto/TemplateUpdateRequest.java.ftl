@@ -14,7 +14,7 @@ import java.util.List;
  * @Date ${date}
  */
 @Data
-@ApiModel(value = "${upperDataKey}UpdateRequest", description = "创建${dataName}请求")
+@ApiModel(value = "${upperDataKey}UpdateRequest", description = "更新${dataName}请求")
 public class ${upperDataKey}UpdateRequest implements Serializable {
 
     // todo 更多参数属性可自行添加
@@ -22,19 +22,19 @@ public class ${upperDataKey}UpdateRequest implements Serializable {
     /**
      * id
      */
-    @ApiModelProperty(value = "id")
+    @ApiModelProperty(example = "1", value = "id")
     private Long id;
 
     /**
     * 创建者
     */
-    @ApiModelProperty(value = "创建者")
+    @ApiModelProperty(example = "1", value = "创建者")
     private Long createBy;
 
     /**
     * 标签列表
     */
-    //@ApiModelProperty(value = "标签列表")
+    //@ApiModelProperty(example = "['java','c']", value = "标签列表")
     //private List<String> tags;
 
     private static final long serialVersionUID = 1L;

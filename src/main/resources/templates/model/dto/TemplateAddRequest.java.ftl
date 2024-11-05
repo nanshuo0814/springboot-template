@@ -22,13 +22,13 @@ public class ${upperDataKey}AddRequest implements Serializable {
     /**
      * 内容
      */
-    @ApiModelProperty(value = "内容")
+    @ApiModelProperty(example = "这是一段内容", value = "内容")
     private String content;
 
     /**
     * 标签列表
     */
-    //@ApiModelProperty(value = "标签列表")
+    //@ApiModelProperty(example = "['java','c']", value = "标签列表")
     //private List<String> tags;
 
     private static final long serialVersionUID = 1L;
