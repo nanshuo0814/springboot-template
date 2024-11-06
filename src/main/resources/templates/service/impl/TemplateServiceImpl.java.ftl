@@ -61,7 +61,7 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
     /**
     * 添加${dataName}
     *
-    * @param ${dataKey}AddRequest 发表评论添加请求
+    * @param ${dataKey}AddRequest ${dataName}添加请求
     * @param request               请求
     * @return long
     */
