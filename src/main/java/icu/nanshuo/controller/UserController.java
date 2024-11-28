@@ -11,6 +11,7 @@ import icu.nanshuo.constant.UserConstant;
 import icu.nanshuo.exception.BusinessException;
 import icu.nanshuo.model.domain.User;
 import icu.nanshuo.model.dto.IdRequest;
+import icu.nanshuo.model.dto.IdsRequest;
 import icu.nanshuo.model.dto.user.*;
 import icu.nanshuo.model.vo.user.UserLoginVO;
 import icu.nanshuo.model.vo.user.UserVO;
@@ -214,6 +215,26 @@ public class UserController {
     }
 
     /**
+     * 删除用户批处理
+     *
+     * @param idsRequest id请求
+     * @param request   请求
+     * @return {@link ApiResponse }<{@link Long }>
+     */
+    @PostMapping("/delete/batch")
+    @ApiOperation(value = "批量删除用户（需要 admin 权限）")
+    @Verify(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
+    public ApiResponse<List<Long>> deleteUserBatch(@RequestBody IdsRequest idsRequest, HttpServletRequest request) {
+        if (idsRequest == null || idsRequest.getIds().isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 执行批量删除
+        List<Long> ids = idsRequest.getIds();
+        List<Long> userIds = userService.deleteUserBatch(ids);
+        return ApiResult.success(userIds, "批量删除用户成功！");
+    }
+
+    /**
      * 修改用户信息(需要 user 权限)
      *
      * @param userUpdateRequest 用户更新Request
@@ -241,6 +262,21 @@ public class UserController {
         User user = userService.getById(idRequest.getId());
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在或已删除！");
         return ApiResult.success(user);
+    }
+
+    /**
+     * 按id获取用户封装VO
+     *
+     * @param idRequest id请求
+     * @return {@link ApiResponse }<{@link User }>
+     */
+    @GetMapping("/get/vo")
+    @ApiOperation(value = "按id获取用户封装VO")
+    public ApiResponse<UserVO> getUserVOById(IdRequest idRequest) {
+        User user = userService.getById(idRequest.getId());
+        UserVO userVO = userService.getUserVO(user);
+        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在或已删除！");
+        return ApiResult.success(userVO);
     }
 
     /**

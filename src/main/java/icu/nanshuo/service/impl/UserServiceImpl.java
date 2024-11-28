@@ -13,7 +13,6 @@ import icu.nanshuo.exception.BusinessException;
 import icu.nanshuo.mapper.UserMapper;
 import icu.nanshuo.model.domain.User;
 import icu.nanshuo.model.dto.user.*;
-import icu.nanshuo.model.dto.user.*;
 import icu.nanshuo.model.enums.sort.UserSortFieldEnums;
 import icu.nanshuo.model.enums.user.UserEmailCaptchaTypeEnums;
 import icu.nanshuo.model.enums.user.UserRoleEnums;
@@ -30,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
@@ -365,7 +365,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 用户密码重置通过邮箱重置
      *
-     * @param request                  请求
+     * @param request                    请求
      * @param userPwdResetByEmailRequest 用户密码重置Request
      * @return {@code Boolean}
      */
@@ -757,6 +757,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 从数据库查询（追求性能的话可以注释，直接走缓存）
         long userId = currentUser.getId();
         return this.getById(userId);
+    }
+
+    /**
+     * 删除用户批处理
+     *
+     * @param ids 身份证
+     * @return {@link List }<{@link Long }>
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public List<Long> deleteUserBatch(List<Long> ids) {
+        // 再次确认参数
+        if (ids == null || ids.isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "删除的ID列表不能为空");
+        }
+        // 执行批量删除
+        this.removeByIds(ids); // MyBatis-Plus 提供的批量删除方法
+        // 如果有其他相关的删除操作（比如关联表数据等），可以在这里进行处理
+        return ids;
     }
 
     /**
