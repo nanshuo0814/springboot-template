@@ -249,7 +249,7 @@ public final class RedisUtils {
         if (delta < 0) {
             throw new RuntimeException("递减因子必须大于0");
         }
-        Long increment = redisTemplate.opsForValue().increment(key, delta);
+        Long increment = redisTemplate.opsForValue().decrement(key, delta);
         return increment != null ? increment : 0L;
     }
 
