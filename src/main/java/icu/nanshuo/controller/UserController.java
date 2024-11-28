@@ -217,7 +217,7 @@ public class UserController {
     /**
      * 删除用户批处理
      *
-     * @param idsRequest id请求
+     * @param idsRequest ids
      * @param request   请求
      * @return {@link ApiResponse }<{@link Long }>
      */

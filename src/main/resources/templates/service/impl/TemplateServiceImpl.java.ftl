@@ -30,6 +30,7 @@ import ${packageName}.constant.UserConstant;
 import org.springframework.beans.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.transaction.annotation.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -361,6 +362,25 @@ public class ${upperDataKey}ServiceImpl extends ServiceImpl<${upperDataKey}Mappe
         if (!old${upperDataKey}.getCreateBy().equals(loginUser.getId()) && !userService.isAdmin(request)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "你当前暂无该权限！");
         }
+    }
+
+    /**
+    * 批量删除${dataName}
+    *
+    * @param ids ids
+    * @return {@link List }<{@link Long }>
+    */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public List<Long> delete${upperDataKey}Batch(List<Long> ids) {
+        // 再次确认参数
+        if (ids == null || ids.isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "删除的ID列表不能为空");
+        }
+        // 执行批量删除
+        this.removeByIds(ids); // MyBatis-Plus 提供的批量删除方法
+        // 如果有其他相关的删除操作（比如关联表数据等），可以在这里进行处理
+        return ids;
     }
 
 }

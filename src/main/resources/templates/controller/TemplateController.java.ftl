@@ -21,9 +21,11 @@ import ${packageName}.model.domain.User;
 import ${packageName}.model.vo.${dataKey}.${upperDataKey}VO;
 import ${packageName}.service.${upperDataKey}Service;
 import ${packageName}.service.UserService;
+import ${packageName}.model.dto.IdsRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -76,6 +78,25 @@ public class ${upperDataKey}Controller {
     public ApiResponse<Long> delete${upperDataKey}(@RequestBody IdRequest deleteRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
         return ApiResult.success(${dataKey}Service.delete${upperDataKey}(deleteRequest, request), "删除成功！");
+    }
+
+    /**
+    * 批量删除${dataName}
+    *
+    * @param idsRequest ids请求
+    * @param request   请求
+    * @return {@link ApiResponse }<{@link Long }>
+    */
+    @PostMapping("/delete/batch")
+    @ApiOperation(value = "批量删除用户（需要 admin 权限）")
+    @Verify(checkParam = true, checkAuth = UserConstant.ADMIN_ROLE)
+    public ApiResponse<List<Long>> deleteUserBatch(@RequestBody IdsRequest idsRequest, HttpServletRequest request) {
+        if (idsRequest == null || idsRequest.getIds().isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 执行批量删除
+        List<Long> ids = ${dataKey}Service.delete${upperDataKey}Batch(idsRequest.getIds());
+        return ApiResult.success(ids, "批量删除${dataName}成功！");
     }
 
     /**

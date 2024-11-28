@@ -215,7 +215,6 @@ public interface UserService extends IService<User> {
      * 删除用户批处理
      *
      * @param ids  身份证
-     * @param user 用户
      * @return {@link List }<{@link Long }>
      */
     List<Long> deleteUserBatch(List<Long> ids);

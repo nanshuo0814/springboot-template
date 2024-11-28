@@ -9,6 +9,7 @@ import ${packageName}.model.dto.${dataKey}.${upperDataKey}QueryRequest;
 import ${packageName}.model.dto.${dataKey}.${upperDataKey}UpdateRequest;
 import ${packageName}.model.domain.${upperDataKey};
 import ${packageName}.model.vo.${dataKey}.${upperDataKey}VO;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -105,4 +106,12 @@ public interface ${upperDataKey}Service extends IService<${upperDataKey}> {
     * @param id      id
     */
     void onlyMeOrAdministratorCanDo(HttpServletRequest request, Long id);
+
+    /**
+    * 批量删除${dataName}
+    *
+    * @param ids  ids
+    * @return {@link List }<{@link Long }>
+    */
+    List<Long> delete${upperDataKey}Batch(List<Long> ids);
 }
