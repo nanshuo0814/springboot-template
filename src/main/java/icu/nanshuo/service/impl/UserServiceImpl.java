@@ -1,7 +1,6 @@
 package icu.nanshuo.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import icu.nanshuo.common.ErrorCode;
@@ -23,7 +22,6 @@ import icu.nanshuo.utils.SqlUtils;
 import icu.nanshuo.utils.ThrowUtils;
 import icu.nanshuo.utils.redis.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
-import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -702,45 +700,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 用户通过mp open登录
-     *
-     * @param wxOAuth2UserInfo wx oauth2用户信息
-     * @param request          请求
-     * @return {@code UserLoginVO}
-     */
-    @Override
-    public UserLoginVO userLoginByMpOpen(WxOAuth2UserInfo wxOAuth2UserInfo, HttpServletRequest request) {
-        String unionId = wxOAuth2UserInfo.getUnionId();
-        String mpOpenId = wxOAuth2UserInfo.getOpenid();
-        // 单机锁
-        synchronized (unionId.intern()) {
-            // 查询用户是否已存在
-            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("unionId", unionId);
-            User user = this.getOne(queryWrapper);
-            // 被封号，禁止登录
-            if (user != null && UserRoleEnums.BAN.getValue().equals(user.getUserRole())) {
-                throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "该用户已被封，禁止登录");
-            }
-            // 用户不存在则创建
-            if (user == null) {
-                user = new User();
-                user.setUnionId(unionId);
-                user.setMpOpenId(mpOpenId);
-                user.setUserAvatar(wxOAuth2UserInfo.getHeadImgUrl());
-                user.setUserName(wxOAuth2UserInfo.getNickname());
-                boolean result = this.save(user);
-                if (!result) {
-                    throw new BusinessException(ErrorCode.SYSTEM_ERROR, "登录失败");
-                }
-            }
-            // 记录用户的登录态
-            request.getSession().setAttribute(USER_LOGIN_STATE, user);
-            return getLoginUserVO(user);
-        }
-    }
-
-    /**
      * 获取当前登录用户（允许未登录）
      *
      * @param request
@@ -776,6 +735,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         this.removeByIds(ids); // MyBatis-Plus 提供的批量删除方法
         // 如果有其他相关的删除操作（比如关联表数据等），可以在这里进行处理
         return ids;
+    }
+
+    /**
+     * 自动注册微信用户信息
+     *
+     * @param uuid uuid
+     * @return {@link Long }
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Long autoRegisterWxUserInfo(String uuid) {
+        // todo 待完善，实现微信扫码登录逻辑，若扫码登录成功和用户未注册，则自动注册用户信息，并返回用户ID
+        return 1L;
     }
 
     /**

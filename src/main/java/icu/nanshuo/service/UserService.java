@@ -7,7 +7,6 @@ import icu.nanshuo.model.domain.User;
 import icu.nanshuo.model.dto.user.*;
 import icu.nanshuo.model.vo.user.UserLoginVO;
 import icu.nanshuo.model.vo.user.UserVO;
-import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -179,15 +178,6 @@ public interface UserService extends IService<User> {
     boolean isAdmin(User user);
 
     /**
-     * 用户登录（微信开放平台）
-     *
-     * @param wxOAuth2UserInfo 从微信获取的用户信息
-     * @param request
-     * @return 脱敏后的用户信息
-     */
-    UserLoginVO userLoginByMpOpen(WxOAuth2UserInfo wxOAuth2UserInfo, HttpServletRequest request);
-
-    /**
      * 用户通过电子邮件重置pwd
      *
      * @param userResetPwdByEmailStepRequest 用户重置pwd请求
@@ -218,4 +208,6 @@ public interface UserService extends IService<User> {
      * @return {@link List }<{@link Long }>
      */
     List<Long> deleteUserBatch(List<Long> ids);
+
+    Long autoRegisterWxUserInfo(String fromUserName);
 }

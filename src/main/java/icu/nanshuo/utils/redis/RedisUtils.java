@@ -2,6 +2,7 @@ package icu.nanshuo.utils.redis;
 
 import icu.nanshuo.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
@@ -10,10 +11,7 @@ import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
@@ -573,6 +571,7 @@ public final class RedisUtils {
 
     /**
      * 将数据放入Sorted Set缓存，若值存在，会替换掉
+     * 为 values 全部设置相同的 score 分数，并合成一个 Set
      *
      * @param key    键
      * @param score  分数
@@ -589,7 +588,34 @@ public final class RedisUtils {
     }
 
     /**
+     * 将数据放入Sorted Set缓存，若值存在，会替换掉
+     * 为 values 里的值分别设置不同等等 score 分数
+     *
+     * @param key    钥匙
+     * @param values 数值
+     * @return boolean
+     */
+    public boolean zSetAddCustom(String key, Map<Object, Double> values) {
+        try {
+            // 创建一个 Set 存储 TypedTuple
+            Set<ZSetOperations.TypedTuple<Object>> tuples = new HashSet<>();
+            // 遍历 Map 添加到 Set
+            for (Map.Entry<Object, Double> entry : values.entrySet()) {
+                tuples.add(new DefaultTypedTuple<>(entry.getKey(), entry.getValue()));
+            }
+            // 添加到 Redis，会覆盖原值的 score 分数，有新的 value 也会添加进去
+            Long add = redisTemplate.opsForZSet().add(key, tuples);
+            // add 的值变化是根据 value 的修改或添加新的 value，即使 score 修改了或覆盖了旧值，也不会影响 add 的值（不会 add + 1 )
+            return add != null && add > 0L;
+        } catch (Exception e) {
+            log.error("redis zSetAdd error", e);
+            return false;
+        }
+    }
+
+    /**
      * 将数据放入Sorted Set缓存，若值不存在，则设置添加，反之保留原值
+     * 为 values 全部设置相同的 score 分数，并合成一个 Set
      *
      * @param key    钥匙
      * @param score  得分
@@ -606,23 +632,27 @@ public final class RedisUtils {
     }
 
     /**
-     * 将数据放入Sorted Set缓存，并设置有效时间
+     * 将数据放入Sorted Set缓存，若值不存在，则设置添加，反之保留原值
+     * 根据 values key 对应的 value（score）分别设置不同的分数
      *
-     * @param key    键
-     * @param time   时间(秒)
-     * @param score  分数
-     * @param values 值
-     * @return the number of adding successfully
+     * @param key    钥匙
+     * @param values 数值
+     * @return boolean
      */
-    public boolean zSetAdd(String key, long time, double score, Object... values) {
+    public boolean zSetAddIfAbsentCustom(String key, Map<Object, Double> values) {
         try {
-            boolean count = Boolean.TRUE.equals(redisTemplate.opsForZSet().add(key, values, score));
-            if (time > 0) {
-                expire(key, time);
+            // 创建一个 Set 存储 TypedTuple
+            Set<ZSetOperations.TypedTuple<Object>> tuples = new HashSet<>();
+            // 遍历 Map 添加到 Set
+            for (Map.Entry<Object, Double> entry : values.entrySet()) {
+                tuples.add(new DefaultTypedTuple<>(entry.getKey(), entry.getValue()));
             }
-            return count;
+            // 添加到 Redis，不会覆盖原值的 score 分数，有新的 value 会添加进去
+            Long add = redisTemplate.opsForZSet().addIfAbsent(key, tuples);
+            // add 的值变化是根据 value 的修改或添加新的 value，即使 score 修改了或覆盖了旧值，也不会影响 add 的值（不会 add + 1 )
+            return add != null && add > 0L;
         } catch (Exception e) {
-            log.error("redis zSetAddAndTime error", e);
+            log.error("redis zSetAdd error", e);
             return false;
         }
     }
