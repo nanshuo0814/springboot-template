@@ -209,5 +209,4 @@ public interface UserService extends IService<User> {
      */
     List<Long> deleteUserBatch(List<Long> ids);
 
-    Long autoRegisterWxUserInfo(String fromUserName);
 }

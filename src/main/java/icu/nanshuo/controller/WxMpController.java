@@ -1,12 +1,22 @@
 package icu.nanshuo.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import icu.nanshuo.common.ApiResponse;
+import icu.nanshuo.common.ApiResult;
+import icu.nanshuo.common.ErrorCode;
+import icu.nanshuo.constant.RedisKeyConstant;
+import icu.nanshuo.model.domain.User;
+import icu.nanshuo.model.dto.user.UserAddRequest;
 import icu.nanshuo.model.dto.wxmp.WxMpTxtMsgRequest;
+import icu.nanshuo.model.vo.user.UserLoginVO;
 import icu.nanshuo.model.vo.wxmp.WxMpCommonMsgVO;
 import icu.nanshuo.model.vo.wxmp.WxMpImgTxtItemVO;
 import icu.nanshuo.model.vo.wxmp.WxMpImgTxtMsgVO;
 import icu.nanshuo.model.vo.wxmp.WxMpTxtMsgVO;
 import icu.nanshuo.service.UserService;
+import icu.nanshuo.utils.ThrowUtils;
 import icu.nanshuo.utils.redis.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.api.WxConsts.MenuButtonType;
@@ -21,12 +31,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static icu.nanshuo.constant.UserConstant.USER_LOGIN_STATE;
 import static icu.nanshuo.constant.WxMpConstant.WX_MP_LOGIN_DYNAMIC_CODE;
 
 /**
@@ -81,9 +93,74 @@ public class WxMpController {
     private String wxAvatar;
     @Value("${wechat.official.account.qrCode}")
     private String qrCode;
+    @Value("${superAdmin.email}")
+    private String adminEmail;
     // endregion
     // 随机数生成器
     private static final SecureRandom RANDOM = new SecureRandom();
+
+    /**
+     * 微信公众号登录
+     *
+     * @param code 动态码
+     * @return {@link String }
+     */
+    @PostMapping("/login")
+    public ApiResponse<UserLoginVO> login(@RequestParam("code") String code, HttpServletRequest request) {
+        // 获取Redis，指定范围的值
+        Set<Object> values = redisUtils.zSetRangeByScore(WX_MP_LOGIN_DYNAMIC_CODE, System.currentTimeMillis(), Long.MAX_VALUE);
+        if (CollectionUtils.isEmpty(values)) {
+            log.info("动态码已过期，请重新获取！！！动态码：{}", code);
+            return ApiResult.fail(ErrorCode.NOT_FOUND_ERROR, "动态码已过期，请重新获取！！！");
+        }
+        // 遍历所有动态码
+        boolean isValid = false;
+        String openId = null;
+        for (Object value : values) {
+            String[] split = ((String) value).split(":");
+            openId = split[0];
+            String dynamicCode = split[1];
+            if (dynamicCode.equals(code)) {
+                isValid = true;
+                break;
+            }
+        }
+        if (!isValid) {
+            log.error("动态码错误，请检查！动态码: {}", code);
+            return ApiResult.fail(ErrorCode.NOT_FOUND_ERROR, "动态码错误！！！");
+        }
+        // 数据库查询
+        LambdaQueryWrapper<User> qw = Wrappers.lambdaQuery(User.class).eq(User::getMpOpenId, openId);
+        User user = userService.getOne(qw);
+        // 判断用户是否存在
+        if (ObjectUtils.isNotEmpty(user)) {
+            // 记录用户的登录状态
+            request.getSession().setAttribute(USER_LOGIN_STATE, user);
+            // 缓存用户信息
+            redisUtils.set(RedisKeyConstant.USER_LOGIN_STATE_CACHE + user.getId(), user);
+            // 删除Redis中的动态码
+            redisUtils.zSetRemoveValues(WX_MP_LOGIN_DYNAMIC_CODE, openId + ":" + code);
+            // 返回用户登录信息
+            return ApiResult.success(userService.getLoginUserVO(user), "登录成功");
+        }
+        // 自动创建用户
+        // 查询管理员账号
+        LambdaQueryWrapper<User> wrapper =  Wrappers.lambdaQuery(User.class).eq(User::getUserEmail, adminEmail);
+        User adminUser = userService.getOne(wrapper);
+        long newId = userService.addUser(new UserAddRequest(), adminUser);
+        user = userService.getById(newId);
+        // 设置用户唯一微信标识
+        user.setMpOpenId(openId);
+        ThrowUtils.throwIf(!userService.updateById(user), ErrorCode.SYSTEM_ERROR, "用户更新失败！");
+        // 记录用户的登录状态
+        request.getSession().setAttribute(USER_LOGIN_STATE, user);
+        // 缓存用户信息
+        redisUtils.set(RedisKeyConstant.USER_LOGIN_STATE_CACHE + user.getId(), user);
+        // 删除Redis中的动态码
+        redisUtils.zSetRemoveValues(WX_MP_LOGIN_DYNAMIC_CODE, openId + ":" + code);
+        // 返回用户登录信息
+        return ApiResult.success(userService.getLoginUserVO(user), "登录成功");
+    }
 
     /**
      * 微信的公众号接入 token 验证，即返回 echostr 的参数值
@@ -96,10 +173,11 @@ public class WxMpController {
      */
     @GetMapping("/callback")
     public String check(String timestamp, String nonce, String signature, String echostr) {
-        log.info("check");
         if (wxMpService.checkSignature(timestamp, nonce, signature)) {
+            log.info("callback check success，echostr: {}", echostr);
             return echostr;
         } else {
+            log.error("callback check error");
             return "非法请求ya~";
         }
     }
@@ -122,9 +200,7 @@ public class WxMpController {
                 // 带参数的二维码，扫描、关注事件拿到之后，直接登录，省却输入验证码这一步
                 // 带参数二维码需要 微信认证，个人公众号无权限
                 String code = key.substring("qrscene_".length());
-                // todo 待完善，实现自动注册用户账号
-                userService.autoRegisterWxUserInfo(wxMpMsgRequest.getFromUserName());
-                // todo 用户登录逻辑，校验验证码
+                // todo 实现自动注册用户账号
                 // 登录成功后，发送一条公众号消息给用户，提示登录成功
                 WxMpTxtMsgVO res = new WxMpTxtMsgVO();
                 res.setContent("登录成功");
@@ -167,6 +243,7 @@ public class WxMpController {
                     "\uD83D\uDE80网站：<a href=\"" + website + "\">" + website + "</a>\n" +
                     "\uD83D\uDCD6github：<a href=\"" + github + "\">" + github + "</a>\n" +
                     "\uD83C\uDF1F备注：\n网站微信登录的动态码查看，请回复“" + codeKeyWord + "”关键词获取";
+            log.info("用户关注公众号，openId = {}", fromUser);
         }
         // 下面是关键词回复
         // 关键词获取登录动态码
@@ -182,6 +259,7 @@ public class WxMpController {
             imgTxt.setPicUrl(wxAvatar);
             imgTxt.setUrl(qrCode);
             imgTxtList = Collections.singletonList(imgTxt);
+            log.info("openId: {},获取微信二维码", fromUser);
         }
         // 回复图文消息
         else if ("网站".equalsIgnoreCase(content)) {
@@ -191,6 +269,7 @@ public class WxMpController {
             imgTxt.setPicUrl(logo);
             imgTxt.setUrl(website);
             imgTxtList = Collections.singletonList(imgTxt);
+            log.info("openId: {},获取网站链接", fromUser);
         }
         // 默认回复
         else {
@@ -198,6 +277,7 @@ public class WxMpController {
                     "可以试着回复以下关键词：\n" +
                     "- 微信\n" +
                     "- 网站";
+            log.info("openId = {}，触发默认回复", fromUser);
         }
         if (textRes != null) {
             WxMpTxtMsgVO vo = new WxMpTxtMsgVO();
@@ -241,7 +321,7 @@ public class WxMpController {
                 String[] split = codeStr.split(":");
                 // 判断 split 是否正确（防止数组越界）
                 if (split.length < 2) {
-                    log.error("动态码格式错误，请检查！");
+                    log.info("动态码格式错误，请检查！动态码：{}", value);
                     // 这里可以考虑删除该Redis
                     redisUtils.zSetRemoveValues(WX_MP_LOGIN_DYNAMIC_CODE, value);
                     continue; // 如果分割失败，跳过此元素
@@ -263,6 +343,7 @@ public class WxMpController {
                     continue;
                 }
                 // 返回未过期的动态码
+                log.info("openId: {} and 动态码: {}", openId, split[1]);
                 return "动态码：" + split[1] + "\n" +
                         "这是上一次获取的未使用过的动态码\n请使用这个动态码登录";
             }
@@ -270,6 +351,7 @@ public class WxMpController {
         // 生成全局唯一的6位随机验证码，由字母（区分大小写）、数字组成
         StringBuilder code;
         int count = 0;
+        boolean codeExists = false;
         do {
             if (count > maxAttempts) {
                 return "动态码生成次数过多，请动动你发财的小手，重新发送代码：" + codeKeyWord;
@@ -279,8 +361,19 @@ public class WxMpController {
                 int index = RANDOM.nextInt(charPool.length());
                 code.append(charPool.charAt(index));
             }
+            if (CollectionUtils.isEmpty(set)) {
+                break;
+            }
             count++;
-        } while (redisUtils.zSetHasKey(WX_MP_LOGIN_DYNAMIC_CODE, openId));
+            for (Object value : set) {
+                String str = value.toString();  // 假设 value 是 String 类型，转换为 String
+                String[] split = str.split(":");
+                if (split.length == 2 && code.toString().equals(split[1])) {
+                    codeExists = true;
+                    break;  // 找到匹配的动态码，提前退出循环
+                }
+            }
+        } while (codeExists);
         // 储存到Redis里
         Map<Object, Double> value = new HashMap<>();
         value.put(openId + ":" + code, (double) Instant.now().toEpochMilli() + codeExpireTime * 60 * 1000d);
@@ -292,6 +385,7 @@ public class WxMpController {
         LocalDateTime expirationTime = now.plusMinutes(codeExpireTime);
         String formattedExpirationTime = expirationTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         // 返回动态码
+        log.info("openId: {} and 动态码: {}", openId, code);
         return "动态码：" + code + "\n" +
                 "请在 " + codeExpireTime + " 分钟内完成登录哦⏰\n" +
                 "生成时间：" + generatedTime + "\n" +

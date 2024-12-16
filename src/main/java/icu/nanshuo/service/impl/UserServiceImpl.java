@@ -738,19 +738,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 自动注册微信用户信息
-     *
-     * @param uuid uuid
-     * @return {@link Long }
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Long autoRegisterWxUserInfo(String uuid) {
-        // todo 待完善，实现微信扫码登录逻辑，若扫码登录成功和用户未注册，则自动注册用户信息，并返回用户ID
-        return 1L;
-    }
-
-    /**
      * 获取查询条件
      *
      * @param userQueryRequest 用户查询Request
