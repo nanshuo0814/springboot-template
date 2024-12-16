@@ -99,27 +99,32 @@ upyun:
     userName: xxx
     password: xxx
 
-# 微信相关
+# todo 微信公众号配置（订阅号即可）
 wx:
-  # 微信公众平台
-  # todo 需替换配置
   mp:
-    token: xxx
-    aesKey: xxx
-    appId: xxx
-    secret: xxx
-    config-storage:
-      http-client-type: HttpClient
-      key-prefix: wx
-      redis:
-        host: 127.0.0.1
-        port: 6379
-      type: Memory
-  # 微信开放平台
-  # todo 需替换配置
-  open:
-    appId: xxx
-    appSecret: xxx
+    token: xxx # 用于校验请求来源是否合法的令牌
+    aesKey: xxx # 用于消息加解密的密钥，必须为43个字符
+    appId: xxx # 微信公众平台应用的唯一标识
+    secret: xxx # 微信公众平台应用的密钥
+# todo 微信公众号个人信息及其配置
+wechat:
+  official:
+    account:
+      wxMpName: xxx # 微信公众号名称
+      weixin: xxx # 微信号
+      email: xxx@qq.com # 邮箱
+      qq: xxx # qq
+      github: https://github.com/nanshuo0814 # github
+      website: xxx # 个人网站
+      description: xxx # 网站描述
+      logo: xxx # 网站logo
+      wxAvatar: xxx # 微信头像
+      qrCode: xxx # 微信二维码
+      codeKeyWord: 1 # 微信公众号输入触发生成动态码的关键词
+      codeExpireTime: 3 # 过期时间（分钟）
+      maxAttempts: 3 # 最大尝试生成动态码次数
+      codeLength: 6 # 动态码长度
+      charPool: 23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjklmnpqrstuvwxyz # 字符串池（去掉了0、o、O、i、1、I等等容易混淆的字符）
 
 # 接口文档配置
 knife4j:
@@ -151,7 +156,7 @@ email:
   hostName: smtp.qq.com # 邮箱域名
   emailAddress: xxx@qq.com # 邮箱地址
   password: xxx # 邮箱密码
-  senderName: 烁烁南光 # 发件人昵称
+  senderName: xxx # 发件人昵称
   sslSmtpPort: 465 # 邮箱端口
   mailTitle: 邮箱验证码 # 邮件标题
   content: SpringBoot万能快速开发模板 # 邮件正文里的项目名称
