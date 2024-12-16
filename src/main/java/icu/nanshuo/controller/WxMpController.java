@@ -1,5 +1,6 @@
 package icu.nanshuo.controller;
 
+import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -39,6 +40,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static icu.nanshuo.constant.UserConstant.USER_LOGIN_STATE;
+import static icu.nanshuo.constant.WxMpConstant.WX_MP_BIND_DYNAMIC_CODE;
 import static icu.nanshuo.constant.WxMpConstant.WX_MP_LOGIN_DYNAMIC_CODE;
 
 /**
@@ -145,7 +147,7 @@ public class WxMpController {
         }
         // 自动创建用户
         // 查询管理员账号
-        LambdaQueryWrapper<User> wrapper =  Wrappers.lambdaQuery(User.class).eq(User::getUserEmail, adminEmail);
+        LambdaQueryWrapper<User> wrapper = Wrappers.lambdaQuery(User.class).eq(User::getUserEmail, adminEmail);
         User adminUser = userService.getOne(wrapper);
         long newId = userService.addUser(new UserAddRequest(), adminUser);
         user = userService.getById(newId);
@@ -160,6 +162,58 @@ public class WxMpController {
         redisUtils.zSetRemoveValues(WX_MP_LOGIN_DYNAMIC_CODE, openId + ":" + code);
         // 返回用户登录信息
         return ApiResult.success(userService.getLoginUserVO(user), "登录成功");
+    }
+
+    /**
+     * 绑定微信账号
+     *
+     * @param code    代码
+     * @param request 请求
+     * @return {@link ApiResponse }<{@link UserLoginVO }>
+     */
+    @PostMapping("/bind")
+    public ApiResponse<UserLoginVO> bind(@RequestParam String code, HttpServletRequest request) {
+        // 获取登录用户
+        User loginUser = userService.getLoginUser(request);
+        // redis 获取绑定码
+        Set<Object> bindCode = redisUtils.zSetGetAllValues(WX_MP_BIND_DYNAMIC_CODE);
+        ThrowUtils.throwIf(CollectionUtils.isEmpty(bindCode), ErrorCode.NOT_FOUND_ERROR, "绑定码已过期，请重新获取！！！");
+        for (Object value : bindCode) {
+            String[] split = ((String) value).split(":");
+            if (split.length != 2) {
+                log.error("动态码格式错误，请检查！动态码Value: {}", value);
+                redisUtils.zSetRemoveValues(WX_MP_BIND_DYNAMIC_CODE, value);
+                continue;
+            }
+            if (split[1].equals(code)) {
+                String openId = split[0];
+                if (ObjectUtils.isNotEmpty(loginUser.getMpOpenId())) {
+                    log.error("用户已绑定过账号，请勿重复绑定！openId: {}", openId);
+                    redisUtils.zSetRemoveValues(WX_MP_BIND_DYNAMIC_CODE, value);
+                    return ApiResult.fail(ErrorCode.OPERATION_ERROR, "您已绑定过账号，请勿重复绑定！");
+                }
+                loginUser.setMpOpenId(openId);
+                ThrowUtils.throwIf(!userService.updateById(loginUser), ErrorCode.SYSTEM_ERROR, "用户更新失败！");
+                redisUtils.zSetRemoveValues(WX_MP_BIND_DYNAMIC_CODE, value);
+                return ApiResult.success(userService.getLoginUserVO(loginUser), "绑定成功");
+            }
+        }
+        log.error("绑定码错误，请检查！绑定码: {}", code);
+        return ApiResult.fail(ErrorCode.NOT_FOUND_ERROR, "绑定码错误，请检查！！！");
+    }
+
+    /**
+     * 取消绑定微信
+     *
+     * @param request 请求
+     * @return {@link ApiResponse }<{@link Long }>
+     */
+    @PostMapping("/unbind")
+    public ApiResponse<Long> unbind(HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        loginUser.setMpOpenId(null);
+        ThrowUtils.throwIf(!userService.updateById(loginUser), ErrorCode.SYSTEM_ERROR, "未知错误，解绑失败！");
+        return ApiResult.success(loginUser.getId(), "解绑成功！");
     }
 
     /**
@@ -270,6 +324,94 @@ public class WxMpController {
             imgTxt.setUrl(website);
             imgTxtList = Collections.singletonList(imgTxt);
             log.info("openId: {},获取网站链接", fromUser);
+        } else if ("绑定".equalsIgnoreCase(content)) {
+            // 绑定微信号登录
+            // 查询用户数据库是否已绑定
+            LambdaQueryWrapper<User> qw = Wrappers.lambdaQuery(User.class).eq(User::getMpOpenId, fromUser);
+            User user = userService.getOne(qw);
+            if (user != null) {
+                log.info("微信绑定，openId：{}，user: {}", fromUser, user.getId());
+                textRes = "你已经绑定过了，无需再次绑定";
+            } else {
+                // 是否未过期
+                Set<Object> set = redisUtils.zSetGetAllValues(WX_MP_BIND_DYNAMIC_CODE);
+                if (CollectionUtils.isNotEmpty(set)) {
+                    for (Object value : set) {
+                        // 获取动态码
+                        String codeStr = (String) value;
+                        // 根据 : 分解
+                        String[] split = codeStr.split(":");
+                        // 判断 split 是否正确（防止数组越界）
+                        if (split.length != 2) {
+                            log.info("绑定码格式错误，请检查！动态码：{}", value);
+                            // 这里可以考虑删除该Redis
+                            redisUtils.zSetRemoveValues(WX_MP_BIND_DYNAMIC_CODE, value);
+                            continue; // 如果分割失败，跳过此元素
+                        }
+                        // 获取动态码对应的 openId
+                        String bindCodeOpenId = split[0];
+                        // 判断是否是当前用户
+                        if (!bindCodeOpenId.equals(fromUser)) {
+                            continue;
+                        }
+                        // 获取动态码的分数（过期时间戳）
+                        Double expireTime = redisUtils.zSetGetScore(WX_MP_BIND_DYNAMIC_CODE, value);
+                        // 获取当前时间戳
+                        double currentTime = (double) Instant.now().toEpochMilli();
+                        // 判断是否过期，通过当前时间戳和分数（过期时间戳）进行比较
+                        if (ObjectUtils.isNotEmpty(expireTime) && currentTime > expireTime) {
+                            // 移除Redis
+                            redisUtils.zSetRemoveValues(WX_MP_BIND_DYNAMIC_CODE, value);
+                            log.info("清理过期绑定码,openId: {},code: {}", bindCodeOpenId, split[1]);
+                            continue;
+                        }
+                        // 返回未过期的动态码
+                        log.info("openId: {} and 绑定码: {}", fromUser, split[1]);
+                        textRes = "绑定码：" + split[1] + "\n" +
+                                "这是上一次获取的未使用过的绑定码\n请使用这个绑定码绑定";
+                        break;
+                    }
+                } else {
+                    int count = 0;
+                    boolean codeExists = false;
+                    String code = null;
+                    do {
+                        if (count > maxAttempts) {
+                            textRes = "绑定码生成次数过多，请动动你发财的小手，重新发送代码：“绑定”";
+                            break;
+                        }
+                        // 生成6为随机数字的动态绑定码
+                        code = RandomUtil.randomNumbers(6);
+                        if (CollectionUtils.isEmpty(set)) {
+                            break;
+                        }
+                        count++;
+                        for (Object value : set) {
+                            String str = value.toString();  // 假设 value 是 String 类型，转换为 String
+                            String[] split = str.split(":");
+                            if (split.length == 2 && code.equals(split[1])) {
+                                codeExists = true;
+                                break;  // 找到匹配的动态码，提前退出循环
+                            }
+                        }
+                    } while (codeExists);
+                    // 生成时间
+                    LocalDateTime now = LocalDateTime.now();
+                    String generatedTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                    // 过期时间
+                    LocalDateTime expirationTime = now.plusMinutes(codeExpireTime);
+                    String formattedExpirationTime = expirationTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                    Map<Object, Double> value = new HashMap<>();
+                    value.put(fromUser + ":" + code, (double) Instant.now().toEpochMilli() + codeExpireTime * 60 * 1000d);
+                    redisUtils.zSetAddCustom(WX_MP_BIND_DYNAMIC_CODE, value);
+                    textRes = "绑定码：" + code + "\n" +
+                            "请在 " + codeExpireTime + " 分钟内完成绑定哦⏰\n" +
+                            "生成时间：" + generatedTime + "\n" +
+                            "过期时间：" + formattedExpirationTime + "\n" +
+                            "若非本人操作，请忽略该消息！！！";
+                    log.info("绑定码生成，openId: {} and 绑定码: {}", fromUser, code);
+                }
+            }
         }
         // 默认回复
         else {
@@ -320,7 +462,7 @@ public class WxMpController {
                 // 根据 : 分解
                 String[] split = codeStr.split(":");
                 // 判断 split 是否正确（防止数组越界）
-                if (split.length < 2) {
+                if (split.length != 2) {
                     log.info("动态码格式错误，请检查！动态码：{}", value);
                     // 这里可以考虑删除该Redis
                     redisUtils.zSetRemoveValues(WX_MP_LOGIN_DYNAMIC_CODE, value);

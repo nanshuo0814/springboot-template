@@ -12,4 +12,9 @@ public interface WxMpConstant {
      * 微信公众号登录动态码
      */
     String WX_MP_LOGIN_DYNAMIC_CODE = "wx_mp_login_code:";
+
+    /**
+     * 微信公众号绑定微信的动态代码
+     */
+    String WX_MP_BIND_DYNAMIC_CODE = "wx_mp_bind_code:";
 }
