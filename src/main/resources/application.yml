@@ -69,6 +69,7 @@ mybatis-plus:
       logic-delete-field: isDelete # 全局逻辑删除的实体字段名
       logic-delete-value: 1 # 逻辑已删除值（默认为 1）
       logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
+      update-strategy: ignored # 更新时字段设置null或""照样更新到数据库
 
 # 阿里云对象存储（至少需要配置为公共读）
 # todo 需替换配置
@@ -106,6 +107,8 @@ wx:
     aesKey: xxx # 用于消息加解密的密钥，必须为43个字符
     appId: xxx # 微信公众平台应用的唯一标识
     secret: xxx # 微信公众平台应用的密钥
+    config-storage:
+      type: redistemplate
 # todo 微信公众号个人信息及其配置
 wechat:
   official:
@@ -118,10 +121,10 @@ wechat:
       website: xxx # 个人网站
       description: xxx # 网站描述
       logo: xxx # 网站logo
-      wxAvatar: xxx # 微信头像
-      qrCode: xxx # 微信二维码
-      codeKeyWord: 1 # 微信公众号输入触发生成动态码的关键词
-      codeExpireTime: 3 # 过期时间（分钟）
+      bindCode: 0 # 微信公众号输入触发生成绑定码（微信绑定登录）的关键词
+      bindCodeExpireTime: 3 # 绑定码过期时间（分钟）
+      dynamicCode: 1 # 微信公众号输入触发生成动态码的关键词
+      dynamicCodeExpireTime: 3 # 动态码过期时间，单位分钟
       maxAttempts: 3 # 最大尝试生成动态码次数
       codeLength: 6 # 动态码长度
       charPool: 23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjklmnpqrstuvwxyz # 字符串池（去掉了0、o、O、i、1、I等等容易混淆的字符）
