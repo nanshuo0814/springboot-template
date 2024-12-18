@@ -42,6 +42,7 @@ import static icu.nanshuo.wxmp.WxMpConstant.*;
 /**
  * 微信公众号相关接口
  *
+ * WxJava 在线文档：http://wxjava.fly2you.cn/zh-CN/
  * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
  * @date 2024/12/18
  */
