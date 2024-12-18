@@ -1,6 +1,5 @@
 package icu.nanshuo.controller;
 
-import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -10,12 +9,7 @@ import icu.nanshuo.common.ErrorCode;
 import icu.nanshuo.constant.RedisKeyConstant;
 import icu.nanshuo.model.domain.User;
 import icu.nanshuo.model.dto.user.UserAddRequest;
-import icu.nanshuo.model.dto.wxmp.WxMpTxtMsgRequest;
 import icu.nanshuo.model.vo.user.UserLoginVO;
-import icu.nanshuo.model.vo.wxmp.WxMpCommonMsgVO;
-import icu.nanshuo.model.vo.wxmp.WxMpImgTxtItemVO;
-import icu.nanshuo.model.vo.wxmp.WxMpImgTxtMsgVO;
-import icu.nanshuo.model.vo.wxmp.WxMpTxtMsgVO;
 import icu.nanshuo.service.UserService;
 import icu.nanshuo.utils.ThrowUtils;
 import icu.nanshuo.utils.redis.RedisUtils;
@@ -26,6 +20,9 @@ import me.chanjar.weixin.common.bean.menu.WxMenuButton;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpMessageRouter;
 import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
+import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
+import me.chanjar.weixin.mp.config.WxMpConfigStorage;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,73 +30,193 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.security.SecureRandom;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Set;
 
 import static icu.nanshuo.constant.UserConstant.USER_LOGIN_STATE;
 import static icu.nanshuo.constant.WxMpConstant.WX_MP_BIND_DYNAMIC_CODE;
 import static icu.nanshuo.constant.WxMpConstant.WX_MP_LOGIN_DYNAMIC_CODE;
+import static icu.nanshuo.wxmp.WxMpConstant.*;
 
 /**
  * 微信公众号相关接口
  *
  * @author <a href="https://github.com/nanshuo0814">nanshuo(南烁)</a>
- * @date 2024/05/13
+ * @date 2024/12/18
  */
 @RestController
 @RequestMapping("/wx/mp")
 @Slf4j
 public class WxMpController {
 
-    // region 依赖注入
     @Resource
     private WxMpService wxMpService;
     @Resource
-    private WxMpMessageRouter router;
+    private WxMpMessageRouter wxMpMessageRouter;
+    @Resource
+    private WxMpConfigStorage wxMpConfigStorage;
     @Resource
     private RedisUtils redisUtils;
     @Resource
     private UserService userService;
-    // endregion
-    // region 微信公众号个人信息常量
-    @Value("${wechat.official.account.wxMpName}")
-    private String wxMpName;
-    @Value("${wechat.official.account.email}")
-    private String email;
-    @Value("${wechat.official.account.qq}")
-    private String QQ;
-    @Value("${wechat.official.account.weixin}")
-    private String wechat;
-    @Value("${wechat.official.account.website}")
-    private String website;
-    @Value("${wechat.official.account.github}")
-    private String github;
-    @Value("${wechat.official.account.codeKeyWord}")
-    private String codeKeyWord;
-    @Value("${wechat.official.account.codeExpireTime}")
-    private int codeExpireTime;
-    @Value("${wechat.official.account.maxAttempts}")
-    private int maxAttempts;
-    @Value("${wechat.official.account.charPool}")
-    private String charPool;
-    @Value("${wechat.official.account.codeLength}")
-    private int codeLength;
-    @Value("${wechat.official.account.description}")
-    private String description;
-    @Value("${wechat.official.account.logo}")
-    private String logo;
-    @Value("${wechat.official.account.wxAvatar}")
-    private String wxAvatar;
-    @Value("${wechat.official.account.qrCode}")
-    private String qrCode;
     @Value("${superAdmin.email}")
     private String adminEmail;
-    // endregion
-    // 随机数生成器
-    private static final SecureRandom RANDOM = new SecureRandom();
+
+    /**
+     * 微信的公众号接入 token 验证，即返回 echostr 的参数值
+     *
+     * @param timestamp 时间戳
+     * @param nonce     随机数
+     * @param signature 签名
+     * @param echostr   echostr
+     * @return {@link String }
+     */
+    @GetMapping("/callback")
+    public String check(String timestamp, String nonce, String signature, String echostr) {
+        if (wxMpService.checkSignature(timestamp, nonce, signature)) {
+            log.info("callback check success，echostr: {}", echostr);
+            return echostr;
+        } else {
+            log.error("callback check error");
+            return "非法请求ya~";
+        }
+    }
+
+    /**
+     * 接收消息
+     *
+     * @param requestBody 请求正文
+     * @param request     请求
+     * @return {@link String }
+     * @throws IOException ioexception
+     */
+    @PostMapping(path = "/callback", consumes = {"application/xml", "text/xml"}, produces = "application/xml;charset=utf-8")
+    public String receiveMessage(@RequestBody String requestBody, HttpServletRequest request) throws IOException {
+        // 校验消息签名，判断是否为公众平台发的消息
+        String signature = request.getParameter("signature");
+        String nonce = request.getParameter("nonce");
+        String timestamp = request.getParameter("timestamp");
+        if (!wxMpService.checkSignature(timestamp, nonce, signature)) {
+            throw new IllegalArgumentException("非法请求，可能属于伪造的请求！");
+        }
+        // 判断消息是否是加密的
+        String encryptType = StringUtils.isBlank(request.getParameter("encrypt_type")) ? "raw" : request.getParameter("encrypt_type");
+        WxMpXmlMessage inMessage = null;
+        if ("raw".equals(encryptType)) {
+            // 明文传输的消息
+            inMessage = WxMpXmlMessage.fromXml(requestBody);
+        } else if ("aes".equals(encryptType)) {
+            // 是aes加密的消息
+            String msgSignature = request.getParameter("msg_signature");
+            inMessage = WxMpXmlMessage.fromEncryptedXml(request.getInputStream(), wxMpConfigStorage, timestamp, nonce, msgSignature);
+        } else {
+            log.error("加密类型：{}暂不支持！", encryptType);
+            throw new IllegalArgumentException("加密类型：" + encryptType + "暂不支持！");
+        }
+        // 路由转发
+        WxMpXmlOutMessage outMessage = wxMpMessageRouter.route(inMessage);
+        if (outMessage != null) {
+            if ("raw".equals(encryptType)) {
+                // 明文
+                return outMessage.toXml();
+            } else {
+                // aes加密
+                return outMessage.toEncryptedXml(wxMpConfigStorage);
+            }
+        }
+        log.error("发生什么事啦(O_o)??消息：{}，没有对应的处理程序！", inMessage);
+        return "发生什么事啦(O_o)??";
+    }
+
+    /**
+     * 设置公众号菜单（至少需要服务号才有权限设置，目前个人也可以申请一个服务号了）
+     *
+     * @return {@link String }
+     * @throws WxErrorException wx错误异常
+     */
+    @GetMapping("/setMenu")
+    public String setMenu() throws WxErrorException {
+        log.info("设置公众号菜单");
+        WxMenu wxMenu = new WxMenu();
+
+        // todo 微信公众号菜单自定义设置
+        // 菜单一
+        WxMenuButton menu1 = new WxMenuButton();
+        menu1.setType(MenuButtonType.VIEW);
+        menu1.setName("服务内容");
+        // 菜单一下的子菜单
+        // 子菜单1: 获取网站登录动态码
+        WxMenuButton menu1button1 = new WxMenuButton();
+        menu1button1.setType(MenuButtonType.CLICK);
+        menu1button1.setName("获取动态码");
+        menu1button1.setKey(DYNAMIC_CODE_KEY);
+        // 子菜单2: 小程序跳转
+        //WxMenuButton menu1button2 = new WxMenuButton();
+        //menu1button2.setType(MenuButtonType.MINIPROGRAM);
+        //menu1button2.setName("小程序");
+        //menu1button2.setUrl("xxx");
+        //menu1button2.setAppId("xxx");
+        //menu1button2.setPagePath("/pages/index/index");
+        // 子菜单2：获取绑定码
+        WxMenuButton menu1button2 = new WxMenuButton();
+        menu1button2.setType(MenuButtonType.CLICK);
+        menu1button2.setName("获取绑定码");
+        menu1button2.setKey(BIND_CODE_KEY);
+        // 子菜单3：随机美句事件
+        WxMenuButton menu1button3 = new WxMenuButton();
+        menu1button3.setType(MenuButtonType.VIEW);
+        menu1button3.setName("毒鸡汤来喽");
+        menu1button3.setUrl("https://btstu.cn/yan/api.php?charset=utf-8&encode=text");
+        // 子菜单4：Bing 每日一图
+        WxMenuButton menu1button4 = new WxMenuButton();
+        menu1button4.setType(MenuButtonType.VIEW);
+        menu1button4.setName("Bing今日壁纸");
+        menu1button4.setUrl("https://todayimg.nanshuo.icu");
+        menu1.setSubButtons(Arrays.asList(menu1button1, menu1button2, menu1button3, menu1button4));
+
+        // 菜单二
+        WxMenuButton menu2 = new WxMenuButton();
+        menu2.setName("烁烁南光");
+        menu2.setType(MenuButtonType.VIEW);
+        menu2.setUrl("https://nanshuo.icu");
+
+        // 菜单三
+        WxMenuButton menu3 = new WxMenuButton();
+        menu3.setType(MenuButtonType.VIEW);
+        menu3.setName("关于站长");
+        // 子菜单1: 跳转个人网站
+        WxMenuButton menu3button1 = new WxMenuButton();
+        menu3button1.setType(MenuButtonType.VIEW);
+        menu3button1.setName("个人网站");
+        menu3button1.setUrl("https://nanshuo.icu");
+        // 子菜单2: 跳转github
+        WxMenuButton menu3button2 = new WxMenuButton();
+        menu3button2.setType(MenuButtonType.VIEW);
+        menu3button2.setName("github");
+        menu3button2.setUrl("https://github.com/nanshuo0814");
+        // 子菜单3: 跳转CSDN
+        WxMenuButton menu3button3 = new WxMenuButton();
+        menu3button3.setType(MenuButtonType.VIEW);
+        menu3button3.setName("CSDN");
+        menu3button3.setUrl("https://blog.csdn.net/Yuan_Master?spm=1000.2115.3001.5343");
+        // 子菜单4：微信二维码
+        WxMenuButton menu3button4 = new WxMenuButton();
+        menu3button4.setType(MenuButtonType.CLICK);
+        menu3button4.setName("微信二维码");
+        menu3button4.setKey(WX_QR_CODE_KEY);
+        // 子菜单5：微信公众号二维码
+        WxMenuButton menu3button5 = new WxMenuButton();
+        menu3button5.setType(MenuButtonType.CLICK);
+        menu3button5.setName("公众号二维码");
+        menu3button5.setKey(WX_MP_QR_CODE_KEY);
+        menu3.setSubButtons(Arrays.asList(menu3button1, menu3button2, menu3button3, menu3button4, menu3button5));
+
+        // 设置主菜单
+        wxMenu.setButtons(Arrays.asList(menu1, menu2, menu3));
+        wxMpService.getMenuService().menuCreate(wxMenu);
+        return "成功设置公众号菜单";
+    }
 
     /**
      * 微信公众号登录
@@ -214,370 +331,6 @@ public class WxMpController {
         loginUser.setMpOpenId(null);
         ThrowUtils.throwIf(!userService.updateById(loginUser), ErrorCode.SYSTEM_ERROR, "未知错误，解绑失败！");
         return ApiResult.success(loginUser.getId(), "解绑成功！");
-    }
-
-    /**
-     * 微信的公众号接入 token 验证，即返回 echostr 的参数值
-     *
-     * @param timestamp 时间戳
-     * @param nonce     随机数
-     * @param signature 签名
-     * @param echostr   echostr
-     * @return {@link String }
-     */
-    @GetMapping("/callback")
-    public String check(String timestamp, String nonce, String signature, String echostr) {
-        if (wxMpService.checkSignature(timestamp, nonce, signature)) {
-            log.info("callback check success，echostr: {}", echostr);
-            return echostr;
-        } else {
-            log.error("callback check error");
-            return "非法请求ya~";
-        }
-    }
-
-    /**
-     * 微信公众号响应消息
-     *
-     * @param wxMpMsgRequest wx mp msg请求
-     * @return {@link WxMpCommonMsgVO }
-     * @throws WxErrorException wx错误异常
-     */
-    @PostMapping(path = "/callback", consumes = {"application/xml", "text/xml"},
-            produces = "application/xml;charset=utf-8")
-    public WxMpCommonMsgVO handleWxMpMsg(@RequestBody WxMpTxtMsgRequest wxMpMsgRequest) throws WxErrorException {
-        String content = wxMpMsgRequest.getContent();
-        // 扫码订阅（需要服务号且要认证）
-        if ("subscribe".equals(wxMpMsgRequest.getEvent()) || "scan".equalsIgnoreCase(wxMpMsgRequest.getEvent())) {
-            String key = wxMpMsgRequest.getEventKey();
-            if (StringUtils.isNotBlank(key) || key.startsWith("qrscene_")) {
-                // 带参数的二维码，扫描、关注事件拿到之后，直接登录，省却输入验证码这一步
-                // 带参数二维码需要 微信认证，个人公众号无权限
-                String code = key.substring("qrscene_".length());
-                // todo 实现自动注册用户账号
-                // 登录成功后，发送一条公众号消息给用户，提示登录成功
-                WxMpTxtMsgVO res = new WxMpTxtMsgVO();
-                res.setContent("登录成功");
-                fillResVo(res, wxMpMsgRequest);
-                return res;
-            }
-        }
-        // 构造回复消息
-        WxMpCommonMsgVO res = buildResponseBody(wxMpMsgRequest.getEvent(), content, wxMpMsgRequest.getFromUserName());
-        fillResVo(res, wxMpMsgRequest);
-        return res;
-    }
-
-    /**
-     * 构建响应正文
-     *
-     * @param eventType 事件类型
-     * @param content   内容
-     * @param fromUser  来自用户
-     * @return {@link WxMpCommonMsgVO }
-     */
-    public WxMpCommonMsgVO buildResponseBody(String eventType, String content, String fromUser) {
-        // 返回的文本消息
-        String textRes = null;
-        // 返回的是图文消息
-        List<WxMpImgTxtItemVO> imgTxtList = null;
-        // 关注订阅微信公众号
-        if ("subscribe".equalsIgnoreCase(eventType)) {
-            textRes = "\uD83C\uDF89 叮咚～你终于来啦！\n" +
-                    "\uD83C\uDF3F欢迎关注【" + wxMpName + "】公众号！\n" +
-                    "✨这里是一个充满干货、灵感与趣味的天地！\n" +
-                    "\uD83D\uDC40 新朋友，不知道从哪开始？ 点击菜单栏看看你感兴趣的内容，或直接回复关键词，让我带你入门！\n" +
-                    "\uD83D\uDCDA让我们一起玩转这个知识宝库吧！\n" +
-                    "❤\uFE0F期待与你一起探索更多有趣、有价值的内容！\n" +
-                    "\uD83D\uDCAA再次感谢关注，让我们一起进步吧！\n" +
-                    "\uD83C\uDF38站长相关信息如下：\n" +
-                    "\uD83D\uDCAB微信号：" + wechat + "\n" +
-                    "\uD83D\uDC8C邮箱号：" + email + "\n" +
-                    "\uD83D\uDC27QQ号：" + QQ + "\n" +
-                    "\uD83D\uDE80网站：<a href=\"" + website + "\">" + website + "</a>\n" +
-                    "\uD83D\uDCD6github：<a href=\"" + github + "\">" + github + "</a>\n" +
-                    "\uD83C\uDF1F备注：\n网站微信登录的动态码查看，请回复“" + codeKeyWord + "”关键词获取";
-            log.info("用户关注公众号，openId = {}", fromUser);
-        }
-        // 下面是关键词回复
-        // 关键词获取登录动态码
-        else if (codeKeyWord.equalsIgnoreCase(content)) {
-            // 动态码获取
-            textRes = generateDynamicCode(fromUser);
-        }
-        // 回复图文消息
-        else if ("微信".equalsIgnoreCase(content)) {
-            WxMpImgTxtItemVO imgTxt = new WxMpImgTxtItemVO();
-            imgTxt.setTitle("站长微信二维码");
-            imgTxt.setDescription("扫码加站长微信！！！");
-            imgTxt.setPicUrl(wxAvatar);
-            imgTxt.setUrl(qrCode);
-            imgTxtList = Collections.singletonList(imgTxt);
-            log.info("openId: {},获取微信二维码", fromUser);
-        }
-        // 回复图文消息
-        else if ("网站".equalsIgnoreCase(content)) {
-            WxMpImgTxtItemVO imgTxt = new WxMpImgTxtItemVO();
-            imgTxt.setTitle("站长个人网站（" + wxMpName + "）");
-            imgTxt.setDescription(description);
-            imgTxt.setPicUrl(logo);
-            imgTxt.setUrl(website);
-            imgTxtList = Collections.singletonList(imgTxt);
-            log.info("openId: {},获取网站链接", fromUser);
-        } else if ("绑定".equalsIgnoreCase(content)) {
-            // 绑定微信号登录
-            // 查询用户数据库是否已绑定
-            LambdaQueryWrapper<User> qw = Wrappers.lambdaQuery(User.class).eq(User::getMpOpenId, fromUser);
-            User user = userService.getOne(qw);
-            if (user != null) {
-                log.info("微信绑定，openId：{}，user: {}", fromUser, user.getId());
-                textRes = "你已经绑定过了，无需再次绑定";
-            } else {
-                // 是否未过期
-                Set<Object> set = redisUtils.zSetGetAllValues(WX_MP_BIND_DYNAMIC_CODE);
-                if (CollectionUtils.isNotEmpty(set)) {
-                    for (Object value : set) {
-                        // 获取动态码
-                        String codeStr = (String) value;
-                        // 根据 : 分解
-                        String[] split = codeStr.split(":");
-                        // 判断 split 是否正确（防止数组越界）
-                        if (split.length != 2) {
-                            log.info("绑定码格式错误，请检查！动态码：{}", value);
-                            // 这里可以考虑删除该Redis
-                            redisUtils.zSetRemoveValues(WX_MP_BIND_DYNAMIC_CODE, value);
-                            continue; // 如果分割失败，跳过此元素
-                        }
-                        // 获取动态码对应的 openId
-                        String bindCodeOpenId = split[0];
-                        // 判断是否是当前用户
-                        if (!bindCodeOpenId.equals(fromUser)) {
-                            continue;
-                        }
-                        // 获取动态码的分数（过期时间戳）
-                        Double expireTime = redisUtils.zSetGetScore(WX_MP_BIND_DYNAMIC_CODE, value);
-                        // 获取当前时间戳
-                        double currentTime = (double) Instant.now().toEpochMilli();
-                        // 判断是否过期，通过当前时间戳和分数（过期时间戳）进行比较
-                        if (ObjectUtils.isNotEmpty(expireTime) && currentTime > expireTime) {
-                            // 移除Redis
-                            redisUtils.zSetRemoveValues(WX_MP_BIND_DYNAMIC_CODE, value);
-                            log.info("清理过期绑定码,openId: {},code: {}", bindCodeOpenId, split[1]);
-                            continue;
-                        }
-                        // 返回未过期的动态码
-                        log.info("openId: {} and 绑定码: {}", fromUser, split[1]);
-                        textRes = "绑定码：" + split[1] + "\n" +
-                                "这是上一次获取的未使用过的绑定码\n请使用这个绑定码绑定";
-                        break;
-                    }
-                } else {
-                    int count = 0;
-                    boolean codeExists = false;
-                    String code = null;
-                    do {
-                        if (count > maxAttempts) {
-                            textRes = "绑定码生成次数过多，请动动你发财的小手，重新发送代码：“绑定”";
-                            break;
-                        }
-                        // 生成6为随机数字的动态绑定码
-                        code = RandomUtil.randomNumbers(6);
-                        if (CollectionUtils.isEmpty(set)) {
-                            break;
-                        }
-                        count++;
-                        for (Object value : set) {
-                            String str = value.toString();  // 假设 value 是 String 类型，转换为 String
-                            String[] split = str.split(":");
-                            if (split.length == 2 && code.equals(split[1])) {
-                                codeExists = true;
-                                break;  // 找到匹配的动态码，提前退出循环
-                            }
-                        }
-                    } while (codeExists);
-                    // 生成时间
-                    LocalDateTime now = LocalDateTime.now();
-                    String generatedTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                    // 过期时间
-                    LocalDateTime expirationTime = now.plusMinutes(codeExpireTime);
-                    String formattedExpirationTime = expirationTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                    Map<Object, Double> value = new HashMap<>();
-                    value.put(fromUser + ":" + code, (double) Instant.now().toEpochMilli() + codeExpireTime * 60 * 1000d);
-                    redisUtils.zSetAddCustom(WX_MP_BIND_DYNAMIC_CODE, value);
-                    textRes = "绑定码：" + code + "\n" +
-                            "请在 " + codeExpireTime + " 分钟内完成绑定哦⏰\n" +
-                            "生成时间：" + generatedTime + "\n" +
-                            "过期时间：" + formattedExpirationTime + "\n" +
-                            "若非本人操作，请忽略该消息！！！";
-                    log.info("绑定码生成，openId: {} and 绑定码: {}", fromUser, code);
-                }
-            }
-        }
-        // 默认回复
-        else {
-            textRes = "/:? 你好像迷路了鸭？\n" +
-                    "可以试着回复以下关键词：\n" +
-                    "- 微信\n" +
-                    "- 网站";
-            log.info("openId = {}，触发默认回复", fromUser);
-        }
-        if (textRes != null) {
-            WxMpTxtMsgVO vo = new WxMpTxtMsgVO();
-            vo.setContent(textRes);
-            return vo;
-        } else {
-            WxMpImgTxtMsgVO vo = new WxMpImgTxtMsgVO();
-            vo.setArticles(imgTxtList);
-            vo.setArticleCount(imgTxtList.size());
-            return vo;
-        }
-    }
-
-    /**
-     * 填充响应消息
-     *
-     * @param res            res
-     * @param wxMpMsgRequest wx mp msg请求
-     */
-    private void fillResVo(WxMpCommonMsgVO res, WxMpTxtMsgRequest wxMpMsgRequest) {
-        res.setFromUserName(wxMpMsgRequest.getToUserName());
-        res.setToUserName(wxMpMsgRequest.getFromUserName());
-        res.setCreateTime(System.currentTimeMillis() / 1000);
-    }
-
-    /**
-     * 生成动态代码
-     *
-     * @param openId 打开id
-     * @return {@link String }
-     */
-    private String generateDynamicCode(String openId) {
-        // 获取到所有的 value
-        Set<Object> set = redisUtils.zSetGetAllValues(WX_MP_LOGIN_DYNAMIC_CODE);
-        // 遍历循环获取每个 value（结构：{openId}:{动态码}） 和 score（过期时间戳）
-        if (CollectionUtils.isNotEmpty(set)) {
-            for (Object value : set) {
-                // 获取动态码
-                String codeStr = (String) value;
-                // 根据 : 分解
-                String[] split = codeStr.split(":");
-                // 判断 split 是否正确（防止数组越界）
-                if (split.length != 2) {
-                    log.info("动态码格式错误，请检查！动态码：{}", value);
-                    // 这里可以考虑删除该Redis
-                    redisUtils.zSetRemoveValues(WX_MP_LOGIN_DYNAMIC_CODE, value);
-                    continue; // 如果分割失败，跳过此元素
-                }
-                // 获取动态码对应的 openId
-                String dynamicCodeOpenId = split[0];
-                // 判断是否是当前用户
-                if (!dynamicCodeOpenId.equals(openId)) {
-                    continue;
-                }
-                // 获取动态码的分数（过期时间戳）
-                Double expireTime = redisUtils.zSetGetScore(WX_MP_LOGIN_DYNAMIC_CODE, value);
-                // 获取当前时间戳
-                double currentTime = (double) Instant.now().toEpochMilli();
-                // 判断是否过期，通过当前时间戳和分数（过期时间戳）进行比较
-                if (ObjectUtils.isNotEmpty(expireTime) && currentTime > expireTime) {
-                    // 移除Redis
-                    redisUtils.zSetRemoveValues(WX_MP_LOGIN_DYNAMIC_CODE, value);
-                    continue;
-                }
-                // 返回未过期的动态码
-                log.info("openId: {} and 动态码: {}", openId, split[1]);
-                return "动态码：" + split[1] + "\n" +
-                        "这是上一次获取的未使用过的动态码\n请使用这个动态码登录";
-            }
-        }
-        // 生成全局唯一的6位随机验证码，由字母（区分大小写）、数字组成
-        StringBuilder code;
-        int count = 0;
-        boolean codeExists = false;
-        do {
-            if (count > maxAttempts) {
-                return "动态码生成次数过多，请动动你发财的小手，重新发送代码：" + codeKeyWord;
-            }
-            code = new StringBuilder();
-            for (int i = 0; i < codeLength; i++) {
-                int index = RANDOM.nextInt(charPool.length());
-                code.append(charPool.charAt(index));
-            }
-            if (CollectionUtils.isEmpty(set)) {
-                break;
-            }
-            count++;
-            for (Object value : set) {
-                String str = value.toString();  // 假设 value 是 String 类型，转换为 String
-                String[] split = str.split(":");
-                if (split.length == 2 && code.toString().equals(split[1])) {
-                    codeExists = true;
-                    break;  // 找到匹配的动态码，提前退出循环
-                }
-            }
-        } while (codeExists);
-        // 储存到Redis里
-        Map<Object, Double> value = new HashMap<>();
-        value.put(openId + ":" + code, (double) Instant.now().toEpochMilli() + codeExpireTime * 60 * 1000d);
-        redisUtils.zSetAddCustom(WX_MP_LOGIN_DYNAMIC_CODE, value);
-        // 生成时间
-        LocalDateTime now = LocalDateTime.now();
-        String generatedTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        // 过期时间
-        LocalDateTime expirationTime = now.plusMinutes(codeExpireTime);
-        String formattedExpirationTime = expirationTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        // 返回动态码
-        log.info("openId: {} and 动态码: {}", openId, code);
-        return "动态码：" + code + "\n" +
-                "请在 " + codeExpireTime + " 分钟内完成登录哦⏰\n" +
-                "生成时间：" + generatedTime + "\n" +
-                "过期时间：" + formattedExpirationTime + "\n" +
-                "若非本人操作，请忽略该消息！！！";
-    }
-
-    /**
-     * 设置公众号菜单（订阅号没有这个权限，至少要有服务号）
-     * 目前个人可以申请服务号了
-     *
-     * @return {@code String}
-     * @throws WxErrorException wx错误异常
-     */
-    @GetMapping("/setMenu")
-    public String setMenu() throws WxErrorException {
-        log.info("setMenu");
-        WxMenu wxMenu = new WxMenu();
-        // 菜单一
-        WxMenuButton wxMenuButton1 = new WxMenuButton();
-        wxMenuButton1.setType(MenuButtonType.VIEW);
-        wxMenuButton1.setName("主菜单一");
-        // 子菜单
-        WxMenuButton wxMenuButton1SubButton1 = new WxMenuButton();
-        wxMenuButton1SubButton1.setType(MenuButtonType.VIEW);
-        wxMenuButton1SubButton1.setName("跳转页面");
-        wxMenuButton1SubButton1.setUrl(
-                "https://nanshuo.icu");
-        wxMenuButton1.setSubButtons(Collections.singletonList(wxMenuButton1SubButton1));
-
-        // 菜单二
-        WxMenuButton wxMenuButton2 = new WxMenuButton();
-        wxMenuButton2.setType(MenuButtonType.CLICK);
-        wxMenuButton2.setName("点击事件");
-        wxMenuButton2.setKey("CLICK_MENU_KEY");
-
-        // 菜单三
-        WxMenuButton wxMenuButton3 = new WxMenuButton();
-        wxMenuButton3.setType(MenuButtonType.VIEW);
-        wxMenuButton3.setName("主菜单三");
-        WxMenuButton wxMenuButton3SubButton1 = new WxMenuButton();
-        wxMenuButton3SubButton1.setType(MenuButtonType.VIEW);
-        wxMenuButton3SubButton1.setName("烁烁南光");
-        wxMenuButton3SubButton1.setUrl("https://nanshuo.icu");
-        wxMenuButton3.setSubButtons(Collections.singletonList(wxMenuButton3SubButton1));
-
-        // 设置主菜单
-        wxMenu.setButtons(Arrays.asList(wxMenuButton1, wxMenuButton2, wxMenuButton3));
-        wxMpService.getMenuService().menuCreate(wxMenu);
-        return "ok";
     }
 
 }
